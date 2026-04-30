@@ -1,0 +1,5 @@
+body {
+    background-color: var(--bg-color);
+    padding-top: 80px;
+    font-family: 'Geist', 'Inter', sans-serif;
+}

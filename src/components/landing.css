@@ -1,0 +1,239 @@
+.workbench-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  height: calc(100vh - 99px); /* Fills screen minus your Nav height */
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 15px;
+}
+
+.request-pane {
+  border-right: 1px solid #30363d;
+  min-width: 0;
+}
+
+.pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #8b949e;
+  letter-spacing: 0.05rem;
+}
+
+/* URL Input Styling */
+.url-bar-group {
+  display: flex;
+  background: #010409;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.method-dropdown {
+  background: #21262d;
+  color: #79c0ff;
+  border: none;
+  padding: 10px 15px;
+  font-weight: bold;
+  outline: none;
+}
+.method-GET {
+    background-color: rgba(97, 175, 254, 0.2); /* Soft Blue */
+    color: #61affe;
+}
+
+.method-POST {
+    background-color: rgba(73, 204, 144, 0.2); /* Soft Green */
+    color: #49cc90;
+}
+
+.method-PUT {
+    background-color: rgba(252, 161, 48, 0.2); /* Soft Orange */
+    color: #fca130;
+}
+
+.method-DELETE {
+    background-color: rgba(249, 62, 62, 0.2); /* Soft Red */
+    color: #f93e3e;
+}
+
+.method-dropdown option {
+    background-color: #161b22;
+    color: white;
+    font-weight: normal;
+}
+.url-input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 10px;
+  outline: none;
+}
+
+.send-button {
+  background: #238636;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Tabs */
+.tab-container {
+  display: flex;
+  /* height: 2rem; */
+  gap: 15px;
+  border-bottom: 1px solid #30363d;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tab.active {
+  color: #f78166;
+  border-bottom: 2px solid #f78166;
+}
+
+.editor-area
+{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.editor-window {
+  background: #010409;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  flex-grow: 1;
+  height: 0;
+  min-height: 200px;
+  overflow: auto;
+  font-family: 'Fira Code', monospace;
+}
+
+.code-input, .code-output {
+  padding: 15px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  white-space: pre-wrap;   /* Wraps long lines so they don't break width */
+  word-wrap: break-word;   /* Prevents horizontal UI breakage */
+  word-break: break-all;
+}
+
+.code-output {
+  color: #d2a8ff;
+}
+
+.status-badge {
+  color: #3fb950;
+  background: rgba(63, 185, 80, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.time-badge {
+  color: #8b949e;
+  font-size: 0.75rem;
+  margin-left: 10px;
+}
+/* Container for the KV inputs */
+.kv-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.add-row-btn {
+  background: transparent;
+  border: 1px solid #30363d;
+  color: #58a6ff;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-row-btn:hover {
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.kv-table {
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  background: #010409;
+  overflow: hidden;
+}
+
+.kv-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  border-bottom: 1px solid #30363d;
+}
+
+.kv-row:last-child {
+  border-bottom: none;
+}
+
+.kv-row input {
+  background: transparent;
+  border: none;
+  border-right: 1px solid #30363d;
+  padding: 10px;
+  color: white;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.kv-row input:focus {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.remove-row {
+  background: transparent;
+  border: none;
+  color: #f85149;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-row:hover {
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: #484f58;
+  font-size: 0.85rem;
+}

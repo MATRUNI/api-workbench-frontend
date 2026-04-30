@@ -1,0 +1,101 @@
+:root {
+    --bg-color: #0c0c0e;
+    --card-bg: #161618;
+    --border-color: #27272a;
+    --accent-color: #f4f4f5;
+    --brand-color: #a855f7;
+}
+
+#utility-nav {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-group {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 6px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.main-links
+{
+    gap: 2rem;
+}
+
+#logo {
+    color: var(--brand-color);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0 10px;
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border-color);
+    margin: 0 8px;
+}
+
+.btn {
+    background: transparent;
+    border: none;
+    color: #a1a1aa;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.btn.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.fetch-trigger {
+    background: var(--accent-color) !important;
+    color: black !important;
+    font-weight: 600;
+}
+
+.search input {
+    background: #09090b;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.8rem;
+    width: 180px;
+    outline: none;
+}
+
+#profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    color: white;
+    font-size: 0.85rem;
+}
+
+.avatar {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(to bottom right, var(--brand-color), #6366f1);
+    border-radius: 50%;
+}

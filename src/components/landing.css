@@ -1,9 +1,10 @@
 .workbench-container {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  height: calc(100vh - 99px); /* Fills screen minus your Nav height */
+  grid-template-columns: 1fr 1fr;
+  height: calc(100vh - 99px);
   background-color: #0d1117;
   color: #c9d1d9;
+  overflow: hidden;
 }
 
 .pane {
@@ -23,6 +24,23 @@
   justify-content: space-between;
   align-items: center;
 }
+.length-badge {
+  color: #c9d1d9;
+  background: rgba(48, 54, 61, 0.6);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 8px;
+  border: 1px solid #30363d;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pane-header-left {
+  display: flex;
+  align-items: center;
+}
 
 .label {
   font-size: 0.7rem;
@@ -32,7 +50,6 @@
   letter-spacing: 0.05rem;
 }
 
-/* URL Input Styling */
 .url-bar-group {
   display: flex;
   background: #010409;
@@ -50,22 +67,22 @@
   outline: none;
 }
 .method-GET {
-    background-color: rgba(97, 175, 254, 0.2); /* Soft Blue */
+    background-color: rgba(97, 175, 254, 0.2); 
     color: #61affe;
 }
 
 .method-POST {
-    background-color: rgba(73, 204, 144, 0.2); /* Soft Green */
+    background-color: rgba(73, 204, 144, 0.2);
     color: #49cc90;
 }
 
 .method-PUT {
-    background-color: rgba(252, 161, 48, 0.2); /* Soft Orange */
+    background-color: rgba(252, 161, 48, 0.2); 
     color: #fca130;
 }
 
 .method-DELETE {
-    background-color: rgba(249, 62, 62, 0.2); /* Soft Red */
+    background-color: rgba(249, 62, 62, 0.2); 
     color: #f93e3e;
 }
 
@@ -92,10 +109,8 @@
   cursor: pointer;
 }
 
-/* Tabs */
 .tab-container {
   display: flex;
-  /* height: 2rem; */
   gap: 15px;
   border-bottom: 1px solid #30363d;
 }
@@ -140,8 +155,8 @@
   font-size: 13px;
   line-height: 1.5;
   outline: none;
-  white-space: pre-wrap;   /* Wraps long lines so they don't break width */
-  word-wrap: break-word;   /* Prevents horizontal UI breakage */
+  white-space: pre-wrap;   
+  word-wrap: break-word;   
   word-break: break-all;
 }
 
@@ -163,7 +178,6 @@
   font-size: 0.75rem;
   margin-left: 10px;
 }
-/* Container for the KV inputs */
 .kv-container {
   display: flex;
   flex-direction: column;
@@ -236,4 +250,64 @@
   text-align: center;
   color: #484f58;
   font-size: 0.85rem;
+}
+
+@media (max-width: 850px) {
+  .workbench-container {
+    height: auto; 
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    overflow-y: visible;
+  }
+  .request-pane {
+    position: relative;
+    border-right: none;
+    gap: 1.5rem;
+    flex: none;
+  }
+
+  .url-bar-group {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+    gap: 10px;
+    height: auto; 
+  }
+
+  .url-input {
+    padding: 0 1rem;
+  }
+
+  .method-dropdown {
+    text-align: center;
+    text-align-last: center; 
+  }
+
+  .method-dropdown, 
+  .url-input, 
+  .send-button {
+    width: 100%;
+    border-radius: 8px !important;
+    border: 1px solid var(--border-color) !important;
+    height: 50px;
+    box-sizing: border-box;
+  }
+
+  .tab-container {
+    display: flex;
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+  }
+
+  .response-pane {
+    min-height: 400px;
+    padding-bottom: 50px;
+  }
 }

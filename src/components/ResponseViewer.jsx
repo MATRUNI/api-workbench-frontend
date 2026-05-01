@@ -1,25 +1,29 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { RequestContext } from '../context/RequestContext'
 
 function ResponseViewer() {
-    const [responseData,setResponseData]=useState({
-              "status": "success",
-              "results": [],
-              "message": "Ready to fetch data"
-            })
-    const [resStatus,setResStatus]=useState(null)
+    const {response}=useContext(RequestContext)
   return (
-          <section className="pane response-pane">
+        <section className="pane response-pane">
         <div className="pane-header">
-          <span className="label">Response</span>
+          <div className="pane-header-left">
+            <span className="label">Response</span>
+            {Array.isArray(response.data) && (
+              <span className="length-badge" title='Response length'>
+                {response.data.length}
+              </span>
+            )}
+          </div>
+          
           <div className="response-meta">
-            <span className="status-badge">{resStatus}</span>
-            <span className="time-badge">45ms</span>
+            <span className="status-badge">{response.status}</span>
+            <span className="time-badge">{`${response.time} ms`}</span>
           </div>
         </div>
 
         <div className="editor-window output">
           <pre className="code-output">
-            {JSON.stringify(responseData,null,2)}
+            {JSON.stringify(response.data,null,2)}
           </pre>
         </div>
       </section>

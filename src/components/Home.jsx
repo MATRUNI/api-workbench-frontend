@@ -6,10 +6,8 @@ import { RequestProvider } from '../context/RequestContext'
 function Home() {
   return (
     <RequestProvider>
-    <div>
         <NavBar/>
         <Outlet/>
-    </div>
     </RequestProvider>
   )
 }

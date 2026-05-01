@@ -3,6 +3,7 @@ import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Home from './components/Home'
 import Landing from './components/Landing'
 import Docs from './components/Docs'
+import Console from './components/Console'
 
 const router=new createBrowserRouter([
   {
@@ -17,10 +18,10 @@ const router=new createBrowserRouter([
         path:'/docs',
         element:<Docs/>
       },
-      // {
-      //   path:'/console',
-      //   element:<Console/>
-      // },
+      {
+        path:'/console',
+        element:<Console/>
+      },
     ]
   }
 ])

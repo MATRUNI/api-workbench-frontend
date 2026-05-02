@@ -92,7 +92,7 @@ function FetchComponent() {
 
   const handleConfigure = (api) => {
     setURL(api.endpoint);
-    navigate('/'); 
+    navigate('/endpoints'); 
   };
 
   return (

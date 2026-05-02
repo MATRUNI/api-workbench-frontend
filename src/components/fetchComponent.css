@@ -75,25 +75,63 @@
 }
 .api-card {
   position: relative;
-  background: rgba(22, 22, 24, 0.8);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.api-card:hover {
+  border-color: var(--brand-color);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+  transform: translateY(-5px);
+}
+
+.api-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 2px solid var(--brand-color);
+  border-right: 2px solid var(--brand-color);
   transition: all 0.3s ease;
-  padding: 1rem;
-  border-radius: 8px;
+  opacity: 0;
 }
 
-.api-card:hover {
-  border-color: var(--brand-color);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), 
-              inset 0 0 10px rgba(168, 85, 247, 0.05);
-  transform: translateY(-5px) scale(1.02);
+.api-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-bottom: 2px solid var(--brand-color);
+  border-left: 2px solid var(--brand-color);
+  transition: all 0.3s ease;
+  opacity: 0;
 }
 
-.api-card:hover {
-  border-color: var(--brand-color);
-  transform: translateY(-4px);
+.api-card:hover::before,
+.api-card:hover::after {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+  margin: 5px;
+}
+
+.api-card:hover .endpoint-preview {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: #0c0c0e;
+}
+
+.api-card:hover .configure-btn {
+  background: var(--brand-color);
+  color: white;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
 }
 
 .card-badge {

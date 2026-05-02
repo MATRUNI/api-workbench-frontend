@@ -147,6 +147,8 @@
   min-height: 200px;
   overflow: auto;
   font-family: 'Fira Code', monospace;
+  display: flex;
+  flex-direction: column;
 }
 
 .code-input, .code-output {
@@ -188,6 +190,33 @@
 .ghost-textarea::-webkit-scrollbar-thumb {
   background: #30363d;
   border-radius: 4px;
+}
+.validation-error
+{
+  background-color: rgba(248, 81, 73, 0.1);
+  color: #f85149;
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-error
+{
+  color: #f85149;
+  font-size: 0.75rem;
+  font-weight: 900;
+  border: 2px solid;
+}
+.status-valid
+{
+  color: #3fb950;
+  font-size: 0.75rem;
+  font-weight: 900;
+  border: 2px solid;
 }
 .status-badge {
   color: #3fb950;

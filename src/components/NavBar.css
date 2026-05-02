@@ -38,6 +38,7 @@
     font-weight: 700;
     font-size: 0.9rem;
     padding: 0 10px;
+    cursor: pointer;
 }
 
 .divider {

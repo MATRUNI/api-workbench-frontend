@@ -20,7 +20,7 @@ function NavBar() {
               <button className={`btn ${activeBtn==="Endpoints"?'active':""}`} onClick={()=>navigate('/')} onFocus={(e)=>handleActive(e)}>Endpoints</button>
               <button className={`btn ${activeBtn==="Docs"?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/docs')} >Docs</button>
               <button className={`btn ${activeBtn==="Console"?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/console')} >Console</button>
-              <button className={`btn fetch-trigger`}>Fetch Data</button>
+              <button className={`btn fetch-trigger`} onClick={()=>navigate('/fetch')}>Fetch Data</button>
           </div>
 
           <div className="nav-group">

@@ -46,7 +46,7 @@ function Body_panel() {
       <div className='pane-header'>
         <div className="pane-header-left">
           <span className="label">JSON Body</span>
-          <span className={`length-badge ${error ? 'status-error' : 'status-valid'}`}>
+          <span className={`length-badge ${error ? 'status-error' : 'status-success'}`}>
                 {error ? 'Invalid' : 'Valid'}
             </span>
         </div>

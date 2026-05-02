@@ -24,8 +24,6 @@ function RequestBuilder() {
     const handleSubmit=async(e)=>
     {
       e.preventDefault();
-      console.log("URl: ",url)
-      console.log("method: ",method)
       if(!isValidURL(url))
       {
         alert("Invalid URL");

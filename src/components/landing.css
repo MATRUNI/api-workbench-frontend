@@ -207,18 +207,34 @@
 .status-error
 {
   color: #f85149;
+  background: rgba(63, 185, 80, 0.1);
+  padding: 2px 8px;
+  border: 1px solid;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 900;
-  border: 2px solid;
+  font-weight: bold;
 }
-.status-valid
+.status-success
 {
   color: #3fb950;
+  background: rgba(63, 185, 80, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid;
   font-size: 0.75rem;
-  font-weight: 900;
-  border: 2px solid;
+  font-weight: bold;
 }
-.status-badge {
+.status-warning
+{
+  color: #d29922;
+  background: rgba(63, 185, 80, 0.1);
+  border: 1px solid;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.status-{
   color: #3fb950;
   background: rgba(63, 185, 80, 0.1);
   padding: 2px 8px;

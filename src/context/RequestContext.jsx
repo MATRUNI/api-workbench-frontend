@@ -13,7 +13,7 @@ export function RequestProvider({children})
         query:[]
     });
     const [response,setResponse]=useState({
-              "status": "success",
+              "status": "100",
               "results": [],
               "message": "Ready to fetch data",
               "time":"100 ms"

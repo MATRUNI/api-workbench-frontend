@@ -163,7 +163,32 @@
 .code-output {
   color: #d2a8ff;
 }
+.ghost-textarea {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #c9d1d9;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+  
+  resize: none; 
+  /* display: block; */
+  box-sizing: border-box;
+  
+  -webkit-appearance: none;
+  overflow-y: auto;
+}
 
+.ghost-textarea::-webkit-scrollbar {
+  width: 8px;
+}
+.ghost-textarea::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
 .status-badge {
   color: #3fb950;
   background: rgba(63, 185, 80, 0.1);

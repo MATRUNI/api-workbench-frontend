@@ -31,12 +31,7 @@ function RequestBuilder() {
       }
       try{
         const response=await callAPI(url, method, request);
-        setResponse({
-          status:response.status,
-          header:response.header,
-          data:response.data,
-          time:response.time,
-        })
+        setResponse(response)
       }
       catch(error)
       {

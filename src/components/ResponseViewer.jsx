@@ -24,11 +24,9 @@ function ResponseViewer() {
         <div className="pane-header">
           <div className="pane-header-left">
             <span className="label">Response</span>
-            {Array.isArray(response.data) && (
               <span className="length-badge" title='Response length'>
-                {response.data.length}
+                {response.length||0}
               </span>
-            )}
           </div>
           
           <div className="response-meta">
@@ -41,7 +39,8 @@ function ResponseViewer() {
 
         <div className="editor-window output">
           <pre className="code-output">
-            {JSON.stringify(response.data,null,2)}
+            {/* {JSON.stringify(response.data,null,2)} */}
+            {response.data}
           </pre>
         </div>
       </section>

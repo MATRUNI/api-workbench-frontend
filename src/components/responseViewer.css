@@ -66,8 +66,8 @@
 
 .copy-btn {
   background: transparent;
-  border: 1px solid var(--brand-color); /* Neon border */
-  color: var(--brand-color);
+  border: 1px solid #a855f7; /* Neon border */
+  color: #a855f7;
   padding: 3px 12px;
   border-radius: 4px;
   font-size: 0.65rem;
@@ -82,7 +82,7 @@
 
 /* Hover State: Glowing fill */
 .copy-btn:hover:not(:disabled) {
-  background: var(--brand-color);
+  background: #a855f7;
   color: white;
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
   transform: translateY(-1px);
@@ -108,11 +108,11 @@
   background: #49cc90; 
   color: #000;
   padding: 5px 12px;
-  border-radius: 20px; /* Rounded pill shape */
+  border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 800;
   white-space: nowrap;
-  box-shadow: 0 0 20px rgba(73, 204, 144, 0.4);
+  box-shadow: 0 0 20px rgb(83, 233, 166);
   z-index: 10;
   pointer-events: none;
 }

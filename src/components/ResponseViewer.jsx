@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react'
 import { RequestContext } from '../context/RequestContext'
-
+import './responseViewer.css'
 function ResponseViewer() {
-    const {response}=useContext(RequestContext)
+    const {response}=useContext(RequestContext);
+    const [copy,setCopy]=useState(false);
     const getStatusText=(status)=>
     {
       if(!status) return "No Response";
@@ -18,6 +19,21 @@ function ResponseViewer() {
       if(status>=400 && status<500) return "warning";
       if(status>=500) return "error";
       return ""
+    }
+    const handleCopy=async(e)=>{
+      e.preventDefault();
+      try
+      {
+        await navigator.clipboard.writeText(response.data)
+        setCopy(true);
+        setTimeout(() => {
+          setCopy(false)
+        }, 2000);
+      }
+      catch(err)
+      {
+        console.log("Failed to copy: ",err)
+      }
     }
   return (
         <section className="pane response-pane">
@@ -42,6 +58,16 @@ function ResponseViewer() {
             {/* {JSON.stringify(response.data,null,2)} */}
             {response.data}
           </pre>
+        </div>
+        <div className='copy-container'>
+              <button className="copy-btn" onClick={handleCopy}>
+                {`COPY`}
+              </button>
+              {copy&&(
+                <span className='copy-popup'>
+                  Copied to the clipBoard
+                </span>
+              )}
         </div>
       </section>
   )

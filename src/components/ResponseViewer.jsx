@@ -60,7 +60,7 @@ function ResponseViewer() {
           </pre>
         </div>
         <div className='copy-container'>
-              <button className="copy-btn" onClick={handleCopy}>
+              <button className="copy-btn" disabled={!response.data} onClick={handleCopy}>
                 {`COPY`}
               </button>
               {copy&&(

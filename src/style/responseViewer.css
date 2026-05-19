@@ -27,6 +27,9 @@
 .code-output.plain {
     color: #c9d1d9;
 }
+.output{
+  height: 700px;
+}
 .format-toggle {
     display: flex;
     background: #161b22;

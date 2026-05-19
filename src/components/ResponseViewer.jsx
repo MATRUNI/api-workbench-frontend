@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react'
 import { RequestContext } from '../context/RequestContext'
-import './responseViewer.css'
+import '../style/responseViewer.css'
+import VoidLoader from './VoidLoader';
 function ResponseViewer() {
-    const {response}=useContext(RequestContext);
+    const {response,isLoading,requestPhase}=useContext(RequestContext);
     const [copy,setCopy]=useState(false);
     const getStatusText=(status)=>
     {
@@ -54,10 +55,13 @@ function ResponseViewer() {
         </div>
 
         <div className="editor-window output">
+          {isLoading?(
+            <VoidLoader currentPhase={requestPhase}/>
+          ):(
           <pre className="code-output">
-            {/* {JSON.stringify(response.data,null,2)} */}
             {response.data}
           </pre>
+          )}
         </div>
         <div className='copy-container'>
               <button className="copy-btn" disabled={!response.data} onClick={handleCopy}>

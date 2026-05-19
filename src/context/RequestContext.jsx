@@ -19,8 +19,10 @@ export function RequestProvider({children})
               "time":"100 ms"
             })
     const [url,setURL]=useState('http://localhost:3000')
+    const [isLoading,setIsLoading]=useState(false);
+    const [requestPhase, setRequestPhase] = useState("")
     return (
-        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse}}>
+        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase}}>
             {children}
         </RequestContext.Provider>
     )

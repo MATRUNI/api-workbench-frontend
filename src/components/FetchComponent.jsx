@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RequestContext } from '../context/RequestContext';
-import './fetchComponent.css';
+import '../style/fetchComponent.css';
 
 const API_LIBRARY = [
   {

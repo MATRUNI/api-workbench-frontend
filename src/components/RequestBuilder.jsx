@@ -7,7 +7,7 @@ import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 
 function RequestBuilder() {
-    const {url,setURL,request,setResponse}=useContext(RequestContext)
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase}=useContext(RequestContext)
     const [method,setMethod]=useState("GET")
     const [activeTab,setActiveTab]=useState('body')
     const isValidURL=(value)=>
@@ -29,8 +29,17 @@ function RequestBuilder() {
         alert("Invalid URL");
         return;
       }
+      setIsLoading(true);
+      setRequestPhase('initializing')
+      await new Promise(res => setTimeout(res, 250));
       try{
+        setRequestPhase("connecting");
         const response=await callAPI(url, method, request);
+
+        setRequestPhase('processing')
+        await new Promise(res => setTimeout(res, 350));
+        setRequestPhase('parsing')
+        await new Promise(res => setTimeout(res, 200));
         setResponse(response)
       }
       catch(error)
@@ -39,6 +48,11 @@ function RequestBuilder() {
           status:error.status,
           data:error.message,
         })
+      }
+      finally
+      {
+        setIsLoading(false);
+        setRequestPhase('');
       }
     }
   return (

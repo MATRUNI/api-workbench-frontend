@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './NavBar.css'
+import '../style/NavBar.css'
 import { useNavigate } from 'react-router-dom';
 function NavBar() {
   const [activeBtn,setActiveBtn]=useState('')

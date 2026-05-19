@@ -50,7 +50,7 @@ function ResponseViewer() {
             <span className={`status-${getStatusClass(response.status)}`}>
               {`${getStatusText(response.status)} ${response.status}`}
               </span>
-            <span className="time-badge">{`${response.time|"0"} ms`}</span>
+            <span className="time-badge">{`${response.time||"0"} ms`}</span>
           </div>
         </div>
 

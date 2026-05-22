@@ -5,6 +5,7 @@ import Header_panel from '../request-panel/Header_panel'
 import Query_panel from '../request-panel/Query_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
+import { saveToHistory } from '../services/history'
 
 function RequestBuilder() {
     const {url,setURL,request,setResponse,setIsLoading,setRequestPhase}=useContext(RequestContext)
@@ -40,14 +41,27 @@ function RequestBuilder() {
         await new Promise(res => setTimeout(res, 350));
         setRequestPhase('parsing')
         await new Promise(res => setTimeout(res, 200));
+        const finalResponse = {
+          status: response.status,
+          data: response.data,
+          time: `${response.time || 12} ms`,
+          length: response.length || 0
+        };
         setResponse(response)
+        saveToHistory(url,method,request,finalResponse)
       }
       catch(error)
       {
+        const errResponse = {
+          status: error.status || "500",
+          data: error.message,
+          time: "0 ms"
+        };
         setResponse({
           status:error.status,
           data:error.message,
         })
+        saveToHistory(url,method,request,errResponse)
       }
       finally
       {

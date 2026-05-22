@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import '../style/NavBar.css'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 function NavBar() {
-  const [activeBtn,setActiveBtn]=useState('')
-  const navigate=useNavigate()
+const location=useLocation()
+const navigate=useNavigate()
+const activeBtn=(path) => location.pathname === path;
   function handleActive(e)
   {
     setActiveBtn(e.target.textContent);
@@ -17,9 +18,9 @@ function NavBar() {
           </div>
 
           <div className="nav-group main-links">
-              <button className={`btn ${activeBtn==="Endpoints"?'active':""}`} onClick={()=>navigate('/endpoints')} onFocus={(e)=>handleActive(e)}>Endpoints</button>
-              <button className={`btn ${activeBtn==="Docs"?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/docs')} >Docs</button>
-              <button className={`btn ${activeBtn==="Console"?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/console')} >Console</button>
+              <button className={`btn ${activeBtn('/endpoints')?'active':""}`} onClick={()=>navigate('/endpoints')} onFocus={(e)=>handleActive(e)}>Endpoints</button>
+              <button className={`btn ${activeBtn('/docs')?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/docs')} >Docs</button>
+              <button className={`btn ${activeBtn('/console')?'active':""}`} onFocus={(e)=>handleActive(e)} onClick={()=>navigate('/console')} >Console</button>
               <button className={`btn fetch-trigger`} onClick={()=>{navigate('/fetch');setActiveBtn(null)}}>Fetch Data</button>
           </div>
 

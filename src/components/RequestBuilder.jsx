@@ -8,8 +8,7 @@ import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
 
 function RequestBuilder() {
-    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase}=useContext(RequestContext)
-    const [method,setMethod]=useState("GET")
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod}=useContext(RequestContext)
     const [activeTab,setActiveTab]=useState('body')
     const isValidURL=(value)=>
     {

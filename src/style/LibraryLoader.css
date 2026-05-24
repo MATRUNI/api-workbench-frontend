@@ -1,0 +1,152 @@
+.matrix-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 400px;
+  background: #010409;
+  border: 1px dashed #30363d;
+  border-radius: 12px;
+  font-family: 'Fira Code', monospace;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+/* --- The Visual Grid Backdrop --- */
+.matrix-grid-visual {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 180px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #1a1f26;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Crosshair Grid Overlay Lines */
+.grid-line {
+  position: absolute;
+  background: rgba(168, 85, 247, 0.04);
+  pointer-events: none;
+}
+.grid-line.horizontal {
+  left: 0; right: 0; top: 50%; height: 1px;
+  box-shadow: 0 0 8px rgba(168, 85, 247, 0.1);
+}
+.grid-line.vertical {
+  top: 0; bottom: 0; left: 25%; width: 1px;
+}
+
+/* --- Terminal Pipeline Rows --- */
+.data-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 2;
+}
+
+.pipeline-node {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pipeline-node.active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Status Signal Nodes */
+.node-status {
+  width: 6px;
+  height: 6px;
+  background: #30363d;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.pipeline-node.active .node-status {
+  background: #49cc90; /* Brand green */
+  box-shadow: 0 0 10px #49cc90, 0 0 20px rgba(73, 204, 144, 0.5);
+}
+
+.node-code {
+  font-size: 0.8rem;
+  color: #8b949e;
+  letter-spacing: 0.5px;
+}
+
+.pipeline-node.active:last-child .node-code {
+  color: #a855f7; /* Highlighting the dynamic processing node */
+  animation: codeTextPulse 1.5s infinite alternate;
+}
+
+/* --- Floating Matrix Data Column --- */
+.binary-falling-pool {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.65rem;
+  color: rgba(168, 85, 247, 0.15);
+  line-height: 1.6;
+  text-align: right;
+  justify-content: space-around;
+  pointer-events: none;
+}
+
+/* --- Bottom Interface Metrics Status --- */
+.matrix-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  background: #09090b;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid #1a1a1a;
+}
+
+.system-ready-light {
+  width: 6px;
+  height: 6px;
+  background: #a855f7;
+  border-radius: 50%;
+  animation: beaconPulse 1s infinite alternate;
+}
+
+.status-terminal-text {
+  font-size: 0.75rem;
+  color: #666;
+  margin: 0;
+  letter-spacing: 1px;
+  line-height: 20px;
+}
+
+.highlight-text {
+  color: #fff;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+/* --- System Animations --- */
+@keyframes beaconPulse {
+  0% { transform: scale(0.8); opacity: 0.4; box-shadow: 0 0 0px rgba(168, 85, 247, 0); }
+  100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px #a855f7; }
+}
+
+@keyframes codeTextPulse {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4); }
+}

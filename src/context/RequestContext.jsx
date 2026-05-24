@@ -22,8 +22,9 @@ export function RequestProvider({children})
     const [isLoading,setIsLoading]=useState(false);
     const [requestPhase, setRequestPhase] = useState("")
     const [method,setMethod]=useState("GET")
+    const [APIList,setAPIList]=useState([]);
     return (
-        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod}}>
+        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod,APIList,setAPIList}}>
             {children}
         </RequestContext.Provider>
     )

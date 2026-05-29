@@ -43,7 +43,7 @@ function RequestBuilder() {
         const finalResponse = {
           status: response.status,
           data: response.data,
-          time: `${response.time || 12} ms`,
+          time: response.time || 12,
           length: response.length || 0
         };
         setResponse(response)

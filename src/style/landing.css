@@ -233,14 +233,6 @@
   font-size: 0.75rem;
   font-weight: bold;
 }
-.status-{
-  color: #3fb950;
-  background: rgba(63, 185, 80, 0.1);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
 
 .time-badge {
   color: #8b949e;

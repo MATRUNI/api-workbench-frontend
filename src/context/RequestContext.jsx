@@ -13,14 +13,17 @@ export function RequestProvider({children})
         query:[]
     });
     const [response,setResponse]=useState({
-              "status": "100",
+              "status": 200,
               "results": [],
               "message": "Ready to fetch data",
-              "time":"100 ms"
+              "time":100
             })
     const [url,setURL]=useState('http://localhost:3000')
+    const [isLoading,setIsLoading]=useState(false);
+    const [requestPhase, setRequestPhase] = useState("")
+    const [method,setMethod]=useState("GET")
     return (
-        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse}}>
+        <RequestContext.Provider value={{request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod}}>
             {children}
         </RequestContext.Provider>
     )

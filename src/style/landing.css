@@ -1,8 +1,8 @@
 .workbench-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: calc(100vh - 99px);
-  background-color: #0d1117;
+  height: 87dvh;
+  background-color: var(--bg-color);
   color: #c9d1d9;
   overflow: hidden;
 }
@@ -157,9 +157,8 @@
   font-size: 13px;
   line-height: 1.5;
   outline: none;
-  white-space: pre-wrap;   
-  word-wrap: break-word;   
-  word-break: break-all;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .code-output {
@@ -229,14 +228,6 @@
   color: #d29922;
   background: rgba(63, 185, 80, 0.1);
   border: 1px solid;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
-.status-{
-  color: #3fb950;
-  background: rgba(63, 185, 80, 0.1);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;

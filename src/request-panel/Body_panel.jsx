@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { memo, useContext, useState } from 'react'
 import { RequestContext } from '../context/RequestContext';
 
 function Body_panel() {
@@ -72,4 +72,4 @@ function Body_panel() {
   )
 }
 
-export default Body_panel
+export default memo(Body_panel)

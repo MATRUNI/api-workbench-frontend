@@ -19,6 +19,7 @@ export async function callAPI(url,method,request)
         let res=await fetch(finalUrl,options)
         const endTime=Date.now();
         const timeTaken = endTime - startTime;
+        const resClone=res.clone();
         if(!res.ok)
         {
             let errorMessage = "";
@@ -38,17 +39,9 @@ export async function callAPI(url,method,request)
             throw error;
         }
         const contentType = res.headers.get("content-type").split(';')[0];
-        let handlerFunction=contentTypeHandlers[contentType]
-        console.log(res.headers)
+        let handlerFunction=contentTypeHandlers[contentType] || contentTypeHandlers["default"];
         // const data = contentType && contentType.includes("application/json")? await res.json(): await res.text();
-        let data=await handlerFunction(res);
-        let length=0;
-        if (Array.isArray(data)) {
-          length = data.length;
-        } else if (typeof data === 'object' && data !== null) {
-          length = Object.keys(data).length;
-        }
-        data=JSON.stringify(data,null,2)
+        let {length,data}=await handlerFunction(resClone);
         return {
           status: res.status,
           header: Object.fromEntries(res.headers.entries()),

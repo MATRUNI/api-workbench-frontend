@@ -1,5 +1,5 @@
 import React from 'react'
-import './landing.css'
+import '../style/landing.css'
 import RequestBuilder from './RequestBuilder';
 import ResponseViewer from './ResponseViewer';
 function Landing() {

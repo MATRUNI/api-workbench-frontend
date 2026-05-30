@@ -1,8 +1,10 @@
 import React, { useContext, useState } from 'react'
 import { RequestContext } from '../context/RequestContext'
-
+import '../style/responseViewer.css'
+import VoidLoader from './VoidLoader';
 function ResponseViewer() {
-    const {response}=useContext(RequestContext)
+    const {response,isLoading,requestPhase}=useContext(RequestContext);
+    const [copy,setCopy]=useState(false);
     const getStatusText=(status)=>
     {
       if(!status) return "No Response";
@@ -19,6 +21,21 @@ function ResponseViewer() {
       if(status>=500) return "error";
       return ""
     }
+    const handleCopy=async(e)=>{
+      e.preventDefault();
+      try
+      {
+        await navigator.clipboard.writeText(response.data)
+        setCopy(true);
+        setTimeout(() => {
+          setCopy(false)
+        }, 2000);
+      }
+      catch(err)
+      {
+        console.log("Failed to copy: ",err)
+      }
+    }
   return (
         <section className="pane response-pane">
         <div className="pane-header">
@@ -33,15 +50,28 @@ function ResponseViewer() {
             <span className={`status-${getStatusClass(response.status)}`}>
               {`${getStatusText(response.status)} ${response.status}`}
               </span>
-            <span className="time-badge">{`${response.time|"0"} ms`}</span>
+            <span className="time-badge">{`${response.time||"0"} ms`}</span>
           </div>
         </div>
 
         <div className="editor-window output">
+          {isLoading?(
+            <VoidLoader currentPhase={requestPhase}/>
+          ):(
           <pre className="code-output">
-            {/* {JSON.stringify(response.data,null,2)} */}
             {response.data}
           </pre>
+          )}
+        </div>
+        <div className='copy-container'>
+              <button className="copy-btn" disabled={!response.data} onClick={handleCopy}>
+                {`COPY`}
+              </button>
+              {copy&&(
+                <span className='copy-popup'>
+                  Copied to the clipBoard
+                </span>
+              )}
         </div>
       </section>
   )

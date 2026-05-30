@@ -5,10 +5,10 @@ import Header_panel from '../request-panel/Header_panel'
 import Query_panel from '../request-panel/Query_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
+import { saveToHistory } from '../services/history'
 
 function RequestBuilder() {
-    const {url,setURL,request,setResponse}=useContext(RequestContext)
-    const [method,setMethod]=useState("GET")
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod}=useContext(RequestContext)
     const [activeTab,setActiveTab]=useState('body')
     const isValidURL=(value)=>
     {
@@ -29,16 +29,43 @@ function RequestBuilder() {
         alert("Invalid URL");
         return;
       }
+      setIsLoading(true);
+      setRequestPhase('initializing')
+      await new Promise(res => setTimeout(res, 250));
       try{
+        setRequestPhase("connecting");
         const response=await callAPI(url, method, request);
+
+        setRequestPhase('processing')
+        await new Promise(res => setTimeout(res, 350));
+        setRequestPhase('parsing')
+        await new Promise(res => setTimeout(res, 200));
+        const finalResponse = {
+          status: response.status,
+          data: response.data,
+          time: response.time || 12,
+          length: response.length || 0
+        };
         setResponse(response)
+        saveToHistory(url,method,request,finalResponse)
       }
       catch(error)
       {
+        const errResponse = {
+          status: error.status || "500",
+          data: error.message,
+          time: "0 ms"
+        };
         setResponse({
           status:error.status,
           data:error.message,
         })
+        saveToHistory(url,method,request,errResponse)
+      }
+      finally
+      {
+        setIsLoading(false);
+        setRequestPhase('');
       }
     }
   return (

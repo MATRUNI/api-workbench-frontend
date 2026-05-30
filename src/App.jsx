@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Home from './components/Home'
 import Landing from './components/Landing'
@@ -6,6 +6,8 @@ import Docs from './components/Docs'
 import Console from './components/Console'
 import FetchComponent from './components/FetchComponent'
 import HomeHero from './components/HomeHero'
+import Auth from './components/AuthComponents/Auth'
+import { LibraryContext } from './context/LibraryContext'
 
 const router=new createBrowserRouter([
   {
@@ -32,11 +34,25 @@ const router=new createBrowserRouter([
         path:'/fetch',
         element:<FetchComponent/>
       },
+      {
+        path:'/auth',
+        element:<Auth/>
+      },
     ]
   }
 ])
 
 function App() {
+  const {setAPIList} =useContext(LibraryContext)
+  useEffect(()=>{
+    async function initAPIs() {
+      await fetch(import.meta.env.VITE_BACKEND_URL+"/health")
+      let response=await fetch(import.meta.env.VITE_BACKEND_URL+"/api")
+      let APIobj = await response.json()
+      setAPIList(APIobj.data);
+    }
+    initAPIs()
+  },[])
   return <RouterProvider router={router}/>
 }
 

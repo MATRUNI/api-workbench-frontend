@@ -1,6 +1,6 @@
 .home-hero-prism {
   height: 100vh;
-  background-color: #000;
+  background-color: var(--bg-color);
   color: #fff;
   font-family: 'Inter', sans-serif;
   overflow: hidden;

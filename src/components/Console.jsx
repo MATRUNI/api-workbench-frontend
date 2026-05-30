@@ -72,7 +72,7 @@ function Console() {
         </div>
 
         <button className="copy-btn purge-btn" disabled={logs.length === 0} onClick={clearHistory}>
-          Purge_Memory
+          Purge Memory
         </button>
       </div>
 

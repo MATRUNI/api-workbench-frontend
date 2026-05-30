@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import '../style/NavBar.css'
 import { useLocation, useNavigate } from 'react-router-dom';
+import ThemeToggle from './ThemeToogle';
 function NavBar() {
 const location=useLocation()
 const navigate=useNavigate()
@@ -29,6 +30,7 @@ const activeBtn=(path) => location.pathname === path;
                   <span>User</span>
               </div>
           </div>
+          <ThemeToggle/>
       </nav>
   )
 }

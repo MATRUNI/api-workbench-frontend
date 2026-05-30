@@ -32,8 +32,8 @@
 }
 .format-toggle {
     display: flex;
-    background: #161b22;
-    border: 1px solid #30363d;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     margin-left: 15px;
     padding: 2px;
@@ -52,12 +52,12 @@
 }
 
 .format-btn:hover {
-    color: white;
+    color: var(--text-main);
 }
 
 .format-btn.active {
-    background: #30363d;
-    color: #f78166; /* Matching your tab active color */
+    background: var(--text-muted);
+    color: var(--terminal-input); /* Matching your tab active color */
 }
 /* Container for alignment */
 .copy-container {

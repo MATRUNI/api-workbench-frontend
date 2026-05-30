@@ -16,7 +16,7 @@
 
 .purge-btn:hover:not(:disabled) {
   background: #f85149;
-  color: #000;
+  color: var(--bg-color); /* Dynamically scales text safely to contrast with the red button fill */
   box-shadow: 0 0 15px rgba(248, 81, 73, 0.4);
 }
 
@@ -24,22 +24,23 @@
   height: auto;
   min-height: 450px;
   max-height: 650px;
-  background-color: #010409;
+  background-color: var(--terminal-input); /* Changed from #010409 */
 }
 
 .terminal-empty {
   padding: 60px 20px;
   font-family: 'Fira Code', monospace;
-  color: #484f58;
+  color: var(--text-muted); /* Changed from #484f58 */
 }
 
 .console-log-list {
   display: flex;
   flex-direction: column;
 }
+
 .format-btn.active.active-success {
     background: rgba(63, 185, 80, 0.15);
-    color: #3fb950;
+    color: var(--brand-green); /* Changed from #3fb950 */
     border-color: rgba(63, 185, 80, 0.3);
 }
 
@@ -48,16 +49,18 @@
     color: #f85149;
     border-color: rgba(248, 81, 73, 0.3);
 }
+
 .console-log-row {
   display: grid;
   grid-template-columns: 180px 1fr 160px;
   align-items: center;
   padding: 14px 20px;
-  border-bottom: 1px solid #1a1f26;
+  border-bottom: 1px solid var(--border-color);
   font-family: 'Fira Code', monospace;
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--text-main);
 }
 
 .console-log-row:last-child {
@@ -78,6 +81,7 @@
 
 .log-time {
   font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
 .log-method-badge {
@@ -87,7 +91,7 @@
 }
 
 .log-url {
-  color: #c9d1d9;
+  color: var(--text-main); /* Changed from #c9d1d9 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -95,7 +99,7 @@
 }
 
 .console-log-row:hover .log-url {
-  color: #fff;
+  color: var(--brand-color); /* Swapped from hardcoded white to your brand highlight token */
 }
 
 .log-metrics {
@@ -106,7 +110,7 @@
 }
 
 .log-size {
-  color: #8b949e;
+  color: var(--text-muted); /* Changed from #8b949e */
   font-size: 0.75rem;
 }
 
@@ -118,21 +122,66 @@
 
 @media (max-width: 850px) {
   .console-log-row {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: 10px;
     padding: 16px;
   }
-  
-  .log-metrics {
-    justify-content: space-between;
-    border-top: 1px dashed #1a1f26;
-    padding-top: 10px;
-    margin-top: 4px;
+
+  /* Force meta row to line up nicely without expanding child elements */
+  .log-meta {
+    display: flex;
+    align-items: center; 
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
   }
-  
+
+  .log-method-badge {
+    width: fit-content;
+    flex-shrink: 0;
+    text-align: center;
+    height: 1.2rem;
+  }
+
+  .log-time {
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
   .log-url {
+    font-size: 0.8rem;
     white-space: normal;
     overflow: visible;
     word-break: break-all;
+    padding-right: 0;
+    margin-top: 2px;
+    width: 100%;
+  }
+
+  .console-log-row:hover {
+    padding-left: 17px;
+  }
+
+  .log-metrics {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 12px;
+    margin-top: 4px;
+  }
+
+  .log-size {
+    font-size: 0.7rem;
+  }
+
+  .log-status {
+    min-width: 50px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
   }
 }

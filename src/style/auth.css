@@ -6,14 +6,14 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    color: white;
+    color: var(--text-main); /* Changed from white */
 }
 
 .auth-panel {
     width: 100%;
     max-width: 500px;
-    background: #0d1117;
-    border: 1px solid #30363d;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color); /* Changed from #30363d */
     border-radius: 14px;
     padding: 40px;
     position: relative;
@@ -37,13 +37,13 @@
 }
 
 .auth-status {
-    color: #49cc90;
+    color: var(--brand-green);
     font-weight: bold;
     animation: statusBlink 2s steps(2, start) infinite;
 }
 
 .auth-build {
-    color: #666;
+    color: var(--text-muted); /* Changed from #666 */
 }
 
 .auth-brand h1 {
@@ -51,24 +51,25 @@
     font-size: 4rem;
     font-weight: 900;
     line-height: .9;
+    color: var(--text-main); /* Forces H1 to follow theme color transitions */
 }
 
 .auth-brand span {
-    color: #a855f7;
+    color: var(--brand-color);
 }
 
 .auth-brand p {
     margin-top: 10px;
     margin-bottom: 35px;
-    color: #8b949e;
+    color: var(--text-muted); /* Changed from #8b949e */
     letter-spacing: 3px;
     font-size: 0.8rem;
 }
 
 .auth-switch {
     display: flex;
-    background: #010409;
-    border: 1px solid #30363d;
+    background: var(--terminal-input); /* Changed from #010409 */
+    border: 1px solid var(--border-color); /* Changed from #30363d */
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 30px;
@@ -79,7 +80,7 @@
     padding: 12px;
     border: none;
     background: transparent;
-    color: #8b949e;
+    color: var(--text-muted);
     cursor: pointer;
     font-weight: 700;
     transition: 0.25s;
@@ -87,7 +88,7 @@
 
 .auth-switch button.active {
     background: rgba(168, 85, 247, 0.15);
-    color: #a855f7;
+    color: var(--brand-color); /* Changed from #a855f7 */
 }
 
 .auth-form {
@@ -109,14 +110,14 @@
 .auth-field label {
     font-size: 0.75rem;
     font-family: monospace;
-    color: #8b949e;
+    color: var(--text-muted); /* Changed from #8b949e */
     letter-spacing: 1px;
 }
 
 .auth-field input {
-    background: #010409;
-    border: 1px solid #30363d;
-    color: white;
+    background: var(--terminal-input); /* Changed from #010409 */
+    border: 1px solid var(--border-color); /* Changed from #30363d */
+    color: var(--text-main); /* Changed from white */
     padding: 14px;
     border-radius: 8px;
     outline: none;
@@ -124,9 +125,9 @@
 }
 
 .auth-field input:focus {
-    border-color: #a855f7;
+    border-color: var(--brand-color); /* Changed from #a855f7 */
     box-shadow:
-        0 0 0 1px #a855f7,
+        0 0 0 1px var(--brand-color),
         0 0 15px rgba(168, 85, 247, 0.25);
 }
 
@@ -135,8 +136,8 @@
     padding: 14px;
     border: none;
     border-radius: 8px;
-    background: #a855f7;
-    color: white;
+    background: var(--brand-color); /* Changed from #a855f7 */
+    color: white; /* Keeps text legible regardless of mode since the button background is vibrant */
     font-weight: 700;
     font-family: monospace;
     letter-spacing: 1px;
@@ -146,7 +147,8 @@
 
 .auth-submit:hover {
     transform: translateY(-2px);
-    background: #b56ff8;
+    background: var(--brand-color);
+    filter: brightness(1.1); /* Replaced static #b56ff8 hover background value for automated tint generation */
     box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
 }
 
@@ -154,6 +156,7 @@
     transform: translateY(-1px);
     filter: brightness(0.9);
 }
+
 .password-wrap {
   position: relative;
   display: flex;
@@ -166,8 +169,8 @@
 
 .toggle-password {
   background: transparent;
-  border: 1px solid #30363d;
-  color: #8b949e;
+  border: 1px solid var(--border-color); /* Changed from #30363d */
+  color: var(--text-muted); /* Changed from #8b949e */
   font-size: 0.65rem;
   padding: 6px 10px;
   border-radius: 6px;
@@ -176,12 +179,13 @@
 }
 
 .toggle-password:hover {
-  border-color: #a855f7;
-  color: #a855f7;
+  border-color: var(--brand-color); /* Changed from #a855f7 */
+  color: var(--brand-color); /* Changed from #a855f7 */
 }
+
 @keyframes statusBlink {
     0%, 100% { opacity: 0.4; text-shadow: none; }
-    50% { opacity: 1; text-shadow: 0 0 8px #49cc90; }
+    50% { opacity: 1; text-shadow: 0 0 8px var(--brand-green); }
 }
 
 @keyframes fieldReveal {

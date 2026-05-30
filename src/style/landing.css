@@ -1,8 +1,8 @@
 .workbench-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: calc(100vh - 99px);
-  background-color: #0d1117;
+  height: 87dvh;
+  background-color: var(--bg-color);
   color: #c9d1d9;
   overflow: hidden;
 }

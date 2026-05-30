@@ -3,9 +3,10 @@ import { RequestContext } from '../context/RequestContext';
 import '../style/fetchComponent.css';
 import API_Library from './API_Library';
 import LibraryLoader from './LibraryLoader';
+import { LibraryContext } from '../context/LibraryContext';
 
 function FetchComponent() {
-  const {APIList} = useContext(RequestContext);
+  const {APIList} = useContext(LibraryContext);
 
   return (
     <div className="fetch-container">

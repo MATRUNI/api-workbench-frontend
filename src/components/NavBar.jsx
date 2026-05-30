@@ -24,7 +24,7 @@ const activeBtn=(path) => location.pathname === path;
               <div className='search'>
                   <input type="text" placeholder='⌘ + K to Search'/>
               </div>
-              <div id='profile'>
+              <div id='profile' onClick={()=>navigate('/auth')}>
                   <div className="avatar"></div>
                   <span>User</span>
               </div>

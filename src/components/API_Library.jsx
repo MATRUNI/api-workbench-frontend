@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
 import { RequestContext } from '../context/RequestContext';
 import { useNavigate } from 'react-router-dom';
+import { LibraryContext } from '../context/LibraryContext';
 
 function API_Library() {
-  const {APIList, setURL, setMethod } = useContext(RequestContext);
+  const { setURL, setMethod } = useContext(RequestContext);
+  const { APIList } = useContext(LibraryContext);
   const navigate = useNavigate();
 
   const handleConfigure = (api) => {

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { memo, useContext, useCallback } from 'react'
 import { RequestContext } from '../context/RequestContext';
 import { useNavigate } from 'react-router-dom';
 import { LibraryContext } from '../context/LibraryContext';
@@ -8,11 +8,11 @@ function API_Library() {
   const { APIList } = useContext(LibraryContext);
   const navigate = useNavigate();
 
-  const handleConfigure = (api) => {
-    setMethod(api.method)
+  const handleConfigure = useCallback((api) => {
+    setMethod(api.method);
     setURL(api.endpoint);
-    navigate('/endpoints'); 
-  };
+    navigate('/endpoints');
+  }, [setMethod, setURL, navigate]);
   return (
     <div className="api-grid">
         {APIList.map((api) => (
@@ -45,4 +45,4 @@ function API_Library() {
   )
 }
 
-export default API_Library
+export default memo(API_Library)

@@ -6,7 +6,7 @@ import Docs from './components/Docs'
 import Console from './components/Console'
 import FetchComponent from './components/FetchComponent'
 import HomeHero from './components/HomeHero'
-import Auth from './components/AuthComponents/Auth'
+import Auth from './components/Auth'
 import { LibraryContext } from './context/LibraryContext'
 
 const router=new createBrowserRouter([

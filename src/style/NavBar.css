@@ -122,7 +122,28 @@
     color: var(--text-main) !important;
     box-shadow: 0 0 10px rgba(14, 165, 233, 0.15);
 }
+#profile-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
+.logout-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 75, 75, 0.3);
+    color: #ff4b4b;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 75, 75, 0.1);
+    box-shadow: 0 0 8px rgba(255, 75, 75, 0.2);
+}
 @media (max-width: 850px) {
     body {
         padding: 0%;

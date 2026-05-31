@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.jsx'
 import { RequestProvider } from './context/RequestContext.jsx'
 import { LibraryProvider } from './context/LibraryContext.jsx'
+import { UserProvider } from './context/UserContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RequestProvider>
       <LibraryProvider>
-        <App />
+        <UserProvider>
+          <App />
+        </UserProvider>
       </LibraryProvider>
     </RequestProvider>
   </StrictMode>,

@@ -134,7 +134,7 @@
 }
 
 .nav-item:hover .item-desc {
-  color: rgba(var(--bg-color), 0.8); /* Replaced fallback dark text layer with modern contrast safety masks */
+  color: color-mix(in srgb, var(--bg-color) 80%, transparent);
 }
 
 .item-label {

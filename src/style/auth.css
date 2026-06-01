@@ -209,7 +209,88 @@
     border-radius: 8px;
     background: rgba(248, 81, 73, 0.05);
 }
+/* Inline verification anchor element layout inside the label row */
+.inline-verify-trigger {
+    background: transparent;
+    border: none;
+    color: var(--brand-color);
+    font-family: monospace;
+    font-size: 0.65rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    margin-left: auto; /* Pushes the button to line up perfectly against the right edge */
+    letter-spacing: 0.5px;
+    animation: fieldReveal 0.25s ease-out forwards;
+}
 
+.inline-verify-trigger:hover {
+    text-shadow: 0 0 8px var(--brand-color);
+}
+
+/* Success verification pill confirmation banner */
+.success-tag {
+    font-family: monospace;
+    font-size: 0.6rem;
+    color: var(--brand-green);
+    background: rgba(73, 204, 144, 0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-left: auto;
+}
+
+/* Locked data state aesthetics */
+.auth-field input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-style: dashed;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* Inline horizontal entry container structure */
+.otp-input-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.otp-input-group input {
+    flex: 1;
+    letter-spacing: 4px;
+    font-family: monospace;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Main action validation trigger asset */
+.auth-verify-action-btn {
+    background: transparent;
+    border: 1px dashed var(--brand-color);
+    color: var(--brand-color);
+    border-radius: 8px;
+    padding: 0 16px;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-verify-action-btn:hover:not(:disabled) {
+    background: rgba(168, 85, 247, 0.08);
+    border-style: solid;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+}
+
+/* Reveal transition handlers preserving .slide-in physics specs */
+.challenge-reveal {
+    animation: fieldReveal 0.35s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.credential-reveal {
+    animation: fieldReveal 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
 @keyframes errorPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }

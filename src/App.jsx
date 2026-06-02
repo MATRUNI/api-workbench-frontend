@@ -8,6 +8,8 @@ import FetchComponent from './components/FetchComponent'
 import HomeHero from './components/HomeHero'
 import Auth from './components/Auth'
 import { LibraryContext } from './context/LibraryContext'
+import { UserContext } from './context/UserContext'
+import { me } from './services/AuthCall'
 
 const router=new createBrowserRouter([
   {
@@ -44,12 +46,26 @@ const router=new createBrowserRouter([
 
 function App() {
   const {setAPIList} =useContext(LibraryContext)
+  const {setUser} = useContext(UserContext)
   useEffect(()=>{
     async function initAPIs() {
-      await fetch(import.meta.env.VITE_BACKEND_URL+"/health")
-      let response=await fetch(import.meta.env.VITE_BACKEND_URL+"/api")
-      let APIobj = await response.json()
-      setAPIList(APIobj.data);
+      try 
+      {
+        const [healthRes, userData, apiRes] = await Promise.all([
+          fetch(import.meta.env.VITE_BACKEND_URL + "/health"),
+          me(),
+          fetch(import.meta.env.VITE_BACKEND_URL + "/api")
+        ]);
+        if (!healthRes.ok) console.warn("Health check failed");
+        const APIobj = await apiRes.json();
+
+        setUser(userData);
+        setAPIList(APIobj.data);
+      } 
+      catch (error) 
+      {
+        console.error("Error initializing APIs:", error);  
+      }
     }
     initAPIs()
   },[])

@@ -51,15 +51,13 @@ function App() {
     async function initAPIs() {
       try 
       {
-        const [healthRes, userData, apiRes] = await Promise.all([
+        const [healthRes, apiRes] = await Promise.all([
           fetch(import.meta.env.VITE_BACKEND_URL + "/health"),
-          me(),
           fetch(import.meta.env.VITE_BACKEND_URL + "/api")
         ]);
         if (!healthRes.ok) console.warn("Health check failed");
         const APIobj = await apiRes.json();
 
-        setUser(userData);
         setAPIList(APIobj.data);
       } 
       catch (error) 
@@ -69,6 +67,18 @@ function App() {
     }
     initAPIs()
   },[])
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const user = await me();
+        setUser(user);
+      } catch (err) {
+        setUser(null);
+      }
+    }
+
+    loadUser();
+  }, []);
   return <RouterProvider router={router}/>
 }
 

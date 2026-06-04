@@ -9,7 +9,7 @@ export async function customFetch(url, options = {}) {
 
     let response = await fetch(url, options);
 
-    if (response.status === 403 && !options._retry) {
+    if (response.status === 401 && !options._retry) {
         options._retry = true;
 
         try {
@@ -27,9 +27,7 @@ export async function customFetch(url, options = {}) {
         } catch (refreshError) {
             console.error("Refresh token network error:", refreshError);
         }
-
-        // console.warn("Session expired completely. Redirecting to auth node.");
-        window.location.href = '/auth';
+        return { error: 'SESSION_EXPIRED' };
     }
 
     return response;

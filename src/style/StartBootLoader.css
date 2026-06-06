@@ -1,0 +1,123 @@
+.boot-container-fullscreen {
+  width: 100%;
+  height: 89dvh;
+  background: var(--terminal-input);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Outer Border Frame Grid Box */
+.aperture-frame {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  background: rgba(var(--card-bg), 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+}
+
+/* Tech-style Anchor corner ticks */
+.frame-tick {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-color);
+}
+.frame-tick.top-left { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.frame-tick.top-right { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.frame-tick.bottom-left { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.frame-tick.bottom-right { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+/* Reticle Positioning Hub */
+.aperture-reticle {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Concentric Rings with Segmented Borders */
+.reticle-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+/* Outer Ring - Cyan/Green Hue or Purple Highlight */
+.reticle-ring.outer-spin {
+  width: 100%;
+  height: 100%;
+  border-top-color: var(--brand-color);
+  border-bottom-color: var(--brand-color);
+  animation: apertureSpin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Inner Counter-Rotating Ring */
+.reticle-ring.inner-reverse {
+  width: 65%;
+  height: 65%;
+  border-left-color: var(--brand-green);
+  border-right-color: var(--brand-green);
+  animation: apertureReverse 1.5s linear infinite;
+}
+
+/* Target Core Beacon Dot */
+.reticle-center-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-main);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--text-main);
+  animation: dotPulse 1s ease-in-out infinite alternate;
+}
+
+/* Text Subtitle Metrics Layout */
+.aperture-meta-text {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  display: flex;
+  gap: 4px;
+}
+
+.meta-bracket {
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.meta-value {
+  color: var(--brand-color);
+  font-weight: 700;
+  animation: pulseText 1.5s infinite alternate;
+}
+
+/* Animations Engineering */
+@keyframes apertureSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes apertureReverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(0.7); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+@keyframes pulseText {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; text-shadow: 0 0 6px var(--brand-color); }
+}

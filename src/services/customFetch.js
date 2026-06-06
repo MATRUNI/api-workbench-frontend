@@ -5,6 +5,7 @@ export async function customFetch(url, options = {}) {
     options.headers = {
         'Content-Type': 'application/json',
         ...options.headers,
+        'x-api-key':import.meta.env.VITE_BACKEND_KEY
     };
 
     let response = await fetch(url, options);
@@ -17,7 +18,10 @@ export async function customFetch(url, options = {}) {
             
             const refreshRes = await fetch(import.meta.env.VITE_BACKEND_URL + '/api/auth/refresh', {
                 method: 'POST',
-                credentials: 'include'
+                credentials: 'include',
+                headers:{
+                    'x-api-key':import.meta.env.VITE_BACKEND_KEY
+                }
             });
 
             if (refreshRes.ok) {

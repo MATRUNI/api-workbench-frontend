@@ -1,0 +1,111 @@
+.perimeter-loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: transparent;
+}
+
+/* --- The Cornerless Square --- */
+.perimeter-frame {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 18px; /* Flat sides, cleanly rounded corners */
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  box-sizing: border-box;
+}
+
+/* --- Base Ball Settings --- */
+.orbit-ball {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: -3px 0 0 -3px;
+  will-change: top, left, background-color, box-shadow;
+}
+
+/* =========================================
+  NON-SYNCED PERIMETER WALL PHYSICS
+  =========================================
+*/
+
+/* Ball 1: Sweeps left-to-right across the TOP wall */
+.ball-top {
+  top: 0%;
+  animation: sweepHorizontal 1.1s infinite ease-in-out alternate;
+}
+
+/* Ball 2: Sweeps top-to-bottom down the RIGHT wall */
+.ball-right {
+  left: 100%;
+  animation: sweepVertical 1.4s infinite ease-in-out alternate;
+}
+
+/* Ball 3: Sweeps right-to-left across the BOTTOM wall */
+.ball-bottom {
+  top: 100%;
+  animation: sweepHorizontalInverse 1.2s infinite ease-in-out alternate;
+}
+
+/* Ball 4: Sweeps bottom-to-top up the LEFT wall */
+.ball-left {
+  left: 0%;
+  animation: sweepVerticalInverse 1.6s infinite ease-in-out alternate;
+}
+
+/* --- Keyframes with Mid-Bounce Color Shifting --- */
+
+@keyframes sweepHorizontal {
+  0%   { left: 0%;   background: var(--primary, #a855f7); box-shadow: 0 0 8px var(--primary, #a855f7); }
+  50%  {             background: var(--accent, #0ea5e9);  box-shadow: 0 0 8px var(--accent, #0ea5e9); }
+  100% { left: 100%; background: var(--brand-green, #10b981); box-shadow: 0 0 8px var(--brand-green, #10b981); }
+}
+
+@keyframes sweepVertical {
+  0%   { top: 0%;   background: var(--accent, #0ea5e9);  box-shadow: 0 0 8px var(--accent, #0ea5e9); }
+  50%  {            background: var(--brand-orange, #f97316); box-shadow: 0 0 8px var(--brand-orange, #f97316); }
+  100% { top: 100%; background: var(--primary, #a855f7); box-shadow: 0 0 8px var(--primary, #a855f7); }
+}
+
+@keyframes sweepHorizontalInverse {
+  0%   { left: 100%; background: var(--brand-green, #10b981); box-shadow: 0 0 8px var(--brand-green, #10b981); }
+  50%  {             background: var(--primary, #a855f7); box-shadow: 0 0 8px var(--primary, #a855f7); }
+  100% { left: 0%;   background: var(--brand-orange, #f97316); box-shadow: 0 0 8px var(--brand-orange, #f97316); }
+}
+
+@keyframes sweepVerticalInverse {
+  0%   { top: 100%; background: var(--brand-orange, #f97316); box-shadow: 0 0 8px var(--brand-orange, #f97316); }
+  50%  {            background: var(--brand-green, #10b981); box-shadow: 0 0 8px var(--brand-green, #10b981); }
+  100% { top: 0%;   background: var(--accent, #0ea5e9);  box-shadow: 0 0 8px var(--accent, #0ea5e9); }
+}
+
+/* --- Command-Line Terminal Output Text --- */
+.perimeter-status-wrapper {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Fira Code', ui-monospace, monospace;
+}
+
+.perimeter-prompt {
+  color: var(--primary, #a855f7);
+  font-weight: bold;
+  font-size: 0.75rem;
+  animation: promptBlink 0.6s infinite alternate steps(2);
+}
+
+.perimeter-status-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-main, #f4f4f6);
+}
+
+@keyframes promptBlink {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}

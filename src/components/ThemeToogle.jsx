@@ -8,10 +8,10 @@ function ThemeToggle() {
 
   useEffect(() => {
     if (isLight) {
-      document.body.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
       localStorage.setItem('api_os_theme', 'light')
     } else {
-      document.body.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
       localStorage.setItem('api_os_theme', "dark")
     }
   }, [isLight]);

@@ -13,7 +13,7 @@
     --scrollbar-thumb: #6b21a8;
 }
 
-body.light-theme {
+html.light-theme {
     --bg-color: #f4f4f5;
     --card-bg: #ffffff; 
     --border-color: #e4e4e7; 
@@ -27,8 +27,15 @@ body.light-theme {
     --scrollbar-track: #e4e4e7;
     --scrollbar-thumb: #a855f7;
 }
-body {
+html,
+body,
+#root {
     background-color: var(--bg-color);
+    margin: 0;
+    height: 100%;
+}
+body {
+    /* background-color: var(--bg-color); */
     padding-top: 80px;
     font-family: 'Geist', 'Inter', sans-serif;
 }

@@ -1,6 +1,11 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+        let isLight=localStorage.getItem('api_os_theme')==="light"
+        document.documentElement.classList.toggle('light-theme',isLight);
+        document.documentElement.style.background=isLight?"#f4f4f5":"#000000";
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -4,6 +4,7 @@ import AuthCall, { LoginCall, me } from '../services/AuthCall';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import { sendOTP, verifyOTP } from '../services/otp';
+import AuthPipelineLoader from './AuthPipelineLoader';
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -128,6 +129,13 @@ function Auth() {
   };
 
   return (
+    <>
+    {isLoading?
+    (
+      <AuthPipelineLoader mode={isLogin?"sign in":"sign up"}/>
+    )
+    :
+    (
     <div className="auth-shell">
       <div className="auth-panel">
         <div className="auth-topbar">
@@ -271,7 +279,8 @@ function Auth() {
           )}
         </form>
       </div>
-    </div>
+    </div>)}
+    </>
   );
 }
 

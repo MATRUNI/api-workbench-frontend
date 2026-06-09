@@ -228,7 +228,6 @@
     text-shadow: 0 0 8px var(--brand-color);
 }
 
-/* Success verification pill confirmation banner */
 .success-tag {
     font-family: monospace;
     font-size: 0.6rem;

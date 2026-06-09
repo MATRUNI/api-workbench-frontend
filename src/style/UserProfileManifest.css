@@ -1,0 +1,49 @@
+.dashboard-shell {
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    padding: 120px 40px 40px 40px; /* Large top padding prevents header overlaps */
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.dashboard-hero {
+    display: flex;
+    align-items: center;
+    max-height: 200px;
+    min-height: 100px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.dashboard-hero .huge-title {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    line-height: 1;
+    padding-top: 1rem;
+}
+
+/* Fix mobile responsive break alignments */
+@media (max-width: 1220px) {
+    .dashboard-content {
+        padding: 160px 20px 20px 20px;
+    }
+    
+    .dashboard-hero {
+        height: 140px;
+    }
+}

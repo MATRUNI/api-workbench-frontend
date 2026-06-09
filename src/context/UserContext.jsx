@@ -1,11 +1,12 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { me } from '../services/AuthCall';
+import { LogoutCall, me } from '../services/AuthCall';
 
 // 1. Changed setUser default to a safe dummy function
 export const UserContext = createContext({
   user: null,
   setUser: () => {}, 
-  loading: true
+  loading: true,
+  handleLogout: async()=>{}
 });
 
 export function UserProvider({ children }) {
@@ -22,9 +23,18 @@ export function UserProvider({ children }) {
     
     checkSession();
   }, []); 
-
+    const handleLogout = async (navigateCallback) => {
+        try {
+            await LogoutCall(); 
+            setUser(null);
+            if(navigateCallback)
+            navigateCallback('/auth');  
+        } catch (err) {
+            console.error("LOGOUT_CRITICAL_FAILURE:", err);
+        }
+    };
   return (
-    <UserContext.Provider value={{ user, setUser, loading }}>
+    <UserContext.Provider value={{ user, setUser, loading, handleLogout }}>
       {children}
     </UserContext.Provider>
   );

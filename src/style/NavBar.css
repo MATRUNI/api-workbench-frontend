@@ -16,6 +16,7 @@
     border: 1px solid var(--border-color);
     padding: 6px;
     border-radius: 12px;
+    height: 2rem;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -107,6 +108,7 @@
 .theme-toggle-btn {
     font-family: monospace !important;
     font-size: 0.75rem !important;
+    min-width: 10rem;
     letter-spacing: 1px;
     border: 1px dashed var(--border-color) !important;
     padding: 6px 12px !important;
@@ -144,7 +146,7 @@
     background: rgba(255, 75, 75, 0.1);
     box-shadow: 0 0 8px rgba(255, 75, 75, 0.2);
 }
-@media (max-width: 850px) {
+@media (max-width: 1220px) {
     body {
         padding: 0%;
     }
@@ -164,20 +166,25 @@
 
     .search input {
         width: 100%;
-        height: 40px;
+        height: 20px;
         font-size: 16px;
         background: var(--terminal-input); /* Syncs with mobile view variations */
     }
     .nav-group:first-child {
         display: flex;
         justify-content: space-between;
-        order: 1;
+        order: 0;
     }
 
     .search-group-wrapper {
-        order: 2;
+        order: 1;
     }
-
+    #profile-panel
+    {
+        min-width: 10rem;
+        max-width: 11rem;
+        order: 3;
+    }
     .main-links {
         order: 3;
         gap: 4px; 

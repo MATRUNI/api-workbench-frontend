@@ -325,7 +325,7 @@
 /* ==========================================================================
    RESPONSIVE LAYOUT CONSTRAINTS
    ========================================================================== */
-@media (max-width: 850px) {
+@media (max-width: 1220px) {
   .workbench-container {
     height: auto; 
     min-height: 100vh;

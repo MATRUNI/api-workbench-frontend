@@ -36,7 +36,25 @@ export async function me() {
     } catch (error) {
         throw error; // Re-throw so your UserContext catch-block can handle it
     }
-}export async function LogoutCall() {
+}
+export async function getUserProfile() {
+    try {
+        const res = await customFetch(import.meta.env.VITE_BACKEND_URL + '/api/users/profile', {
+            method: 'GET'
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP_ERROR: STATUS_${res.status}`);
+        }
+
+        return await res.json();
+        
+    } catch (error) {
+        return {success:false,message:"server error"};
+    }
+}
+export async function LogoutCall() {
     const res = await customFetch(import.meta.env.VITE_BACKEND_URL + "/api/auth/logout", {
         method: "POST"
     });

@@ -9,16 +9,7 @@ function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const activeBtn = (path) => location.pathname === path;
-    const { user, setUser } = useContext(UserContext);
-    const handleLogout = async () => {
-        try {
-            await LogoutCall(); 
-            setUser(null);      
-            navigate('/auth');  
-        } catch (err) {
-            console.error("LOGOUT_CRITICAL_FAILURE:", err);
-        }
-    };
+    const { user, setUser, handleLogout } = useContext(UserContext);
 
     return (
         <nav id="utility-nav">
@@ -40,12 +31,12 @@ function NavBar() {
                     <input type="text" placeholder='⌘ + K to Search' />
                 </div>
                 <div id='profile-panel'>
-                    <div id='profile' onClick={() => !user && navigate('/auth')}>
+                    <div id='profile' onClick={() => user?navigate('/profile'):navigate('/auth')}>
                         <div className="avatar"></div>
                         <span>{user ? user.username : "User"}</span>
                     </div>
                     {user && (
-                        <button className="logout-btn" onClick={handleLogout} title="Terminate Session">
+                        <button className="logout-btn" onClick={()=>handleLogout(navigate)} title="Terminate Session">
                             ⏻ LOGOUT
                         </button>
                     )}

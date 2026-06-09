@@ -11,6 +11,7 @@ import { LibraryContext } from './context/LibraryContext'
 import { UserContext } from './context/UserContext'
 import { me } from './services/AuthCall'
 import StartBootLoader from './components/StartBootLoader'
+import UserProfileManifest from './components/UserProfileManifest'
 
 const router=new createBrowserRouter([
   {
@@ -40,9 +41,13 @@ const router=new createBrowserRouter([
       {
         path:'/auth',
         element:<Auth/>
-      },
+      }
     ]
-  }
+  },
+  {
+    path:'/profile',
+    element:<UserProfileManifest/>
+  },
 ])
 
 function App() {

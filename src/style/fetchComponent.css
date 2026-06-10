@@ -2,6 +2,7 @@
   padding: 40px;
   max-width: 1400px;
   margin: 0 auto;
+  /* background: var(--bg-color); */
   color: var(--text-main); /* Changed from white to adapt globally */
 }
 

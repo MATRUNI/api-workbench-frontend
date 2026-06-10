@@ -30,9 +30,14 @@ html.light-theme {
 html,
 body,
 #root {
-    background-color: var(--bg-color);
+    background-color: var(--bg-color, #000000);
     margin: 0;
     height: 100%;
+}
+html.light-theme,
+html.light-theme body,
+html.light-theme #root {
+    background-color: var(--bg-color, #f4f4f5);
 }
 body {
     /* background-color: var(--bg-color); */

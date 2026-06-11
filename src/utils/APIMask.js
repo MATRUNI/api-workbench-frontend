@@ -2,8 +2,6 @@
 export default function APIMask(url='')
 {
     const { hostname, pathname, protocol } = new URL(url)
-    console.log('host',hostname)
-    console.log('path',pathname)
     if(hostname==='api.os.runtime')
     {
         if(protocol==='https:')

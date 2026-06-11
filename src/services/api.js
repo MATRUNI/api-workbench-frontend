@@ -17,7 +17,6 @@ export async function callAPI(url,method,request)
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
     const {isMasked, finalUrl} = APIMask(newUrl)
-    console.log(finalUrl)
     try{
         const startTime=Date.now()
         let res = isMasked ? await customFetch(finalUrl, options) :await fetch(finalUrl,options)

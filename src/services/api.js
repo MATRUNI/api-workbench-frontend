@@ -1,11 +1,13 @@
 import { getDefaultErrorMessage } from "../utils/errors";
 import { ArrayToObject } from "./ArrayToObject"
 import {contentTypeHandlers} from '../services/contentTypeHandler'
+import APIMask from "../utils/APIMask";
+import { customFetch } from "./customFetch";
 export async function callAPI(url,method,request)
 {
     const header=ArrayToObject(request.header);
     const queryString=new URLSearchParams(ArrayToObject(request.query)||{}).toString();
-    const finalUrl = queryString? `${url}${url.includes('?') ? '&' : '?'}${queryString}`: url;
+    const newUrl = queryString? `${url}${url.includes('?') ? '&' : '?'}${queryString}`: url;
     const options={
         method,
         headers:{
@@ -14,9 +16,11 @@ export async function callAPI(url,method,request)
         },
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
+    const {isMasked, finalUrl} = APIMask(newUrl)
+    console.log(finalUrl)
     try{
         const startTime=Date.now()
-        let res=await fetch(finalUrl,options)
+        let res = isMasked ? await customFetch(finalUrl, options) :await fetch(finalUrl,options)
         const endTime=Date.now();
         const timeTaken = endTime - startTime;
         const resClone=res.clone();

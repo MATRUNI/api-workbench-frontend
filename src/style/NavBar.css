@@ -45,7 +45,7 @@
 .btn {
     background: transparent;
     border: none;
-    color: var(--text-muted); /* Changed from #a1a1aa to sync with theme */
+    color: var(--text-muted); 
     padding: 8px 14px;
     font-size: 0.85rem;
     font-weight: 500;
@@ -55,28 +55,27 @@
 }
 
 .btn:hover {
-    /* Uses a transparent mix of the main text color so it works on light or dark backdrops */
     background: rgba(var(--text-main), 0.05); 
-    color: var(--text-main); /* Changed from hardcoded white */
+    color: var(--text-main); 
 }
 
 .btn.active {
-    background: rgba(var(--text-main), 0.1); /* Dynamic background overlay tint */
-    color: var(--text-main); /* Changed from hardcoded white */
+    background: rgba(var(--text-main), 0.1); 
+    color: var(--text-main); 
 }
 
 .fetch-trigger {
     background: var(--accent-color) !important;
-    color: var(--bg-color) !important; /* Inverts color cleanly relative to current environment */
+    color: var(--bg-color) !important; 
     font-weight: 600;
 }
 
 .search input {
-    background: var(--terminal-input); /* Changed from #09090b */
+    background: var(--terminal-input); 
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 8px 12px;
-    color: var(--text-main); /* Changed from hardcoded white */
+    color: var(--text-main); 
     font-size: 0.8rem;
     width: 180px;
     outline: none;
@@ -93,7 +92,7 @@
     align-items: center;
     gap: 8px;
     padding: 0 8px;
-    color: var(--text-main); /* Changed from hardcoded white */
+    color: var(--text-main); 
     font-size: 0.85rem;
 }
 
@@ -168,7 +167,7 @@
         width: 100%;
         height: 20px;
         font-size: 16px;
-        background: var(--terminal-input); /* Syncs with mobile view variations */
+        background: var(--terminal-input);
     }
     .nav-group:first-child {
         display: flex;

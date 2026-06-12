@@ -31,7 +31,8 @@ export async function customFetch(url, options = {}) {
         } catch (refreshError) {
             console.error("Refresh token network error:", refreshError);
         }
-        return { error: 'SESSION_EXPIRED' };
+        const error = new Error("SESSION_EXPIRED PLEASE LOGIN");
+        throw error;
     }
 
     return response;

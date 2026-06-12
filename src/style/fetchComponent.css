@@ -187,3 +187,45 @@
   color: white; /* Contrast-locked visibility for focus highlights */
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
 }
+/* --- Featured Card (Priority 100) Layout Overrides --- */
+.api-card.featured-card {
+  border-color: rgba(168, 85, 247, 0.4); 
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.25), 
+    inset 0 0 12px rgba(168, 85, 247, 0.05);
+  background: linear-gradient(
+    145deg, 
+    var(--card-bg), 
+    color-mix(in srgb, var(--card-bg) 94%, var(--brand-color))
+  );
+}
+
+.api-card.featured-card:hover {
+  border-color: var(--brand-color);
+  box-shadow: 
+    0 0 25px rgba(168, 85, 247, 0.25),
+    inset 0 0 15px rgba(168, 85, 247, 0.1);
+  transform: translateY(-6px);
+}
+
+.api-card.featured-card h3 {
+  color: var(--brand-color); /* Makes your custom API names pop in the primary brand theme color */
+}
+
+/* --- Optional: Corner Ribbon Tag --- */
+.featured-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, var(--brand-color), #6366f1);
+  color: white;
+  font-family: monospace;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-bottom-left-radius: 8px;
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 5;
+}

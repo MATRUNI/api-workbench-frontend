@@ -1,6 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { LogoutCall, me } from '../services/AuthCall';
-
+import { LibraryContext } from './LibraryContext';
 // 1. Changed setUser default to a safe dummy function
 export const UserContext = createContext({
   user: null,
@@ -12,6 +12,7 @@ export const UserContext = createContext({
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { setAPIList } = useContext(LibraryContext)
 
   useEffect(() => {
     const checkSession = async () => {
@@ -27,6 +28,7 @@ export function UserProvider({ children }) {
         try {
             await LogoutCall(); 
             setUser(null);
+            setAPIList([])
             if(navigateCallback)
             navigateCallback('/auth');  
         } catch (err) {

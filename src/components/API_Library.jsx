@@ -15,32 +15,38 @@ function API_Library() {
   }, [setMethod, setURL, navigate]);
   return (
     <div className="api-grid">
-        {APIList.map((api) => (
-          <div key={api._id} className="api-card">
-            <div className="card-meta">
-              <div className="card-badge">{api.category}</div>
-              <div className="response-tag">
-                <span className="pulse-dot"></span>
-                {api.responseType}
-              </div>
-            </div>
-
-            <h3>{api.name}</h3>
-            <p>{api.description}</p>
-            
-            <div className="endpoint-preview">
-              <code>{api.method}</code>
-              <span>{api.endpoint}</span>
-            </div>
-            
-            <button 
-              className="configure-btn" 
-              onClick={() => handleConfigure(api)}
+        {APIList.map((api) =>{
+          const isFeatured = api.priority === 100;
+          return (
+            <div 
+            key={api._id}
+            className={`api-card ${isFeatured ? 'featured-card' : ''}`}
             >
-              Configure in Endpoints
-            </button>
-          </div>
-        ))}
+              {isFeatured && <div className="featured-ribbon">By API.OS</div>}
+              <div className="card-meta">
+                <div className="card-badge">{api.category}</div>
+                <div className="response-tag">
+                  <span className="pulse-dot"></span>
+                  {api.responseType}
+                </div>
+              </div>
+
+              <h3>{api.name}</h3>
+              <p>{api.description}</p>
+
+              <div className="endpoint-preview">
+                <code>{api.method}</code>
+                <span>{api.endpoint}</span>
+              </div>
+
+              <button 
+                className="configure-btn" 
+                onClick={() => handleConfigure(api)}
+              >
+                Configure in Endpoints
+              </button>
+            </div>
+        )})}
     </div>
   )
 }

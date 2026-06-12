@@ -48,7 +48,7 @@ function ResponseViewer() {
           
           <div className="response-meta">
             <span className={`status-${getStatusClass(response.status)}`}>
-              {`${getStatusText(response.status)} ${response.status}`}
+              {`${getStatusText(response.status)}`}
               </span>
             <span className="time-badge">{`${response.time||"0"} ms`}</span>
           </div>

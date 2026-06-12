@@ -12,6 +12,7 @@ import { UserContext } from './context/UserContext'
 import { me } from './services/AuthCall'
 import StartBootLoader from './components/StartBootLoader'
 import UserProfileManifest from './components/UserProfileManifest'
+import { customFetch } from './services/customFetch'
 
 const router=new createBrowserRouter([
   {
@@ -63,12 +64,12 @@ function App() {
             try 
             {
               const [healthRes, apiRes] = await Promise.all([
-                fetch(import.meta.env.VITE_BACKEND_URL + "/health",{
+                customFetch(import.meta.env.VITE_BACKEND_URL + "/health",{
                   headers:{
                     'x-api-key':import.meta.env.VITE_BACKEND_KEY
                   }
                 }),
-                fetch(import.meta.env.VITE_BACKEND_URL + "/api",{
+                customFetch(import.meta.env.VITE_BACKEND_URL + "/api",{
                   headers:{
                     'x-api-key':import.meta.env.VITE_BACKEND_KEY
                   }

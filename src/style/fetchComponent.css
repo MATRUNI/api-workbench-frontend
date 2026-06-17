@@ -93,7 +93,7 @@
 .response-tag {
   font-family: monospace;
   font-size: 0.7rem;
-  background: rgba(var(--text-main), 0.04); /* Scales perfectly between dark/light cards */
+  background: color-mix(in srgb, var(--text-main) 4%, transparent);
   padding: 4px 10px;
   border-radius: 4px;
   border: 1px solid var(--border-color); /* Changed from rgba(255,255,255,0.1) */

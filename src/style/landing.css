@@ -27,7 +27,7 @@
 
 .length-badge {
   color: var(--text-main); /* Changed from #c9d1d9 */
-  background: rgba(var(--text-main), 0.05); /* Soft reactive background scaling */
+  background: color-mix(in srgb, var(--text-main) 5%, transparent);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -297,7 +297,7 @@
 }
 
 .kv-row input:focus {
-  background: rgba(var(--text-main), 0.02);
+  background: color-mix(in srgb, var(--text-main) 2%, transparent);
 }
 
 .remove-row {

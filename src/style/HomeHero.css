@@ -134,7 +134,7 @@
 }
 
 .nav-item:hover .item-desc {
-  color: color-mix(in srgb, var(--bg-color) 80%, transparent);
+  color: color-mix(in srgb, var(--bg-color) 75%, var(--brand-color));
 }
 
 .item-label {
@@ -147,7 +147,7 @@
 }
 
 .nav-item:hover .item-label {
-  color: rgba(var(--bg-color), 0.6);
+  color: color-mix(in srgb, var(--bg-color) 60%, transparent);
 }
 
 .item-title {

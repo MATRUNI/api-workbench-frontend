@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 
 function ThemeToggle() {
   const [isLight, setIsLight] = useState(()=>{
@@ -6,7 +6,7 @@ function ThemeToggle() {
     return storedTheme === 'light'
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isLight) {
       document.documentElement.classList.add('light-theme');
       localStorage.setItem('api_os_theme', 'light')

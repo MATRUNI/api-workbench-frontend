@@ -54,6 +54,10 @@ export async function callAPI(url,method,request)
         };
     }catch(error)
     {
-        throw error;
+      console.error("FETCH FAILED");
+      console.error(error);
+      console.error(error.name);
+      console.error(error.message);
+      throw error;
     }
 }

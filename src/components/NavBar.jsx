@@ -33,7 +33,7 @@ function NavBar() {
                 <div id='profile-panel'>
                     <div id='profile' onClick={() => user?navigate('/profile'):navigate('/auth')}>
                         <div className="avatar"></div>
-                        <span>{user ? user.username : "User"}</span>
+                        <span>{user ? user.username : "Login"}</span>
                     </div>
                     {user && (
                         <button className="logout-btn" onClick={()=>handleLogout(navigate)} title="Terminate Session">

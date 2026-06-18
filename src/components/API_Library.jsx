@@ -1,7 +1,8 @@
-import React, { memo, useContext, useCallback } from 'react'
+import React, { memo, useContext, useCallback } from 'react';
 import { RequestContext } from '../context/RequestContext';
 import { useNavigate } from 'react-router-dom';
 import { LibraryContext } from '../context/LibraryContext';
+import { BookOpen } from 'lucide-react';
 
 function API_Library() {
   const { setURL, setMethod } = useContext(RequestContext);
@@ -13,42 +14,52 @@ function API_Library() {
     setURL(api.endpoint);
     navigate('/endpoints');
   }, [setMethod, setURL, navigate]);
+
   return (
     <div className="api-grid">
-        {APIList.map((api) =>{
-          const isFeatured = api.priority === 100;
-          return (
-            <div 
+      {APIList.map((api) => {
+        const isFeatured = api.priority === 100;
+        return (
+          <div 
             key={api._id}
             className={`api-card ${isFeatured ? 'featured-card' : ''}`}
-            >
-              {isFeatured && <div className="featured-ribbon">By API.OS</div>}
-              <div className="card-meta">
-                <div className="card-badge">{api.category}</div>
-                <div className="response-tag">
-                  <span className="pulse-dot"></span>
-                  {api.responseType}
-                </div>
+          >
+            {isFeatured && <div className="featured-ribbon">By API.OS</div>}
+            <div className="card-meta">
+              <div className="card-badge">{api.category}</div>
+              <div className="response-tag">
+                <span className="pulse-dot"></span>
+                {api.responseType}
               </div>
+            </div>
 
-              <h3>{api.name}</h3>
-              <p>{api.description}</p>
+            <h3>{api.name}</h3>
+            <p>{api.description}</p>
 
-              <div className="endpoint-preview">
-                <code>{api.method}</code>
-                <span>{api.endpoint}</span>
-              </div>
-
+            <div className="endpoint-preview">
+              <code>{api.method}</code>
+              <span>{api.endpoint}</span>
+              
               <button 
-                className="configure-btn" 
-                onClick={() => handleConfigure(api)}
+                className="btn docs-icon-btn" 
+                title="View Documentation"
+                onClick={() => navigate(`/fetch/api/${api._id}`)}
               >
-                Configure in Endpoints
+                <BookOpen size={14} className="docs-icon" />
               </button>
             </div>
-        )})}
+
+            <button 
+              className="configure-btn" 
+              onClick={() => handleConfigure(api)}
+            >
+              Configure in Endpoints
+            </button>
+          </div>
+        );
+      })}
     </div>
-  )
+  );
 }
 
-export default memo(API_Library)
+export default memo(API_Library);

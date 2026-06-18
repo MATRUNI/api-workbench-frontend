@@ -1,0 +1,446 @@
+.api-container {
+  display: flex;
+  font-family: 'Geist', 'Inter', sans-serif;
+  max-width: 1200px;
+  margin: 40px auto;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  min-height: 600px;
+  color: var(--text-main);
+}
+
+.api-sidebar {
+  width: 320px;
+  background-color: var(--terminal-input);
+  border-right: 1px solid var(--border-color);
+  padding: 24px;
+  flex-shrink: 0; /* Prevents the sidebar from squishing on medium screens */
+}
+
+.api-brand-title {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.api-base-url {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 24px 0;
+}
+
+.api-base-url code {
+  font-family: monospace;
+  background: var(--card-bg);
+  color: var(--brand-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.api-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.api-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  background-color: transparent;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.api-nav-item:hover {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border-color: var(--border-color);
+}
+
+.api-nav-item.active {
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border-color: var(--brand-color);
+}
+
+.api-nav-path {
+  font-family: monospace;
+  font-size: 13px;
+  margin-left: 10px;
+  font-weight: 600;
+}
+
+/* Method Badges */
+.api-badge {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #ffffff;
+  min-width: 45px;
+  text-align: center;
+}
+
+.api-badge-large {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+}
+
+.api-badge.GET, .api-badge-large.GET {
+    background-color: rgba(97, 175, 254, 0.15); 
+    color: #61affe;
+}
+.api-badge.POST, .api-badge-large.POST {
+    background-color: rgba(73, 204, 144, 0.15);
+    color: var(--brand-green);
+}
+.api-badge.PUT, .api-badge-large.PUT {
+    background-color: rgba(252, 161, 48, 0.15); 
+    color: #fca130;
+}
+.api-badge.DELETE, .api-badge-large.DELETE {
+    background-color: rgba(249, 62, 62, 0.15); 
+    color: #f93e3e;
+}
+
+.api-main-content {
+  flex: 1;
+  padding: 32px;
+  background-color: var(--card-bg);
+  min-width: 0; /* CRITICAL: Allows inner codeblocks to wrap or scroll instead of pushing out the box */
+}
+
+.api-doc-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.api-endpoint-heading {
+  margin: 0;
+  font-family: monospace;
+  color: var(--text-main);
+  font-size: 22px;
+  word-break: break-all; /* Prevents long endpoint strings from stretching screens */
+}
+
+.api-description {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+/* Interactive Controls Forms */
+.api-section {
+  margin-bottom: 24px;
+}
+
+.api-section-heading {
+  margin: 0 0 8px 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+
+.api-param-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  background-color: var(--terminal-input);
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.api-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.api-input-label {
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+.api-text-input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  font-size: 13px;
+  font-family: monospace;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.api-text-input:focus {
+  border-color: var(--brand-color);
+}
+
+.api-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--terminal-input);
+  color: var(--code-json);
+  outline: none;
+  resize: vertical;
+}
+
+.api-textarea:focus {
+  border-color: var(--brand-color);
+}
+
+/* Live Dynamic Compilation Execution Runway */
+.api-execution-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--terminal-input);
+  border: 1px dashed var(--border-color);
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.api-url-preview-container {
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  min-width: 0; /* Enables scrollbars for excessively long target URLs */
+}
+
+.api-url-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.api-code-text {
+  font-family: monospace;
+  color: var(--brand-color);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.api-send-button {
+  background-color: var(--brand-color);
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.api-send-button:hover {
+  opacity: 0.9;
+}
+
+.api-send-button:disabled {
+  background-color: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.api-status-ok {
+  font-size: 11px;
+  border: 1px solid var(--brand-green);
+  color: var(--brand-green);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.api-json-response {
+  background-color: var(--terminal-input);
+  color: var(--code-json);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  margin: 0;
+  min-height: 60px;
+}
+
+.api-welcome-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Custom Scrollbar override adjustments mapping onto your UI style definitions */
+.api-json-response::-webkit-scrollbar,
+.api-textarea::-webkit-scrollbar,
+.api-url-preview-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.api-json-response::-webkit-scrollbar-thumb,
+.api-textarea::-webkit-scrollbar-thumb,
+.api-url-preview-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+
+@media (max-width: 868px) {
+  .api-container {
+    flex-direction: column; /* Stack sidebar above the workspace content */
+    margin: 16px;
+    min-height: auto;
+  }
+
+  .api-sidebar {
+    width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* Turn navigation buttons into a horizontal scrollbar panel on mobile screens */
+  .api-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .api-nav-item {
+    width: auto;
+    white-space: nowrap; /* Keep route strings tidy on one line */
+    flex-shrink: 0;
+  }
+  
+  .api-nav::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .api-nav::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+  }
+
+  .api-main-content {
+    padding: 20px;
+  }
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+
+@media (max-width: 868px) {
+  .api-container {
+    flex-direction: column;
+    margin: 16px;
+    min-height: auto;
+  }
+
+  .api-sidebar {
+    width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 20px;
+  }
+
+  .api-base-url {
+    margin: 0 0 16px 0;
+  }
+
+  /* Swapped out raw horizontal scrolling for a clean, wrapping flex grid */
+  .api-nav {
+    flex-direction: row;
+    flex-wrap: wrap; /* Allows endpoints to drop down cleanly instead of trailing off screen */
+    gap: 6px;
+  }
+
+  .api-nav-item {
+    width: calc(50% - 3px); /* Perfectly aligns them into pairs on tablet/phablet sizes */
+    padding: 8px 10px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .api-nav-item.active {
+    border-color: var(--brand-color);
+    background-color: var(--terminal-input);
+  }
+
+  .api-main-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 540px) {
+  /* On compact mobile devices, stack the route selections single file */
+  .api-nav-item {
+    width: 100%;
+  }
+
+  .api-execution-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .api-send-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .api-doc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .api-endpoint-heading {
+    font-size: 18px;
+  }
+  
+  .api-param-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -181,7 +181,43 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+/* Container check to make sure items sit nicely inline */
+.endpoint-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
+/* Lucide Docs Button styling */
+.docs-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px dashed var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon internal colors */
+.docs-icon-btn .docs-icon {
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+}
+
+/* Tech Hover Interactive States */
+.docs-icon-btn:hover {
+    border-style: solid;
+    border-color: var(--brand-color);
+    background: rgba(168, 85, 247, 0.08);
+}
+
+.docs-icon-btn:hover .docs-icon {
+    color: var(--brand-color);
+    filter: drop-shadow(0 0 4px var(--brand-color));
+}
 .api-card:hover .configure-btn {
   background: var(--brand-color);
   color: white; /* Contrast-locked visibility for focus highlights */

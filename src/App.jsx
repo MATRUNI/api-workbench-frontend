@@ -13,6 +13,7 @@ import { me } from './services/AuthCall'
 import StartBootLoader from './components/StartBootLoader'
 import UserProfileManifest from './components/UserProfileManifest'
 import { customFetch } from './services/customFetch'
+import ApiDocumentationModal from './components/ApiDocumentationModal'
 
 const router=new createBrowserRouter([
   {
@@ -37,7 +38,13 @@ const router=new createBrowserRouter([
       },
       {
         path:'/fetch',
-        element:<FetchComponent/>
+        element:<FetchComponent/>,
+        children: [
+          {
+            path: 'api/:id',
+            element: <ApiDocumentationModal/>
+          }
+        ]
       },
       {
         path:'/auth',
@@ -113,6 +120,7 @@ function App() {
     return <StartBootLoader/>
 
   return <RouterProvider router={router}/>
+  // return <ApiDocumentation/>
 }
 
 export default App

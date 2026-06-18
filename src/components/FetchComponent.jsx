@@ -6,6 +6,7 @@ import LibraryLoader from './LibraryLoader';
 import { LibraryContext } from '../context/LibraryContext';
 import { UserContext } from '../context/UserContext';
 import { customFetch } from '../services/customFetch';
+import { Outlet } from 'react-router-dom';
 function FetchComponent() {
   const {APIList,setAPIList, apiListAuthState, setApiListAuthState} = useContext(LibraryContext);
   const {user} = useContext(UserContext)
@@ -52,6 +53,7 @@ function FetchComponent() {
       <LibraryLoader/>
       :
       <API_Library/>}
+      <Outlet/>
     </div>
   );
 }

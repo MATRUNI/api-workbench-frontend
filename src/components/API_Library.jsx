@@ -18,6 +18,7 @@ function API_Library() {
   return (
     <div className="api-grid">
       {APIList.map((api) => {
+        console.log(api.hasConfig)
         const isFeatured = api.priority === 100;
         return (
           <div 
@@ -41,7 +42,8 @@ function API_Library() {
               <span>{api.endpoint}</span>
               
               <button 
-                className="btn docs-icon-btn" 
+                className={`btn ${api.hasConfig?"docs-icon-btn":""}`}
+                disabled={!api.hasConfig}
                 title="View Documentation"
                 onClick={() => navigate(`/fetch/api/${api._id}`)}
               >

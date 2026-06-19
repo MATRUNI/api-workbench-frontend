@@ -63,7 +63,13 @@
     background: rgba(var(--text-main), 0.1); 
     color: var(--text-main); 
 }
-
+.btn:disabled {
+    color: var(--text-muted);   
+    opacity: 0.4;               
+    cursor: not-allowed;        
+    background: transparent;    
+    pointer-events: none;           
+}
 .fetch-trigger {
     background: var(--accent-color) !important;
     color: var(--bg-color) !important; 

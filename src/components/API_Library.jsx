@@ -24,7 +24,7 @@ function API_Library() {
             key={api._id}
             className={`api-card ${isFeatured ? 'featured-card' : ''}`}
           >
-            {isFeatured && <div className="featured-ribbon">By API.OS</div>}
+            {isFeatured && <div className="featured-ribbon">{`By ${api.developer}`}</div>}
             <div className="card-meta">
               <div className="card-badge">{api.category}</div>
               <div className="response-tag">

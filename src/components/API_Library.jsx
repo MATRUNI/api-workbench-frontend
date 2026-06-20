@@ -18,7 +18,6 @@ function API_Library() {
   return (
     <div className="api-grid">
       {APIList.map((api) => {
-        console.log(api.hasConfig)
         const isFeatured = api.priority === 100;
         return (
           <div 

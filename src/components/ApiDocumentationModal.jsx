@@ -5,6 +5,7 @@ import ApiDocumentation from './ApiDocumentation';
 import { X } from 'lucide-react';
 import '../style/ApiDocumentationModal.css';
 import callConfigAPI from '../services/callConfig';
+import { ConfigApiContext } from '../context/ConfigureApiContext';
 
 export default function ApiDocumentationModal() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function ApiDocumentationModal() {
   const { APIList } = useContext(LibraryContext);
   const [ configData, setConfigData ] = useState(null)
   const targetApi = APIList?.find((api) => api._id === id);
+  const {configAPI, setConfigAPI} = useContext(ConfigApiContext)
 
   const handleClose = () => {
     navigate('/fetch');
@@ -21,7 +23,26 @@ export default function ApiDocumentationModal() {
     document.body.classList.add('no-scroll');
     async function getAPIConfig() 
     {
-        setConfigData(await callConfigAPI(id))
+      if(configAPI.has(id))
+      {
+        setConfigData(configAPI.get(id))
+        return;
+      }
+      
+      try 
+      {
+        let data = await callConfigAPI(id)
+        setConfigData(data)
+        setConfigAPI(prev=>{
+          const updated = new Map(prev);
+          updated.set(id, data);
+          return updated;
+        })
+      } 
+      catch (error) 
+      {
+        console.error("Failed to load config:", error)  
+      }
     }
     getAPIConfig()
     return () => {

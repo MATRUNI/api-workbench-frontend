@@ -5,13 +5,16 @@ import App from './App.jsx'
 import { RequestProvider } from './context/RequestContext.jsx'
 import { LibraryProvider } from './context/LibraryContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
+import { ConfigApiProvider } from './context/ConfigureApiContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RequestProvider>
       <LibraryProvider>
         <UserProvider>
-          <App />
+          <ConfigApiProvider>
+            <App />
+          </ConfigApiProvider>
         </UserProvider>
       </LibraryProvider>
     </RequestProvider>

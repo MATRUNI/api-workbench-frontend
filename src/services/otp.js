@@ -1,5 +1,4 @@
 export async function sendOTP({ email }) {
-  console.log(email, " otp");
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/send-otp`, {
     method: "POST",
     headers: {
@@ -10,7 +9,6 @@ export async function sendOTP({ email }) {
   });
 
   const payload = await res.json();
-  console.log(payload);
   return res.ok && payload.success === true;
 }
 

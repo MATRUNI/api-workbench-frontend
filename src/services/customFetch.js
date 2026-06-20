@@ -14,7 +14,6 @@ export async function customFetch(url, options = {}) {
         options._retry = true;
 
         try {
-            // console.log("Access token expired. Attempting silent refresh...");
             
             const refreshRes = await fetch(import.meta.env.VITE_BACKEND_URL + '/api/auth/refresh', {
                 method: 'POST',
@@ -25,7 +24,6 @@ export async function customFetch(url, options = {}) {
             });
 
             if (refreshRes.ok) {
-                // console.log("Refresh successful! Retrying original request...");
                 return await fetch(url, options);
             }
         } catch (refreshError) {

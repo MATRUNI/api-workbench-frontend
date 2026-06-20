@@ -1,9 +1,8 @@
 .fetch-container {
   padding: 40px;
-  max-width: 1400px;
+  max-width: 1500px;
   margin: 0 auto;
-  /* background: var(--bg-color); */
-  color: var(--text-main); /* Changed from white to adapt globally */
+  color: var(--text-main);
 }
 
 .fetch-header {
@@ -153,6 +152,7 @@
   font-family: monospace;
   font-size: 0.8rem;
   display: flex;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 20px;
   overflow: hidden;

@@ -3,6 +3,7 @@ import { UserContext } from '../context/UserContext';
 import { getUserProfile } from '../services/AuthCall';
 import { useNavigate } from 'react-router-dom';
 import '../style/UserProfileManifest.css';
+import ThemeToggle from './ThemeToogle';
 
 export default function UserDashboard() {
     const { user, handleLogout } = useContext(UserContext);
@@ -26,7 +27,7 @@ export default function UserDashboard() {
                 setLoading(false);
             }
         }
-        fetchDashboardData();
+        fetchDashboardData();   
     }, []);
 
     if (loading) {
@@ -56,6 +57,7 @@ export default function UserDashboard() {
                 <div className="nav-group main-links">
                     <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>OVERVIEW</button>
                     <button className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>METRICS</button>
+                    <ThemeToggle/>
                 </div>
                 <div className="nav-group" id="profile-panel">
                     <div id="profile">

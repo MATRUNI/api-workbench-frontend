@@ -6,6 +6,7 @@
     align-items: center;
     position: relative;
     overflow: hidden;
+    padding: 1rem;
     color: var(--text-main);
 }
 

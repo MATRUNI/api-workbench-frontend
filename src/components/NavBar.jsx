@@ -3,13 +3,12 @@ import '../style/NavBar.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
 import { UserContext } from '../context/UserContext';
-import { LogoutCall } from '../services/AuthCall'; 
 
 function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const activeBtn = (path) => location.pathname === path;
-    const { user, setUser, handleLogout } = useContext(UserContext);
+    const { user, setUser} = useContext(UserContext);
 
     return (
         <nav id="utility-nav">
@@ -35,11 +34,6 @@ function NavBar() {
                         <div className="avatar"></div>
                         <span>{user ? user.username : "Login"}</span>
                     </div>
-                    {user && (
-                        <button className="logout-btn" onClick={()=>handleLogout(navigate)} title="Terminate Session">
-                            ⏻ LOGOUT
-                        </button>
-                    )}
                 </div>
             </div>
             <ThemeToggle />

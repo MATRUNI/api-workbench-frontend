@@ -49,7 +49,7 @@ export default function UserDashboard() {
             {/* --- UTILITY FIXED HEADER --- */}
             <header id="utility-nav">
                 <div className="nav-group" onClick={()=> navigate('/')}>
-                    <span id="logo">CORE_OS //</span>
+                    <span id="logo">HOME //</span>
                     <div className="divider"></div>
                     <span className="status-pill">NODE_ONLINE</span>
                 </div>
@@ -62,7 +62,7 @@ export default function UserDashboard() {
                         <div className="avatar"></div>
                         <span>{user?.username || 'OPERATOR'}</span>
                     </div>
-                    <button className="logout-btn" onClick={() => handleLogout(navigate)}>LOGOUT</button>
+                    <button className="logout-btn" onClick={() => handleLogout(navigate)}>⏻ LOGOUT</button>
                 </div>
             </header>
 
@@ -91,7 +91,7 @@ export default function UserDashboard() {
                         </div>
                         <h3>SECURE ENDPOINT</h3>
                         <div className="endpoint-preview">
-                            <code>ADDR</code>
+                            <code>ADDRESS</code>
                             <span>{profile?.email || 'unassigned@core.net'}</span>
                         </div>
                         <p>Main master clearance communication address registered to this system anchor.</p>

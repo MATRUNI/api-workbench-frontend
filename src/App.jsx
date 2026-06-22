@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Home from './components/Home'
-import Landing from './components/Landing'
+import Endpoints from './components/Endpoints'
 import Docs from './components/Docs'
 import Console from './components/Console'
 import FetchComponent from './components/FetchComponent'
@@ -26,7 +26,7 @@ const router=new createBrowserRouter([
       },
       {
         path:'/endpoints',
-        element:<Landing/>
+        element:<Endpoints/>
       },
       {
         path:'/docs',

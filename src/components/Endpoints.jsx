@@ -1,8 +1,8 @@
 import React from 'react'
-import '../style/landing.css'
+import '../style/Endpoints.css'
 import RequestBuilder from './RequestBuilder';
 import ResponseViewer from './ResponseViewer';
-function Landing() {
+function Endpoints() {
   return (
     <main className="workbench-container">
       <RequestBuilder/>
@@ -11,4 +11,4 @@ function Landing() {
   );
 };
 
-export default Landing
+export default Endpoints

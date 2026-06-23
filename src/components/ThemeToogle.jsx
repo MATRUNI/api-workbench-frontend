@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect } from 'react';
 
-function ThemeToggle() {
+function ThemeToggle({location='nav'}) {
   const [isLight, setIsLight] = useState(()=>{
     let storedTheme=localStorage.getItem('api_os_theme');
     return storedTheme === 'light'
@@ -19,6 +19,7 @@ function ThemeToggle() {
   return (
     <button 
       className="btn theme-toggle-btn" 
+      data-theme={location==='nav'?"notvisible":"visible"}
       onClick={() => setIsLight(!isLight)}
     >
       {isLight ? '🔆 LIGHT_OS' : '🌙 DARK_OS'}

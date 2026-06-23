@@ -250,8 +250,8 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-
-    .theme-toggle-btn {
+    [data-theme="notvisible"]
+    {
         display: none; 
     }
     

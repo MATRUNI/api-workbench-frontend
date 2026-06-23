@@ -57,7 +57,7 @@ export default function UserDashboard() {
                 <div className="nav-group main-links">
                     <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>OVERVIEW</button>
                     <button className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>METRICS</button>
-                    <ThemeToggle/>
+                    <ThemeToggle location='profile'/>
                 </div>
                 <div className="nav-group" id="profile-panel">
                     <div id="profile">

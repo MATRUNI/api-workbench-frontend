@@ -36,7 +36,7 @@ function NavBar() {
                     </div>
                 </div>
             </div>
-            <ThemeToggle />
+            <ThemeToggle location='nav'/>
         </nav>
     );
 }

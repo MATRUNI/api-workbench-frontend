@@ -4,7 +4,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100%;
+  height: 80vh;
   min-height: 250px;
   background-color: var(--terminal-input); /* Changed from #010409 */
   font-family: 'Fira Code', monospace;

@@ -120,7 +120,6 @@ function App() {
     return <StartBootLoader/>
 
   return <RouterProvider router={router}/>
-  // return <ApiDocumentation/>
 }
 
 export default App

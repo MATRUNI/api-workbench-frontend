@@ -64,7 +64,7 @@ export default function UserDashboard() {
                         <div className="avatar"></div>
                         <span>{user?.username || 'OPERATOR'}</span>
                     </div>
-                    <button className="logout-btn" onClick={() => handleLogout(navigate)}>⏻ LOGOUT</button>
+                    <button className="logout-btn" onClick={() => handleLogout()}>⏻ LOGOUT</button>
                 </div>
             </header>
 

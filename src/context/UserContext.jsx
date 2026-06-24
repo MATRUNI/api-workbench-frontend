@@ -24,13 +24,12 @@ export function UserProvider({ children }) {
     
     checkSession();
   }, []); 
-    const handleLogout = async (navigateCallback) => {
+    const handleLogout = async () => {
         try {
             await LogoutCall(); 
             setUser(null);
             setAPIList([])
-            if(navigateCallback)
-            navigateCallback('/auth');  
+          window.location.replace('/auth');
         } catch (err) {
             console.error("LOGOUT_CRITICAL_FAILURE:", err);
         }

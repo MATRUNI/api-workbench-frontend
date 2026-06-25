@@ -10,9 +10,8 @@ function NavBar() {
     const navigate = useNavigate();
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const activeBtn = (path) => location.pathname === path;
-    const { user, setUser, loading} = useContext(UserContext);
+    const { user, setUser} = useContext(UserContext);
     const handleProfileClick = () => {
-        if (loading) return; 
 
         if (!!user) {
             navigate('/profile');

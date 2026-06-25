@@ -10,6 +10,9 @@
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     box-sizing: border-box;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #utility-nav *, #utility-nav *::before, #utility-nav *::after {

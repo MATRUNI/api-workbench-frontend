@@ -38,6 +38,13 @@
     padding: 0 10px;
     cursor: pointer;
 }
+#logo sub{
+    color: var(--accent-color);
+    font-size: 0.6rem;
+    margin-left: 4px;
+    vertical-align: sub;
+    opacity: 0.7;
+}
 
 .divider {
     width: 1px;
@@ -92,6 +99,10 @@
     width: 180px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search .search-icon {
+    display: none;
+    cursor: pointer;
 }
 
 .search input:focus {
@@ -285,4 +296,73 @@
     .search input:focus {
         width: 120px;
     }
+}
+@media (max-width: 370px) {
+    .search input {
+        display: none !important;
+    }
+
+    .search .search-icon {
+        display: block; 
+        color: var(--text-main);
+    }
+}
+
+/* MODAL */
+/* --- Mobile Search Modal Overlay --- */
+.search-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85); 
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    z-index: 9999; 
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+.search-modal-content {
+    background: #111; 
+    width: 90%;
+    max-width: 500px;
+    height: 50px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: relative;
+}
+
+.modal-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px; 
+    width: 80%;
+    margin-left: 10px;
+    outline: none;
+}
+
+.close-modal-btn {
+    background: transparent;
+    border: 2px solid transparent; 
+    border-radius: 8px; 
+    color: #888;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    padding: 0.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-modal-btn:hover {
+    border-color: red; 
+    color: red;
 }

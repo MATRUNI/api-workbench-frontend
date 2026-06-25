@@ -50,9 +50,8 @@ export default function UserDashboard() {
             {/* --- UTILITY FIXED HEADER --- */}
             <header id="utility-nav">
                 <div className="nav-group" onClick={()=> navigate('/')}>
-                    <span id="logo">HOME //</span>
-                    <div className="divider"></div>
-                    <span className="status-pill">NODE_ONLINE</span>
+                    <span id="logo">HOME</span>
+                    <div className='pulse-dot'></div>
                 </div>
                 <div className="nav-group main-links">
                     <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>OVERVIEW</button>

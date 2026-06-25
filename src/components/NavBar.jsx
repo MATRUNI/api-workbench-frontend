@@ -8,8 +8,16 @@ function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const activeBtn = (path) => location.pathname === path;
-    const { user, setUser} = useContext(UserContext);
+    const { user, setUser, loading} = useContext(UserContext);
+    const handleProfileClick = () => {
+        if (loading) return; 
 
+        if (!!user) {
+            navigate('/profile');
+        } else {
+            navigate('/auth');
+        }
+    };
     return (
         <nav id="utility-nav">
             <div className="nav-group" onClick={() => { navigate('/'); }}>
@@ -30,7 +38,7 @@ function NavBar() {
                     <input type="text" placeholder='⌘ + K to Search' />
                 </div>
                 <div id='profile-panel'>
-                    <div id='profile' onClick={() => user?navigate('/profile'):navigate('/auth')}>
+                    <div id='profile' onClick={handleProfileClick}>
                         <div className="avatar"></div>
                         <span>{user ? user.username : "Login"}</span>
                     </div>

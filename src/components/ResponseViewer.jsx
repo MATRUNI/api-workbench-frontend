@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { forwardRef, useContext, useState } from 'react'
 import { RequestContext } from '../context/RequestContext'
 import '../style/responseViewer.css'
 import VoidLoader from './VoidLoader';
-function ResponseViewer() {
+
+const ResponseViewer = forwardRef((props, ref) =>{
     const {response,isLoading,requestPhase}=useContext(RequestContext);
     const [copy,setCopy]=useState(false);
     const getStatusText=(status)=>
@@ -37,7 +38,7 @@ function ResponseViewer() {
       }
     }
   return (
-        <section className="pane response-pane">
+        <section ref={ref} className="pane response-pane">
         <div className="pane-header">
           <div className="pane-header-left">
             <span className="label">Response</span>
@@ -75,6 +76,6 @@ function ResponseViewer() {
         </div>
       </section>
   )
-}
+})
 
 export default ResponseViewer

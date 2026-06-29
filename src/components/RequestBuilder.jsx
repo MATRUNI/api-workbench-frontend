@@ -7,7 +7,7 @@ import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
 
-function RequestBuilder() {
+function RequestBuilder({ scrollToResponse }) {
     const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod}=useContext(RequestContext)
     const [activeTab,setActiveTab]=useState('body')
     const isValidURL=(value)=>
@@ -30,6 +30,7 @@ function RequestBuilder() {
         return;
       }
       setIsLoading(true);
+      scrollToResponse();
       setRequestPhase('initializing')
       await new Promise(res => setTimeout(res, 250));
       try{

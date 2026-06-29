@@ -9,10 +9,11 @@ export default function MatrixStats({ stats }) {
   };
 
   const total = data.total || 1;
-  const integrityRatio = (data.success / total);
+  const integrityRatio = (data.success / total)||0;
 
   const formatBytes = (b) => {
-    if (b === 0) return '0.0 KB';
+    console.log(b)
+    if (!Number.isFinite(b) || b === 0) return '0.0 KB';
     const i = Math.floor(Math.log(b) / Math.log(1024));
     return (b / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
   };

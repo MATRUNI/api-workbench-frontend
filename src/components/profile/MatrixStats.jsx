@@ -3,11 +3,11 @@ import '../../style/MatrixStats.css';
 
 export default function MatrixStats({ stats }) {
   const data = stats || {
-    total: 0, failed: 0, success: 0,
+    total: 0, success: 0,
     rate_limited: 0, client_errors: 0, server_errors: 0,
     bytes_transferred: 0, total_compute_time_ms: 0
   };
-
+  
   const total = data.total || 1;
   const integrityRatio = (data.success / total)||0;
 
@@ -29,7 +29,7 @@ export default function MatrixStats({ stats }) {
         <div className="hero-supporting-text">
           Operational pipeline processed <span className="text-highlight-total" title='Total Calls'>{data.total||0}</span> structural cycles. 
           Out of these requests, <span className="text-highlight-success" title='Success Calls' >{data.success||0}</span> resolved without exception flags, 
-          while <span className="text-highlight-failed" title='Failed Calls' >{data.failed||0}</span> registered as system runtime casualties.
+          while <span className="text-highlight-failed" title='Failed Calls' >{Math.max(0, data.total - data.success)}</span> registered as system runtime casualties.
         </div>
       </div>
 

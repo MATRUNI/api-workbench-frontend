@@ -27,9 +27,9 @@ export default function MatrixStats({ stats }) {
           <span className="hero-subtext">INTEGRITY_INDEX</span>
         </div>
         <div className="hero-supporting-text">
-          Operational pipeline processed <span className="text-highlight-total" title='Total Calls'>{data.total}</span> structural cycles. 
-          Out of these requests, <span className="text-highlight-success" title='Success Calls' >{data.success}</span> resolved without exception flags, 
-          while <span className="text-highlight-failed" title='Failed Calls' >{data.failed}</span> registered as system runtime casualties.
+          Operational pipeline processed <span className="text-highlight-total" title='Total Calls'>{data.total||0}</span> structural cycles. 
+          Out of these requests, <span className="text-highlight-success" title='Success Calls' >{data.success||0}</span> resolved without exception flags, 
+          while <span className="text-highlight-failed" title='Failed Calls' >{data.failed||0}</span> registered as system runtime casualties.
         </div>
       </div>
 

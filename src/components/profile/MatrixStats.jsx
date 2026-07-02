@@ -50,7 +50,7 @@ export default function MatrixStats({ stats }) {
         <div className="ledger-item-node">
           <div className="ledger-meta-label">03 // AVERAGE_CYCLE</div>
           <div className="ledger-huge-stat">
-            {data.total > 0 ? (data.total_compute_time_ms / data.total).toFixed(1) : 0}s
+            {data.total > 0 ? (data.total_compute_time_ms / data.total).toFixed(1) : 0}ms
           </div>
         </div>
 

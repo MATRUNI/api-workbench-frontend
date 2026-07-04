@@ -87,7 +87,10 @@
     background-color: rgba(249, 62, 62, 0.15); 
     color: #f93e3e;
 }
-
+.method-PATCH {
+    background-color: rgba(155, 89, 182, 0.15); 
+    color: #9b59b6;
+}
 .method-dropdown option {
     background-color: var(--card-bg); /* Changed from #161b22 */
     color: var(--text-main); /* Changed from white */

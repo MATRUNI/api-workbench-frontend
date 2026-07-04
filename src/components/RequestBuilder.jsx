@@ -79,6 +79,7 @@ function RequestBuilder({ scrollToResponse }) {
           <option value="GET">GET</option>
           <option value="POST">POST</option>
           <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
           <option value="DELETE">DELETE</option>
         </select>
         <input type="text" className="url-input" value={url} onChange={(e)=>setURL(e.target.value)}/>

@@ -111,6 +111,10 @@
     background-color: rgba(252, 161, 48, 0.15); 
     color: #fca130;
 }
+.api-badge.PATCH, .api-badge-large.PUT {
+    background-color: rgba(80, 227, 194, 0.15);
+    color: #50e3c2;
+}
 .api-badge.DELETE, .api-badge-large.DELETE {
     background-color: rgba(249, 62, 62, 0.15); 
     color: #f93e3e;

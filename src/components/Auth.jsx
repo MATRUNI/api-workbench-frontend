@@ -37,7 +37,9 @@ function Auth() {
       setIsEmailValidFormat(false);
     }
   }, [formData.email]);
-
+  useEffect(()=>{
+    setUser(null)
+  },[])
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));

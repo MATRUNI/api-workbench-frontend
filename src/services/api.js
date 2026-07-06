@@ -9,6 +9,7 @@ export async function callAPI(url,method,request)
     const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
       ...ArrayToObject(request.query || {})
     }).toString();
+    console.log(queryString)
     const options={
         method,
         headers:{
@@ -20,7 +21,11 @@ export async function callAPI(url,method,request)
     const {isMasked, finalUrl} = APIMask(url)
     try{
         const startTime=Date.now()
-        let res = isMasked ? await customFetch(`${finalUrl}${queryString&&"?"+queryString}`, options) :await fetch(`${finalUrl}${queryString&&"?"+queryString}`,options)
+        const requestUrl = `${finalUrl}${queryString ? "?" + queryString : ""}`;
+
+        const res = isMasked
+          ? await customFetch(requestUrl, options)
+          : await fetch(requestUrl, options);
         const endTime=Date.now();
         const timeTaken = endTime - startTime;
         const resClone=res.clone();

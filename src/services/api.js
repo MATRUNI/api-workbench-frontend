@@ -6,8 +6,9 @@ import { customFetch } from "./customFetch";
 export async function callAPI(url,method,request)
 {
     const header=ArrayToObject(request.header);
-    const queryString=new URLSearchParams(ArrayToObject(request.query)||{}).toString();
-    const newUrl = queryString? `${url}${url.includes('?') ? '&' : '?'}${queryString}`: url;
+    const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
+      ...ArrayToObject(request.query || {})
+    }).toString();
     const options={
         method,
         headers:{
@@ -16,10 +17,10 @@ export async function callAPI(url,method,request)
         },
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
-    const {isMasked, finalUrl} = APIMask(newUrl)
+    const {isMasked, finalUrl} = APIMask(url)
     try{
         const startTime=Date.now()
-        let res = isMasked ? await customFetch(finalUrl, options) :await fetch(finalUrl,options)
+        let res = isMasked ? await customFetch(`${finalUrl}${queryString&&"?"+queryString}`, options) :await fetch(`${finalUrl}${queryString&&"?"+queryString}`,options)
         const endTime=Date.now();
         const timeTaken = endTime - startTime;
         const resClone=res.clone();

@@ -13,6 +13,7 @@
 
 .api-sidebar {
   width: 320px;
+  max-height: 650px;
   background-color: var(--terminal-input);
   border-right: 1px solid var(--border-color);
   padding: 24px;
@@ -45,6 +46,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 570px;
+  overflow-y: auto;
 }
 
 .api-nav-item {

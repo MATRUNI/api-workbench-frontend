@@ -9,7 +9,6 @@ export async function callAPI(url,method,request)
     const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
       ...ArrayToObject(request.query || {})
     }).toString();
-    console.log(queryString)
     const options={
         method,
         headers:{

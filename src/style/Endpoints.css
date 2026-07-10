@@ -12,6 +12,7 @@
   flex-direction: column;
   padding: 20px;
   gap: 15px;
+  min-width: 0;
 }
 
 .request-pane {
@@ -155,6 +156,7 @@
   border-radius: 8px;
   flex-grow: 1;
   height: 0;
+  min-width: 0;
   min-height: 200px;
   overflow: auto;
   font-family: 'Fira Code', monospace;
@@ -173,7 +175,7 @@
 }
 
 .code-output {
-  color: var(--code-json); /* Swapped from static violet #d2a8ff to current theme accent */
+  color: var(--code-json); 
 }
 
 .ghost-textarea {

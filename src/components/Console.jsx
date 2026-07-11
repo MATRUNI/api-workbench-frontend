@@ -34,7 +34,7 @@ function Console() {
     
     setResponse({
       status: log.response.status,
-      data: log.response.data,
+      data: Object.keys(log.response.data).length === 0?"{}": log.response.data,
       message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
       time: log.response.time
     });

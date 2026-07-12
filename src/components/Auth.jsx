@@ -66,27 +66,95 @@ function Auth() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  // Triggered via the inline verification badge component
   const handleRequestOTP = async () => {
     setIsLoading(true);
+    setErrors({});
+
     try {
-      setOtpSent(await sendOTP({email:formData.email}))
-      setErrors(prev => ({ ...prev, email: null }));
-    } catch (err) {
-      setErrors({ system: "DISPATCH_FAILED: OTP_GATEWAY_OFFLINE" });
+      const response = await sendOTP({
+        email: formData.email,
+        username: formData.username,
+      });
+      const paylaod = await response.json()
+      switch (response.status) {
+        case 200:
+          setOtpSent(true);
+          break;
+
+        case 400:
+          setErrors({ email: "INVALID_EMAIL" });
+          break;
+
+        case 409:
+          setErrors({ [paylaod.field]: paylaod.error });
+          break;
+
+        case 429:
+          setErrors({ system: "TOO_MANY_REQUESTS" });
+          break;
+
+        case 500:
+          setErrors({ system: "SERVER_ERROR" });
+          break;
+
+        default:
+          setErrors({ system: paylaod.error || "UNKNOWN_ERROR" });
+      }
+    } catch {
+      setErrors({ system: "NETWORK_ERROR" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Triggered inside the verification challenge terminal
+    // Triggered inside the verification challenge terminal
   const handleVerifyOTP = async () => {
     setIsLoading(true);
+    setErrors({});
+
     try {
-      setIsEmailVerified(await verifyOTP({email:formData.email,otp:otpCode}))
-      setErrors(prev => ({ ...prev, otp: null }));
-    } catch (err) {
-      setErrors({ otp: "ACCESS_DENIED: MATCH_FAILED" });
+      const response = await verifyOTP({
+        email: formData.email,
+        otp: otpCode,
+      });
+
+      switch (response.status) {
+        case 200:
+          setIsEmailVerified(true);
+          setOtpSent(false);
+          break;
+
+        case 400:
+          setErrors({ otp: "INVALID_OTP" });
+          break;
+
+        case 401:
+          setOtpSent(false);
+          setIsEmailVerified(false);
+          setOtpCode("");
+          setErrors({ otp: "OTP_EXPIRED" });
+          break;
+
+        case 403:
+          setErrors({ otp: "OTP_INCORRECT" });
+          break;
+
+        case 404:
+          setErrors({ otp: "OTP_NOT_FOUND" });
+          break;
+
+        case 429:
+          setErrors({ otp: "TOO_MANY_ATTEMPTS" });
+          break;
+
+        default:
+          setOtpSent(false);
+          setIsEmailVerified(false);
+          setOtpCode("");
+          setErrors({ system: response.error || "VERIFICATION_FAILED" });
+      }
+    } catch {
+      setErrors({ system: "NETWORK_ERROR" });
     } finally {
       setIsLoading(false);
     }

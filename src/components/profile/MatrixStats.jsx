@@ -29,7 +29,7 @@ export default function MatrixStats({ stats }) {
         <div className="hero-supporting-text">
           Operational pipeline processed <span className="text-highlight-total" title='Total Calls'>{data.total||0}</span> structural cycles. 
           Out of these requests, <span className="text-highlight-success" title='Success Calls' >{data.success||0}</span> resolved without exception flags, 
-          while <span className="text-highlight-failed" title='Failed Calls' >{Math.max(0, data.total - data.success)}</span> registered as system runtime casualties.
+          while <span className="text-highlight-failed" title='Failed Calls' >{Math.max(0, data.total - data.success)||0}</span> registered as system runtime casualties.
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export default function MatrixStats({ stats }) {
         <div className="ledger-item-node">
           <div className="ledger-meta-label">02 // COMPUTE_LATENCY</div>
           <div className="ledger-huge-stat text-brand-accent">
-            {data.total_compute_time_ms}<span className="ms-marker">ms</span>
+            {data.total_compute_time_ms||0}<span className="ms-marker">ms</span>
           </div>
         </div>
 

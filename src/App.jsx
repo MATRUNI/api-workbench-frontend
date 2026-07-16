@@ -14,6 +14,7 @@ import StartBootLoader from './components/StartBootLoader'
 import UserProfileManifest from './components/UserProfileManifest'
 import { customFetch } from './services/customFetch'
 import ApiDocumentationModal from './components/ApiDocumentationModal'
+import ChatComponent from './components/socket/ChatComponent'
 
 const router=new createBrowserRouter([
   {
@@ -49,13 +50,17 @@ const router=new createBrowserRouter([
       {
         path:'/auth',
         element:<Auth/>
+      },
+      {
+        path:'/chat',
+        element:<ChatComponent/>
       }
     ]
   },
   {
     path:'/profile',
     element:<UserProfileManifest/>
-  },
+  }
 ])
 
 function App() {

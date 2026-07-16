@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import '../style/NavBar.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
@@ -8,19 +8,33 @@ import { Search, X } from 'lucide-react';
 function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [isSearchOpen, setIsSearchOpen] = useState(false)
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
     const activeBtn = (path) => location.pathname === path;
-    const { user, setUser} = useContext(UserContext);
-    const handleProfileClick = () => {
+    const { user } = useContext(UserContext);
 
+    const isChatActive = location.pathname === '/chat';
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setIsSearchOpen((prev) => !prev);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    const handleProfileClick = () => {
         if (!!user) {
             navigate('/profile');
         } else {
             navigate('/auth');
         }
     };
+
     return (
-        <nav id="utility-nav">
+        <nav id="utility-nav" className={isChatActive ? 'chat-workspace-active' : ''}>
             <div className="nav-group" onClick={() => { navigate('/'); }}>
                 <span id="logo">⚡ API.OS<sub>v1.3</sub></span>
             </div>
@@ -29,12 +43,13 @@ function NavBar() {
                 <button className={`btn ${activeBtn('/endpoints') ? 'active' : ""}`} onClick={() => navigate('/endpoints')}>Endpoints</button>
                 <button className={`btn ${activeBtn('/docs') ? 'active' : ""}`} onClick={() => navigate('/docs')} >Docs</button>
                 <button className={`btn ${activeBtn('/console') ? 'active' : ""}`} onClick={() => navigate('/console')} >Console</button>
-                <button className={`btn fetch-trigger`} onClick={() => { navigate('/fetch'); }}>Fetch Data</button>
+                {user&&(<button className={`btn ${activeBtn('/chat') ? 'active' : ""}`} onClick={() => navigate('/chat')}>Chat</button>)}
+                <button className="btn fetch-trigger" onClick={() => { navigate('/fetch'); }}>Fetch Data</button>
             </div>
 
             <div className="nav-group">
                 <div className='search'>
-                    <input type="text" placeholder='⌘ + K to Search' />
+                    <input type="text" placeholder='⌘ + K to Search' readOnly onClick={() => setIsSearchOpen(true)} />
                     <Search className="search-icon" size={18} onClick={() => setIsSearchOpen(true)} />
                 </div>
                 <div id='profile-panel'>
@@ -44,9 +59,10 @@ function NavBar() {
                     </div>
                 </div>
             </div>
+            
             {isSearchOpen && (
-                <div className="search-modal-overlay">
-                    <div className="search-modal-content">
+                <div className="search-modal-overlay" onClick={() => setIsSearchOpen(false)}>
+                    <div className="search-modal-content" onClick={(e) => e.stopPropagation()}>
                         <Search size={20} className="modal-search-icon" />
                         <input 
                             type="text" 

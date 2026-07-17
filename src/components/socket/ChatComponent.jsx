@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import '../../style/ChatComponent.css';
 import { useNavigate } from 'react-router-dom';
+import refreshSession from '../../utils/refreshSession.js';
 
 function ChatComponent() {
 const { user } = useContext(UserContext); // Get user first
@@ -92,20 +93,54 @@ const { user } = useContext(UserContext); // Get user first
       setMessages((previous) => [...previous, verifiedPayload].slice(-100));
       pushAudit(`RECV package from @${verifiedPayload.sender || 'system'}`);
     }
+    let refreshing = false;
+    async function onRefresh(error) 
+    {
+      if(error.message !== "ACCESS_TOKEN_EXPIRED")
+      {
+        pushAudit("Invalid session. Login required.", "sys")
+        return;
+      }
+      if(refreshing) return;
+      if(error.message === "ACCESS_TOKEN_EXPIRED")
+      {
+        refreshing = true;
+        try 
+        {
+          const res = await refreshSession()
+          if(res)
+          {
+            socket.connect();
+          }
+          else
+          {
+            navigate('/auth')
+          }
+          
+        }
+        finally
+        {
+          refreshing = false  
+        }
+      }
+      
+    }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('members', onMembers);
     socket.on('chat:receive', onMessageReceived);
+    socket.on("connect_error", onRefresh)
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('members', onMembers);
       socket.off('chat:receive', onMessageReceived);
+      socket.off("connect_error",onRefresh)
       socket.disconnect();
     };
-  }, [pushAudit]);
+  }, []);
 
   const executeSystemCommand = (command) => {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

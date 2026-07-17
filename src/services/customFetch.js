@@ -1,3 +1,5 @@
+import refreshSession from "../utils/refreshSession";
+
 export async function customFetch(url, options = {}) {
 
     options.credentials = 'include';
@@ -9,28 +11,15 @@ export async function customFetch(url, options = {}) {
     };
 
     let response = await fetch(url, options);
-
     if (response.status === 401 && !options._retry) {
+    
         options._retry = true;
-
-        try {
-            
-            const refreshRes = await fetch(import.meta.env.VITE_BACKEND_URL + '/api/auth/refresh', {
-                method: 'POST',
-                credentials: 'include',
-                headers:{
-                    'x-api-key':import.meta.env.VITE_BACKEND_KEY
-                }
-            });
-
-            if (refreshRes.ok) {
-                return await fetch(url, options);
-            }
-        } catch (refreshError) {
-            console.error("Refresh token network error:", refreshError);
+        const refreshed = await refreshSession();
+        if (refreshed) {
+            return fetch(url, options);
         }
-        const error = new Error("SESSION_EXPIRED PLEASE LOGIN");
-        throw error;
+    
+        throw new Error("SESSION_EXPIRED PLEASE LOGIN");
     }
 
     return response;

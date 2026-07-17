@@ -165,8 +165,8 @@ function Auth() {
 
     if (validate()) {
       setIsLoading(true);
+      let response;
       try {
-        let response;
         if (isLogin) {
           const { email, password } = formData;
           response = await LoginCall({ email, password });
@@ -182,7 +182,7 @@ function Auth() {
           navigate('/');
         }
       } catch (err) {
-        setErrors({ system: "CONNECTION_REFUSED: NODE_UNREACHABLE" });
+        setErrors({ system: response.error });
       } finally {
         setIsLoading(false);
       }

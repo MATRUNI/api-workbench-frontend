@@ -12,8 +12,13 @@ async function AuthCall({username,email,password})
 export default AuthCall
 export async function LoginCall({email,password})
 {
-    let res=await customFetch(import.meta.env.VITE_BACKEND_URL+"/api/auth/login",{
+    let res=await fetch(import.meta.env.VITE_BACKEND_URL+"/api/auth/login",{
         method:"POST",
+        headers: {
+            'Content-Type': 'application/json',
+            "x-api-key": import.meta.env.VITE_BACKEND_KEY
+        },
+        credentials:"include",
         body: JSON.stringify({email,password}),
     })
     let data=await res.json();

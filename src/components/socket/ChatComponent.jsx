@@ -42,7 +42,7 @@ const { user } = useContext(UserContext); // Get user first
 
   const pushAudit = useCallback((text, type = 'default') => {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    setAuditLog((prev) => [...prev, { timestamp, text, type }].slice(-20));
+    setAuditLog((prev) => [...prev, { timestamp, text, type }].slice(-11));
   }, []);
 
   const scrollToBottom = () => {

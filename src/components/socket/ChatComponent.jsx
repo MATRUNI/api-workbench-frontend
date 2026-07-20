@@ -258,8 +258,6 @@ function ChatComponent() {
 
   return (
     <div className="chat-workbench">
-      <audio id="remoteAudio" autoPlay />
-
       {/* Sidebar Controls Console */}
       <aside className="chat-sidebar">
         <div>
@@ -349,7 +347,8 @@ function ChatComponent() {
           <div className="chat-call-controls">
             {hasIncomingCall && !isInCall && (
               <button className="chat-call-btn call-accept" onClick={handleAcceptCall}>
-                <PhoneCall size={14} /> Accept Call from @{callerName}
+                <PhoneCall size={14} /> 
+                <span className="btn-call-text">Accept Call from @{callerName}</span>
               </button>
             )}
 
@@ -359,13 +358,15 @@ function ChatComponent() {
                 onClick={handleStartCall}
                 disabled={!isConnected}
               >
-                <Phone size={14} /> Start Voice Link
+                <Phone size={14} /> 
+                <span className="btn-call-text">Start Voice Link</span>
               </button>
             )}
 
             {isInCall && (
               <button className="chat-call-btn call-end" onClick={handleEndCall}>
-                <PhoneOff size={14} /> Disconnect ({callerName ? `@${callerName}` : 'In Call'})
+                <PhoneOff size={14} /> 
+                <span className="btn-call-text">Disconnect ({callerName ? `@${callerName}` : 'In Call'})</span>
               </button>
             )}
           </div>
@@ -457,6 +458,8 @@ function ChatComponent() {
           </form>
         </footer>
       </main>
+
+      <audio id="remoteAudio" autoPlay style={{ display: 'none' }} />
     </div>
   );
 }

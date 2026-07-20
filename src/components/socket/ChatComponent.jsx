@@ -145,12 +145,18 @@ function ChatComponent() {
   }, [navigate, pushAudit]);
 
   const handleStartCall = useCallback(() => {
+    const audio = document.getElementById("remoteAudio");
+    if (audio) audio.play().catch(() => {});
+    
     const currentUsername = user?.username || 'GuestOperator';
     pushAudit(`VOICE_LINK initialized as @${currentUsername}...`, 'sys');
     startCall(currentUsername);
   }, [user, pushAudit, startCall]);
 
   const handleAcceptCall = useCallback(() => {
+    const audio = document.getElementById("remoteAudio");
+    if (audio) audio.play().catch(() => {});
+    
     pushAudit(`VOICE_LINK connected with @${callerName}`, 'ok');
     acceptCall();
   }, [callerName, pushAudit, acceptCall]);
@@ -459,7 +465,7 @@ function ChatComponent() {
         </footer>
       </main>
 
-      <audio id="remoteAudio" autoPlay style={{ display: 'none' }} />
+      <audio id="remoteAudio" autoPlay playsInline style={{ display: 'none' }} />
     </div>
   );
 }

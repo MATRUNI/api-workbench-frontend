@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 export default function useWebRTC(socket) {
   const peerConnection = useRef(null);
   const localStream = useRef(null);
+  const iceQueue = useRef([]);
   const [isInCall, setIsInCall] = useState(false);
   const [incomingData, setIncomingData] = useState(null);
 
@@ -10,7 +11,6 @@ export default function useWebRTC(socket) {
     const connection = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
     });
-
     connection.onicecandidate = (event) => {
       if (event.candidate) {
         socket.emit("ice", event.candidate);
@@ -21,6 +21,7 @@ export default function useWebRTC(socket) {
       const audio = document.getElementById("remoteAudio");
       if (audio) {
         audio.srcObject = event.streams[0];
+        audio.play().catch(err => console.log("Audio autoplay interrupted:", err));
       }
     };
 
@@ -30,8 +31,19 @@ export default function useWebRTC(socket) {
 
   const getLocalAudio = useCallback(async () => {
     if (localStream.current) return localStream.current;
-    localStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+    localStream.current = await navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true,noiseSuppression:true} });
     return localStream.current;
+  }, []);
+
+  const processIceQueue = useCallback(async () => {
+    while (iceQueue.current.length > 0 && peerConnection.current?.remoteDescription) {
+      const candidate = iceQueue.current.shift();
+      try {
+        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (e) {
+        console.error("Error adding queued ICE candidate", e);
+      }
+    }
   }, []);
 
   const addLocalAudio = useCallback(() => {
@@ -43,8 +55,8 @@ export default function useWebRTC(socket) {
   }, []);
 
   const startCall = useCallback(async (username) => {
-    createPeer();
     await getLocalAudio();
+    createPeer();
     addLocalAudio();
     
     const offer = await peerConnection.current.createOffer();
@@ -58,12 +70,13 @@ export default function useWebRTC(socket) {
 
   const acceptCall = useCallback(async () => {
     if (!incomingData) return;
-    createPeer();
     await getLocalAudio();
+    createPeer();
     addLocalAudio();
     const rawOffer = incomingData.offer || incomingData; 
     await peerConnection.current.setRemoteDescription(new RTCSessionDescription(rawOffer));
-    
+
+    await processIceQueue();
     const answer = await peerConnection.current.createAnswer();
     await peerConnection.current.setLocalDescription(answer);
     
@@ -81,6 +94,7 @@ export default function useWebRTC(socket) {
       localStream.current.getTracks().forEach((track) => track.stop());
       localStream.current = null;
     }
+    iceQueue.current = [];
     setIsInCall(false);
     setIncomingData(null);
     if (isInitiator) {
@@ -96,12 +110,17 @@ export default function useWebRTC(socket) {
     const handleReceiveAnswer = async (answer) => {
       if (peerConnection.current) {
         await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
+        await processIceQueue();
       }
     };
 
     const handleReceiveIce = async (candidate) => {
-      if (peerConnection.current) {
+      if (peerConnection.current && peerConnection.current.remoteDescription) {
         await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
+      }
+      else
+      {
+        iceQueue.current.push(candidate)
       }
     };
 
@@ -120,7 +139,7 @@ export default function useWebRTC(socket) {
       socket.off("ice", handleReceiveIce);
       socket.off("call:end", handleCallEnded);
     };
-  }, [socket, endCall]);
+  }, [socket, endCall,processIceQueue]);
 
   return {
     startCall,

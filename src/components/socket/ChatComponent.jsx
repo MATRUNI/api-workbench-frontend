@@ -9,33 +9,46 @@ import {
   Activity, 
   Hash, 
   Trash2,
-  HelpCircle
+  HelpCircle,
+  Phone,
+  PhoneOff,
+  PhoneCall
 } from 'lucide-react';
 import '../../style/ChatComponent.css';
 import { useNavigate } from 'react-router-dom';
 import refreshSession from '../../utils/refreshSession.js';
+import useWebRTC from '../../hooks/useWebRtc.jsx';
 
 function ChatComponent() {
-const { user } = useContext(UserContext); // Get user first
-  const navigate = useNavigate(); // Make sure to import { useNavigate } from 'react-router-dom'
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  // 1. Structural Redirect Guard
   useEffect(() => {
     if (user === null) {
       navigate('/auth');
     }
   }, [user, navigate]);
 
-  // 2. Render Engine Guard: Prevents UI flickering or running socket effects below
   if (!user) {
     return null; 
   }
+
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [member, setMember] = useState(0);
   const [auditLog, setAuditLog] = useState([]);
   const [latency, setLatency] = useState(12);
+
+  // WebRTC Hook
+  const { 
+    startCall, 
+    acceptCall, 
+    endCall, 
+    isInCall, 
+    callerName, 
+    hasIncomingCall 
+  } = useWebRTC(socket);
 
   const feedEndRef = useRef(null);
   const auditEndRef = useRef(null);
@@ -74,7 +87,6 @@ const { user } = useContext(UserContext); // Get user first
       pushAudit('HANDSHAKE established securely.', 'ok');
     }
 
-    // Handles reconnection safely if server drops
     function onDisconnect() {
       setIsConnected(false);
       pushAudit('CONNECTION_CLOSED by host pipeline.', 'sys');
@@ -93,54 +105,60 @@ const { user } = useContext(UserContext); // Get user first
       setMessages((previous) => [...previous, verifiedPayload].slice(-100));
       pushAudit(`RECV package from @${verifiedPayload.sender || 'system'}`);
     }
+
     let refreshing = false;
-    async function onRefresh(error) 
-    {
-      if(error.message !== "ACCESS_TOKEN_EXPIRED")
-      {
-        pushAudit("Invalid session. Login required.", "sys")
+    async function onRefresh(error) {
+      if (error.message !== "ACCESS_TOKEN_EXPIRED") {
+        pushAudit("Invalid session. Login required.", "sys");
         return;
       }
-      if(refreshing) return;
-      if(error.message === "ACCESS_TOKEN_EXPIRED")
-      {
+      if (refreshing) return;
+      if (error.message === "ACCESS_TOKEN_EXPIRED") {
         refreshing = true;
-        try 
-        {
-          const res = await refreshSession()
-          if(res)
-          {
+        try {
+          const res = await refreshSession();
+          if (res) {
             socket.connect();
+          } else {
+            navigate('/auth');
           }
-          else
-          {
-            navigate('/auth')
-          }
-          
-        }
-        finally
-        {
-          refreshing = false  
+        } finally {
+          refreshing = false;
         }
       }
-      
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('members', onMembers);
     socket.on('chat:receive', onMessageReceived);
-    socket.on("connect_error", onRefresh)
+    socket.on("connect_error", onRefresh);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('members', onMembers);
       socket.off('chat:receive', onMessageReceived);
-      socket.off("connect_error",onRefresh)
+      socket.off("connect_error", onRefresh);
       socket.disconnect();
     };
-  }, []);
+  }, [navigate, pushAudit]);
+
+  const handleStartCall = useCallback(() => {
+    const currentUsername = user?.username || 'GuestOperator';
+    pushAudit(`VOICE_LINK initialized as @${currentUsername}...`, 'sys');
+    startCall(currentUsername);
+  }, [user, pushAudit, startCall]);
+
+  const handleAcceptCall = useCallback(() => {
+    pushAudit(`VOICE_LINK connected with @${callerName}`, 'ok');
+    acceptCall();
+  }, [callerName, pushAudit, acceptCall]);
+
+  const handleEndCall = useCallback(() => {
+    pushAudit('VOICE_LINK terminated.', 'sys');
+    endCall();
+  }, [pushAudit, endCall]);
 
   const executeSystemCommand = (command) => {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -148,6 +166,23 @@ const { user } = useContext(UserContext); // Get user first
     if (command === '/clear') {
       setMessages([]);
       pushAudit('MEM_PURGE triggered successfully', 'ok');
+      return;
+    }
+
+    if (command === '/call') {
+      if (!isConnected) {
+        pushAudit('Cannot initiate call: Network offline.', 'sys');
+        return;
+      }
+      handleStartCall();
+      return;
+    }
+    if (command === '/end') {
+      if (!isInCall) {
+        pushAudit('No active VOICE_LINK stream to terminate.', 'sys');
+        return;
+      }
+      handleEndCall();
       return;
     }
 
@@ -159,6 +194,8 @@ const { user } = useContext(UserContext); // Get user first
           text: 'AVAILABLE CONSOLE SHELL COMMANDS:\n' +
                 '  /help    - Prints list of diagnostic operations.\n' +
                 '  /clear   - Purges message memory snapshot buffers.\n' +
+                '  /call    - Initiates outward WebRTC voice stream link.\n' +
+                '  /end     - Terminates active WebRTC voice stream link.\n' +
                 '  /status  - Executes trace route checks for network health.',
           timestamp,
           type: 'system'
@@ -175,7 +212,7 @@ const { user } = useContext(UserContext); // Get user first
           text: `NETWORK METRICS STATUS:\n` +
                 `  [STATE] online\n` +
                 `  [LATENCY] ${latency}ms\n` +
-                `  [ROUTING TARGET] ws-relay.node.net\n` +
+                `  [VOICE_STREAM] ${isInCall ? 'CONNECTED' : 'IDLE'}\n` +
                 `  [OPERATOR] ${user?.username || 'GuestOperator'}`,
           timestamp,
           type: 'system'
@@ -221,7 +258,8 @@ const { user } = useContext(UserContext); // Get user first
 
   return (
     <div className="chat-workbench">
-      
+      <audio id="remoteAudio" autoPlay />
+
       {/* Sidebar Controls Console */}
       <aside className="chat-sidebar">
         <div>
@@ -239,6 +277,14 @@ const { user } = useContext(UserContext); // Get user first
               <span className="hud-value">
                 <span className={`chat-status-dot ${isConnected ? 'connected' : 'disconnected'}`} />
                 {isConnected ? 'ONLINE' : 'OFFLINE'}
+              </span>
+            </div>
+
+            <div className="chat-status-indicator">
+              <span className="hud-label">VOICE_STREAM</span>
+              <span className="hud-value">
+                <span className={`chat-status-dot ${isInCall ? 'connected' : 'disconnected'}`} />
+                {isInCall ? 'ACTIVE' : 'IDLE'}
               </span>
             </div>
 
@@ -297,6 +343,31 @@ const { user } = useContext(UserContext); // Get user first
           <div className="chat-header-channel">
             <Hash size={16} className="text-muted" />
             <span>stdout_stream</span>
+          </div>
+
+          {/* Voice Call UI Controls in Header */}
+          <div className="chat-call-controls">
+            {hasIncomingCall && !isInCall && (
+              <button className="chat-call-btn call-accept" onClick={handleAcceptCall}>
+                <PhoneCall size={14} /> Accept Call from @{callerName}
+              </button>
+            )}
+
+            {!isInCall && !hasIncomingCall && (
+              <button 
+                className="chat-call-btn call-start" 
+                onClick={handleStartCall}
+                disabled={!isConnected}
+              >
+                <Phone size={14} /> Start Voice Link
+              </button>
+            )}
+
+            {isInCall && (
+              <button className="chat-call-btn call-end" onClick={handleEndCall}>
+                <PhoneOff size={14} /> Disconnect ({callerName ? `@${callerName}` : 'In Call'})
+              </button>
+            )}
           </div>
 
           {/* Mobile Status Panel */}

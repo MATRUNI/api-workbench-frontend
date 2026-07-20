@@ -144,21 +144,29 @@ function ChatComponent() {
     };
   }, [navigate, pushAudit]);
 
-  const handleStartCall = useCallback(() => {
+  const handleStartCall = useCallback(async () => {
     const audio = document.getElementById("remoteAudio");
     if (audio) audio.play().catch(() => {});
     
     const currentUsername = user?.username || 'GuestOperator';
     pushAudit(`VOICE_LINK initialized as @${currentUsername}...`, 'sys');
-    startCall(currentUsername);
+    try {
+      await startCall(currentUsername);
+    } catch (err) {
+      pushAudit(`VOICE_LINK ERROR: ${err.message}`, 'sys');
+    }
   }, [user, pushAudit, startCall]);
 
-  const handleAcceptCall = useCallback(() => {
+  const handleAcceptCall = useCallback(async () => {
     const audio = document.getElementById("remoteAudio");
     if (audio) audio.play().catch(() => {});
     
     pushAudit(`VOICE_LINK connected with @${callerName}`, 'ok');
-    acceptCall();
+    try {
+      await acceptCall();
+    } catch (err) {
+      pushAudit(`VOICE_LINK ERROR: ${err.message}`, 'sys');
+    }
   }, [callerName, pushAudit, acceptCall]);
 
   const handleEndCall = useCallback(() => {

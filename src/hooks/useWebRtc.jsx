@@ -31,7 +31,12 @@ export default function useWebRTC(socket) {
 
   const getLocalAudio = useCallback(async () => {
     if (localStream.current) return localStream.current;
-    localStream.current = await navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true,noiseSuppression:true} });
+    try {
+      localStream.current = await navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true,noiseSuppression:true} });
+    } catch (err) {
+      console.warn("Advanced audio constraints failed, trying basic audio...", err);
+      localStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
     return localStream.current;
   }, []);
 

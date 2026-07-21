@@ -4,7 +4,7 @@ import '../style/responseViewer.css'
 import VoidLoader from './VoidLoader';
 
 const ResponseViewer = forwardRef((props, ref) =>{
-    const {response,isLoading,requestPhase}=useContext(RequestContext);
+    const {response,isLoading,requestPhase,setResponse}=useContext(RequestContext);
     const [copy,setCopy]=useState(false);
     const getStatusText=(status)=>
     {
@@ -36,6 +36,10 @@ const ResponseViewer = forwardRef((props, ref) =>{
       {
         console.log("Failed to copy: ",err)
       }
+    }
+    function  handleClear() 
+    {
+      setResponse({status:200})  
     }
   return (
         <section ref={ref} className="pane response-pane">
@@ -73,6 +77,7 @@ const ResponseViewer = forwardRef((props, ref) =>{
                   Copied to the clipBoard
                 </span>
               )}
+              <button className='copy-btn clear-btn' disabled={!response.data} onClick={handleClear}>CLEAR</button>
         </div>
       </section>
   )

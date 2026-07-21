@@ -1,9 +1,9 @@
 .workbench-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 87dvh;
+  height: 90dvh;
   background-color: var(--bg-color);
-  color: var(--text-main); /* Changed from #c9d1d9 */
+  color: var(--text-main);
   overflow: hidden;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .request-pane {
-  border-right: 1px solid var(--border-color); /* Changed from #30363d */
+  border-right: 1px solid var(--border-color); 
   min-width: 0;
 }
 
@@ -27,14 +27,14 @@
 }
 
 .length-badge {
-  color: var(--text-main); /* Changed from #c9d1d9 */
+  color: var(--text-main); 
   background: color-mix(in srgb, var(--text-main) 5%, transparent);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: bold;
   margin-left: 8px;
-  border: 1px solid var(--border-color); /* Changed from #30363d */
+  border: 1px solid var(--border-color); 
   -webkit-user-select: none;
   user-select: none;
 }
@@ -48,21 +48,21 @@
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--text-muted); /* Changed from #8b949e */
+  color: var(--text-muted); 
   letter-spacing: 0.05rem;
 }
 
 .url-bar-group {
   display: flex;
-  background: var(--terminal-input); /* Changed from #010409 */
-  border: 1px solid var(--border-color); /* Changed from #30363d */
+  background: var(--terminal-input); 
+  border: 1px solid var(--border-color); 
   border-radius: 6px;
   overflow: hidden;
 }
 
 .method-dropdown {
-  background: var(--border-color); /* Changed from #21262d to sync baseline background grids */
-  color: var(--brand-color); /* Swapped for unified brand color orchestration */
+  background: var(--border-color); 
+  color: var(--brand-color);
   border: none;
   padding: 10px 15px;
   font-weight: bold;
@@ -93,8 +93,8 @@
     color: #9b59b6;
 }
 .method-dropdown option {
-    background-color: var(--card-bg); /* Changed from #161b22 */
-    color: var(--text-main); /* Changed from white */
+    background-color: var(--card-bg); 
+    color: var(--text-main); 
     font-weight: normal;
 }
 
@@ -102,14 +102,14 @@
   flex-grow: 1;
   background: transparent;
   border: none;
-  color: var(--text-main); /* Changed from white */
+  color: var(--text-main); 
   padding: 10px;
   outline: none;
 }
 
 .send-button {
-  background: #238636; /* Connects engine status green rules */
-  color: white; /* Contrast locked for execution actions */
+  background: #238636; 
+  color: white; 
   border: none;
   padding: 0 20px;
   font-weight: bold;
@@ -124,20 +124,20 @@
 .tab-container {
   display: flex;
   gap: 15px;
-  border-bottom: 1px solid var(--border-color); /* Changed from #30363d */
+  border-bottom: 1px solid var(--border-color); 
 }
 
 .tab {
   background: transparent;
   border: none;
-  color: var(--text-muted); /* Changed from #8b949e */
+  color: var(--text-muted); 
   padding: 8px 0;
   font-size: 0.85rem;
   cursor: pointer;
 }
 
 .tab.active {
-  color: var(--brand-color); /* Swapped from static coral #f78166 to unified theme color */
+  color: var(--brand-color); 
   border-bottom: 2px solid var(--brand-color);
 }
 
@@ -151,8 +151,8 @@
 }
 
 .editor-window {
-  background: var(--terminal-input); /* Changed from #010409 */
-  border: 1px solid var(--border-color); /* Changed from #30363d */
+  background: var(--terminal-input); 
+  border: 1px solid var(--border-color); 
   border-radius: 8px;
   flex-grow: 1;
   height: 0;
@@ -183,7 +183,7 @@
   height: 100%;
   background: transparent;
   border: none;
-  color: var(--text-main); /* Changed from #c9d1d9 */
+  color: var(--text-main); 
   font-family: 'Fira Code', monospace;
   font-size: 13px;
   line-height: 1.5;
@@ -194,7 +194,7 @@
   overflow-y: auto;
 }
 
-/* Custom platform scrollbar linkages directly referencing global setup handles */
+
 .ghost-textarea::-webkit-scrollbar {
   width: 8px;
 }
@@ -247,7 +247,7 @@
 }
 
 .time-badge {
-  color: var(--text-muted); /* Changed from #8b949e */
+  color: var(--text-muted); 
   font-size: 0.75rem;
   margin-left: 10px;
 }
@@ -262,7 +262,7 @@
 .add-row-btn {
   background: transparent;
   border: 1px solid var(--border-color);
-  color: var(--brand-color); /* Synchronized across themes from static #58a6ff */
+  color: var(--brand-color); 
   font-size: 0.75rem;
   padding: 4px 8px;
   border-radius: 4px;
@@ -275,9 +275,9 @@
 }
 
 .kv-table {
-  border: 1px solid var(--border-color); /* Changed from #30363d */
+  border: 1px solid var(--border-color); 
   border-radius: 6px;
-  background: var(--terminal-input); /* Changed from #010409 */
+  background: var(--terminal-input); 
   overflow: hidden;
 }
 
@@ -294,9 +294,9 @@
 .kv-row input {
   background: transparent;
   border: none;
-  border-right: 1px solid var(--border-color); /* Changed from #30363d */
+  border-right: 1px solid var(--border-color); 
   padding: 10px;
-  color: var(--text-main); /* Changed from white */
+  color: var(--text-main); 
   font-size: 0.85rem;
   outline: none;
 }
@@ -323,13 +323,10 @@
 .empty-state {
   padding: 20px;
   text-align: center;
-  color: var(--text-muted); /* Changed from #484f58 */
+  color: var(--text-muted); 
   font-size: 0.85rem;
 }
 
-/* ==========================================================================
-   RESPONSIVE LAYOUT CONSTRAINTS
-   ========================================================================== */
 @media (max-width: 1220px) {
   .workbench-container {
     height: auto; 

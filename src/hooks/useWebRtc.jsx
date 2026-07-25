@@ -1,157 +1,384 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
-export default function useWebRTC(socket) {
-  const peerConnection = useRef(null);
+const CALL_EVENTS = {
+  CREATE:"CREATE",
+  JOIN:"JOIN",
+  LEFT:"LEFT",
+  KICK:"KICK",
+  END:"END",
+  INCOMING:"INCOMING"
+};
+export default function useWebRTC(socket,invitee=[]) {
+  const peers = useRef(new Map());
   const localStream = useRef(null);
-  const iceQueue = useRef([]);
+  const iceQueue = useRef(new Map());
+  const membersRef = useRef([]);
+  const inviteeRef = useRef(invitee);
+
+  useEffect(() => {
+    inviteeRef.current = invitee;
+  }, [invitee]);
+
   const [isInCall, setIsInCall] = useState(false);
   const [incomingData, setIncomingData] = useState(null);
+  const [inCallMembers, setInCallMembers] = useState([]);
+  const [, update] = useState(0);
+  const [callEvents,setCallEvents] = useState([]);
 
-  const createPeer = useCallback(() => {
-    const connection = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-    });
-    connection.onicecandidate = (event) => {
-      if (event.candidate) {
-        socket.emit("ice", event.candidate);
-      }
-    };
-
-    connection.ontrack = (event) => {
-      const audio = document.getElementById("remoteAudio");
-      if (audio) {
-        audio.srcObject = event.streams[0];
-        audio.play().catch(err => console.log("Audio autoplay interrupted:", err));
-      }
-    };
-
-    peerConnection.current = connection;
-    return connection;
-  }, [socket]);
+  const forceUpdate = useCallback(() => {
+    update((x) => x + 1);
+  }, []);
+  const updateMembers = (members)=>{
+      membersRef.current = members;
+      setInCallMembers(members);
+  }
+  const addCallEvent = useCallback((type,user,extra={})=>{
+      setCallEvents(prev=>[
+          ...prev.slice(-99),
+          {
+              type,
+              user,
+              time:Date.now(),
+              ...extra
+          }
+      ]);
+  },[]);
 
   const getLocalAudio = useCallback(async () => {
-    if (localStream.current) return localStream.current;
-    try {
-      localStream.current = await navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true,noiseSuppression:true} });
-    } catch (err) {
-      console.warn("Advanced audio constraints failed, trying basic audio...", err);
-      localStream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (localStream.current) {
+      return localStream.current;
     }
+
+    try {
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
+    } catch (err) {
+      console.warn("Advanced audio failed, using basic audio", err);
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+    }
+
     return localStream.current;
   }, []);
 
-  const processIceQueue = useCallback(async () => {
-    while (iceQueue.current.length > 0 && peerConnection.current?.remoteDescription) {
-      const candidate = iceQueue.current.shift();
+  const removePeer = useCallback((peer) => {
+    const peerConnection = peers.current.get(peer);
+    if (!peerConnection) return;
+
+    peerConnection.pc.onconnectionstatechange = null;
+    peerConnection.pc.close();
+
+    peerConnection.stream = null;
+    peers.current.delete(peer);
+    iceQueue.current.delete(peer);
+
+    if (peers.current.size === 0) {
+      setIsInCall(false);
+    }
+
+    forceUpdate();
+  }, [forceUpdate]);
+
+  const createPeer = useCallback(async ({ caller }) => {
+    const existing = peers.current.get(caller);
+    if (existing) {
+      return existing.pc;
+    }
+
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: "stun:stun.l.google.com:19302",
+        },
+      ],
+    });
+
+    const peer = {
+      pc,
+      stream: null,
+    };
+
+    peers.current.set(caller, peer);
+
+    pc.onconnectionstatechange = () => {
+      if (
+        pc.connectionState === "failed" ||
+        pc.connectionState === "closed" ||
+        pc.connectionState === "disconnected"
+      ) {
+        removePeer(caller);
+      }
+    };
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.emit("ice", {
+          to:caller,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    pc.ontrack = ({ streams }) => {
+      const currentPeer = peers.current.get(caller);
+      if (!currentPeer) return;
+
+      currentPeer.stream = streams[0];
+      forceUpdate();
+    };
+
+    const stream = await getLocalAudio();
+    stream.getTracks().forEach((track) => {
+      pc.addTrack(track, stream);
+    });
+
+    return pc;
+  }, [socket, getLocalAudio, forceUpdate, removePeer]);
+
+  const processIceQueue = useCallback(async (caller) => {
+    const peer = peers.current.get(caller);
+    if (!peer) return;
+
+    const queue = iceQueue.current.get(caller);
+    if (!queue) return;
+
+    while (queue.length) 
+    {
+      if(!peer.pc.remoteDescription) break;
+
+      const candidate = queue.shift();
+
       try {
-        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (e) {
-        console.error("Error adding queued ICE candidate", e);
+        await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (err) {
+        console.error("ICE error", err);
       }
     }
+
+    iceQueue.current.delete(caller);
   }, []);
 
-  const addLocalAudio = useCallback(() => {
-    if (localStream.current && peerConnection.current) {
-      localStream.current.getTracks().forEach((track) => {
-        peerConnection.current.addTrack(track, localStream.current);
-      });
-    }
-  }, []);
-
-  const startCall = useCallback(async (username) => {
-    await getLocalAudio();
-    createPeer();
-    addLocalAudio();
-    
-    const offer = await peerConnection.current.createOffer();
-    
-    await peerConnection.current.setLocalDescription(offer); 
-    
-    socket.emit("offer", { offer, caller: username }); 
-    
-    setIsInCall(true);
-  }, [createPeer, getLocalAudio, addLocalAudio, socket]);
+  const startCall = useCallback(async () => {
+    if (isInCall) return;
+    socket.emit("call:create");
+  }, [isInCall]);
 
   const acceptCall = useCallback(async () => {
     if (!incomingData) return;
-    await getLocalAudio();
-    createPeer();
-    addLocalAudio();
-    const rawOffer = incomingData.offer || incomingData; 
-    await peerConnection.current.setRemoteDescription(new RTCSessionDescription(rawOffer));
 
-    await processIceQueue();
-    const answer = await peerConnection.current.createAnswer();
-    await peerConnection.current.setLocalDescription(answer);
-    
-    socket.emit("answer", answer);
+    const {callId} = incomingData;
+
+    socket.emit("call:join", {
+      callId
+    });
+
     setIncomingData(null);
     setIsInCall(true);
-  }, [incomingData, createPeer, getLocalAudio, addLocalAudio, socket]);
+  }, [incomingData]);
 
-  const endCall = useCallback((isInitiator=true) => {
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
+  const endCall = useCallback((notify = true) => {
+    addCallEvent(
+      CALL_EVENTS.END,
+      "you"
+    );
+    peers.current.forEach((peer) => {
+      peer.pc.onconnectionstatechange = null;
+      peer.pc.close();
+    });
+
+    peers.current.clear();
+    forceUpdate();
+
     if (localStream.current) {
-      localStream.current.getTracks().forEach((track) => track.stop());
+      localStream.current.getTracks().forEach((track) => {
+        track.stop();
+      });
+
       localStream.current = null;
     }
-    iceQueue.current = [];
-    setIsInCall(false);
+
+    iceQueue.current.clear();
+    updateMembers([]);
     setIncomingData(null);
-    if (isInitiator) {
+    setIsInCall(false);
+
+    if (notify) {
       socket.emit("call:end");
     }
-  }, [socket]);
+  }, [socket,forceUpdate,addCallEvent]);
+
+  const makeOffer = useCallback(async(users)=>{
+
+    for (const peer of users) {
+        const pc = await createPeer({caller: peer});
+
+        const offer = await pc.createOffer();
+
+        await pc.setLocalDescription(offer);
+
+        socket.emit("offer", {
+            to: peer,
+            offer
+        });
+    }
+  },[createPeer,socket])
+
+  const getPeers = useCallback(() =>[...peers.current.entries()],[]);
 
   useEffect(() => {
-    const handleReceiveOffer = (data) => {
-      setIncomingData(data);
+    const handleOffer = async({ from, offer }) => {
+
+      const pc = await createPeer({caller:from});
+      await pc.setRemoteDescription(new RTCSessionDescription(offer))
+
+      const answer = await pc.createAnswer();
+
+      await pc.setLocalDescription(answer);
+      await processIceQueue(from)
+      socket.emit("answer",{to:from,answer})
+      setIsInCall(true);
     };
 
-    const handleReceiveAnswer = async (answer) => {
-      if (peerConnection.current) {
-        await peerConnection.current.setRemoteDescription(new RTCSessionDescription(answer));
-        await processIceQueue();
+    const handleAnswer = async ({ from, answer }) => {
+      const peer = peers.current.get(from);
+      if (!peer) return;
+
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(answer));
+      await processIceQueue(from);
+    };
+
+    const handleIce = async ({ from, candidate }) => {
+      const peer = peers.current.get(from);
+
+      if (!peer || !peer.pc.remoteDescription) {
+        if (!iceQueue.current.has(from)) {
+          iceQueue.current.set(from, []);
+        }
+
+        iceQueue.current.get(from).push(candidate);
+        return;
+      }
+
+      try {
+        await peer.pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (err) {
+        console.error("ICE failed", err);
       }
     };
 
-    const handleReceiveIce = async (candidate) => {
-      if (peerConnection.current && peerConnection.current.remoteDescription) {
-        await peerConnection.current.addIceCandidate(new RTCIceCandidate(candidate));
-      }
-      else
-      {
-        iceQueue.current.push(candidate)
-      }
+    const handlePeerLeft = ({ peer,reason }) => {
+      removePeer(peer);
+      addCallEvent(
+          reason==="kicked"
+          ? CALL_EVENTS.KICK
+          : CALL_EVENTS.LEFT,
+          peer,
+          {
+              reason
+          }
+      );
     };
 
-    const handleCallEnded = () => {
+    const handleCallEnd = () => {
+      addCallEvent(
+        CALL_EVENTS.END,
+        "host"
+      );
       endCall(false);
     };
+    const handleCreated = (({callId})=>{
+      setIsInCall(true)
+      addCallEvent(
+        CALL_EVENTS.CREATE,
+        "you"
+      );
+      inviteeRef.current.forEach(user => {
+        socket.emit("call:invite", { to: user, callId });
+      });
+    })
+    const handleInvited = (({from,callId})=>{
+      console.log("invited")
+      setIncomingData({from,callId})
+      addCallEvent(
+          CALL_EVENTS.INCOMING,
+          from
+      );
+    })
+    const handleJoined = (({existingUsers})=>{
+      updateMembers(existingUsers);
+    
+      makeOffer(existingUsers);
+    })
 
-    socket.on("offer", handleReceiveOffer);
-    socket.on("answer", handleReceiveAnswer);
-    socket.on("ice", handleReceiveIce);
-    socket.on("call:end", handleCallEnded);
+    const handleCallUpdate = ({participants})=>{
+      const oldMembers = membersRef.current;
 
+      const joined = participants.filter(
+          user => !oldMembers.includes(user)
+      );
+
+      joined.forEach(user=>{
+          addCallEvent(
+              CALL_EVENTS.JOIN,
+              user
+          );
+      });
+      const left = oldMembers.filter(
+       user => !participants.includes(user)
+      );
+      
+      left.forEach(user=>{
+       addCallEvent(
+         CALL_EVENTS.LEFT,
+         user
+       );
+      });
+      updateMembers(participants);   
+    }
+    socket.on("call:created", handleCreated);
+    socket.on("call:invite", handleInvited);
+    socket.on("call:joined", handleJoined);
+    socket.on("offer", handleOffer);
+    socket.on("answer", handleAnswer);
+    socket.on("ice", handleIce);
+    socket.on("call:update", handleCallUpdate);
+    socket.on("peer:left", handlePeerLeft);
+    socket.on("call:end", handleCallEnd);
+    
     return () => {
-      socket.off("offer", handleReceiveOffer);
-      socket.off("answer", handleReceiveAnswer);
-      socket.off("ice", handleReceiveIce);
-      socket.off("call:end", handleCallEnded);
+      socket.off("call:created", handleCreated);
+      socket.off("call:invite", handleInvited);
+      socket.off("call:joined", handleJoined);
+      socket.off("offer", handleOffer);
+      socket.off("answer", handleAnswer);
+      socket.off("ice", handleIce);
+      socket.off("call:update", handleCallUpdate);
+      socket.off("peer:left", handlePeerLeft);
+      socket.off("call:end", handleCallEnd);
     };
-  }, [socket, endCall,processIceQueue]);
+  }, [socket, processIceQueue, removePeer, endCall,createPeer,makeOffer,isInCall]);
+
+  useEffect(() => {
+    return () => {
+      endCall(false);
+    };
+  }, [endCall]);
 
   return {
     startCall,
     acceptCall,
     endCall,
     isInCall,
-    callerName: incomingData?.caller,
-    hasIncomingCall: !!incomingData
+    getPeers,
+    inCallMembers,
+    callEvents,
+    CALL_EVENTS,
+    callerName: incomingData?.from,
+    hasIncomingCall: !!incomingData,
   };
 }

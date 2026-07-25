@@ -15,6 +15,7 @@ import UserProfileManifest from './components/UserProfileManifest'
 import { customFetch } from './services/customFetch'
 import ApiDocumentationModal from './components/ApiDocumentationModal'
 import ChatComponent from './components/socket/ChatComponent'
+import CommMatrixShell from './components/socket/CommMatrixShell'
 
 const router=new createBrowserRouter([
   {
@@ -53,7 +54,7 @@ const router=new createBrowserRouter([
       },
       {
         path:'/chat',
-        element:<ChatComponent/>
+        element:<CommMatrixShell/>
       }
     ]
   },

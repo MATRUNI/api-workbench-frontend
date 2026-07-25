@@ -1,0 +1,528 @@
+/* src/style/VoiceCallRoom.css */
+.comm-deck-workbench {
+  display: flex;
+  flex-direction: column;
+  height: 90dvh;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Fira Code', monospace;
+  box-sizing: border-box;
+}
+
+/* ================= TOP HUD BAR ================= */
+.comm-hud-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background-color: var(--terminal-input);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.comm-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.radio-glow {
+  color: var(--text-muted);
+}
+
+.radio-glow.active {
+  color: var(--brand-color);
+  animation: pulse 1.5s infinite;
+}
+
+.comm-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.comm-model-title {
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.comm-sub-status {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.status-online { color: var(--brand-green); font-weight: bold; }
+.status-standby { color: var(--text-muted); }
+
+.comm-metrics-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comm-metric-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.chip-icon { color: var(--brand-color); }
+.chip-icon.green { color: var(--brand-green); }
+
+/* ================= MAIN BODY ================= */
+.comm-stage-body {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--terminal-input);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+/* LEFT DIALER PANEL */
+.comm-dialer-panel {
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+}
+
+.dialer-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dialer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dialer-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0 10px;
+}
+
+.dialer-prefix {
+  color: var(--brand-color);
+  font-weight: bold;
+}
+
+.dialer-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 10px 8px;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.dialer-connect-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--brand-color);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dialer-connect-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* RIGHT MANIFEST PANEL */
+.comm-manifest-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+  min-height: 0;
+}
+
+.manifest-grid-scroll {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.manifest-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  text-align: center;
+  gap: 10px;
+  font-size: 0.75rem;
+}
+
+.manifest-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.operator-card {
+  background-color: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.operator-card.local-operator {
+  border-top: 3px solid var(--brand-color);
+}
+
+.operator-card.remote-operator {
+  border-top: 3px solid var(--brand-green);
+}
+
+.operator-card.muted {
+  border-top-color: #f85149;
+}
+
+.op-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.op-role-badge {
+  font-size: 0.55rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.op-role-badge.local {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: var(--brand-color);
+}
+
+.op-role-badge.remote {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--brand-green);
+}
+
+.op-handle {
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.op-card-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.op-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.op-led.online {
+  background-color: var(--brand-green);
+  box-shadow: 0 0 6px var(--brand-green);
+}
+
+.op-led.off {
+  background-color: #f85149;
+}
+
+/* ================= BOTTOM CONTROL DOCK ================= */
+.comm-dock-bar {
+  background-color: var(--terminal-input);
+  border-top: 1px solid var(--border-color);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dock-actions-row {
+  display: flex;
+  gap: 12px;
+}
+
+.dock-control-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dock-control-btn:hover:not(:disabled) {
+  border-color: var(--brand-color);
+}
+
+.dock-control-btn.active-mute,
+.dock-control-btn.active-deafen {
+  border-color: rgba(248, 81, 73, 0.4);
+  color: #f85149;
+  background: rgba(248, 81, 73, 0.08);
+}
+
+.dock-control-btn.btn-sever {
+  border-color: rgba(248, 81, 73, 0.5);
+  color: #f85149;
+}
+
+.dock-control-btn.btn-sever:hover {
+  background-color: #f85149;
+  color: #fff;
+}
+
+/* ONLINE OPERATORS ROSTER LIST */
+.online-roster-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.roster-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+.roster-icon {
+  color: var(--brand-green);
+}
+
+.roster-list-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.roster-empty {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 12px 0;
+}
+
+.roster-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+.roster-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.online-dot-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--brand-green);
+  box-shadow: 0 0 6px var(--brand-green);
+}
+
+.roster-username {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.roster-call-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(168, 85, 247, 0.1);
+  color: var(--brand-color);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.roster-call-action-btn:hover {
+  background-color: var(--brand-color);
+  color: #fff;
+}
+
+.roster-connected-tag {
+  font-size: 0.6rem;
+  color: var(--brand-green);
+  font-weight: bold;
+}
+
+/* INCOMING CALL ALERT BANNER */
+.incoming-call-alert-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(168, 85, 247, 0.15);
+  border-bottom: 1px solid var(--brand-color);
+  padding: 10px 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.alert-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--text-main);
+}
+
+.pulse-icon {
+  color: var(--brand-color);
+  animation: pulse 1s infinite;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.accept-btn {
+  background-color: var(--brand-green);
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.decline-btn {
+  background-color: #f85149;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+/* EVENT LOG SYSTEM */
+.call-events-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.events-list-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 0.65rem;
+}
+
+.event-log-item {
+  display: flex;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.event-time { color: var(--text-muted); }
+.event-type { font-weight: bold; color: var(--brand-color); }
+.event-user { color: var(--text-main); }
+
+@media (max-width: 900px) {
+  .comm-deck-workbench {
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .comm-stage-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .comm-dialer-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .dock-btn-text {
+    display: none; 
+  }
+
+  .dock-control-btn {
+    padding: 10px 14px;
+  }
+}

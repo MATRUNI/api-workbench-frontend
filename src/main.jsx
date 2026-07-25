@@ -6,17 +6,20 @@ import { RequestProvider } from './context/RequestContext.jsx'
 import { LibraryProvider } from './context/LibraryContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
 import { ConfigApiProvider } from './context/ConfigureApiContext.jsx'
+import { SocketProvider } from './context/SocketContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RequestProvider>
       <LibraryProvider>
         <UserProvider>
-          <ConfigApiProvider>
-            <App />
-          </ConfigApiProvider>
+          <SocketProvider>
+            <ConfigApiProvider>
+              <App />
+            </ConfigApiProvider>
+          </SocketProvider>
         </UserProvider>
       </LibraryProvider>
     </RequestProvider>
-  </StrictMode>,
+  </StrictMode>
 )

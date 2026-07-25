@@ -1,3 +1,4 @@
+/* src/style/ChatComponent.css */
 .chat-workbench {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -190,76 +191,6 @@
   font-weight: 700;
   font-size: 0.85rem;
   font-family: 'Fira Code', monospace;
-}
-
-/* --- VOICE CALLING CONTROLS --- */
-.chat-call-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chat-call-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background-color: var(--card-bg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.chat-call-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.chat-call-btn.call-start {
-  color: var(--brand-color, #a855f7);
-  border-color: rgba(168, 85, 247, 0.3);
-}
-
-.chat-call-btn.call-start:hover:not(:disabled) {
-  background-color: rgba(168, 85, 247, 0.1);
-  border-color: var(--brand-color, #a855f7);
-}
-
-.chat-call-btn.call-accept {
-  color: var(--brand-green, #10b981);
-  border-color: rgba(16, 185, 129, 0.3);
-  animation: pulseGreen 1.5s infinite;
-}
-
-.chat-call-btn.call-accept:hover {
-  background-color: rgba(16, 185, 129, 0.15);
-  border-color: var(--brand-green, #10b981);
-}
-
-.chat-call-btn.call-end {
-  color: #f85149;
-  border-color: rgba(248, 81, 73, 0.3);
-}
-
-.chat-call-btn.call-end:hover {
-  background-color: rgba(248, 81, 73, 0.15);
-  border-color: #f85149;
-}
-
-@keyframes pulseGreen {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-  }
 }
 
 .chat-mobile-metrics-bar {
@@ -494,29 +425,6 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-  }
-  .chat-call-controls{
-    order: 1;
-    margin: auto;
-  }
-  .btn-call-text {
-    display: none !important;
-  }
-
-  .chat-call-btn {
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .chat-call-btn svg {
-    width: 18px;
-    height: 18px;
-    margin: 0;
   }
 
   .chat-mobile-metrics-bar {

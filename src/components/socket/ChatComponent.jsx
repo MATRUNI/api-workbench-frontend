@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
-import { socket } from '../../socket/index.js';
 import { UserContext } from '../../context/UserContext.jsx';
+import { SocketContext } from '../../context/SocketContext.jsx';
 import { 
   Terminal, 
   Send, 
@@ -9,20 +9,17 @@ import {
   Activity, 
   Hash, 
   Trash2,
-  HelpCircle,
-  Phone,
-  PhoneOff,
-  PhoneCall
+  HelpCircle
 } from 'lucide-react';
 import '../../style/ChatComponent.css';
 import { useNavigate } from 'react-router-dom';
-import refreshSession from '../../utils/refreshSession.js';
-import useWebRTC from '../../hooks/useWebRtc.jsx';
 
 function ChatComponent() {
   const { user } = useContext(UserContext);
+  const { socket, isConnected } = useContext(SocketContext);
   const navigate = useNavigate();
 
+  // Redirect if unauthenticated
   useEffect(() => {
     if (user === null) {
       navigate('/auth');
@@ -33,31 +30,23 @@ function ChatComponent() {
     return null; 
   }
 
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  // Application & Metrics States
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [member, setMember] = useState(0);
   const [auditLog, setAuditLog] = useState([]);
   const [latency, setLatency] = useState(12);
 
-  // WebRTC Hook
-  const { 
-    startCall, 
-    acceptCall, 
-    endCall, 
-    isInCall, 
-    callerName, 
-    hasIncomingCall 
-  } = useWebRTC(socket);
-
   const feedEndRef = useRef(null);
   const auditEndRef = useRef(null);
 
+  // Helper to add timestamped logs to the Audit Buffer panel
   const pushAudit = useCallback((text, type = 'default') => {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     setAuditLog((prev) => [...prev, { timestamp, text, type }].slice(-11));
   }, []);
 
+  // Auto-scroll chat feed
   const scrollToBottom = () => {
     feedEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   };
@@ -70,6 +59,7 @@ function ChatComponent() {
     auditEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [auditLog]);
 
+  // Latency simulator
   useEffect(() => {
     if (!isConnected) return;
     const interval = setInterval(() => {
@@ -78,19 +68,9 @@ function ChatComponent() {
     return () => clearInterval(interval);
   }, [isConnected]);
 
+  // Socket Event Listeners Pipeline (Connection management handled by SocketContext)
   useEffect(() => {
     pushAudit('INIT Channel network routing context...', 'sys');
-    socket.connect();
-
-    function onConnect() {
-      setIsConnected(true);
-      pushAudit('HANDSHAKE established securely.', 'ok');
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-      pushAudit('CONNECTION_CLOSED by host pipeline.', 'sys');
-    }
 
     function onMembers(data) {
       setMember(data);
@@ -106,97 +86,24 @@ function ChatComponent() {
       pushAudit(`RECV package from @${verifiedPayload.sender || 'system'}`);
     }
 
-    let refreshing = false;
-    async function onRefresh(error) {
-      if (error.message !== "ACCESS_TOKEN_EXPIRED") {
-        pushAudit("Invalid session. Login required.", "sys");
-        return;
-      }
-      if (refreshing) return;
-      if (error.message === "ACCESS_TOKEN_EXPIRED") {
-        refreshing = true;
-        try {
-          const res = await refreshSession();
-          if (res) {
-            socket.connect();
-          } else {
-            navigate('/auth');
-          }
-        } finally {
-          refreshing = false;
-        }
-      }
-    }
-
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
     socket.on('members', onMembers);
     socket.on('chat:receive', onMessageReceived);
-    socket.on("connect_error", onRefresh);
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
       socket.off('members', onMembers);
       socket.off('chat:receive', onMessageReceived);
-      socket.off("connect_error", onRefresh);
-      socket.disconnect();
     };
-  }, [navigate, pushAudit]);
+  }, [socket, pushAudit]);
 
-  const handleStartCall = useCallback(async () => {
-    const audio = document.getElementById("remoteAudio");
-    if (audio) audio.play().catch(() => {});
-    
-    const currentUsername = user?.username || 'GuestOperator';
-    pushAudit(`VOICE_LINK initialized as @${currentUsername}...`, 'sys');
-    try {
-      await startCall(currentUsername);
-    } catch (err) {
-      pushAudit(`VOICE_LINK ERROR: ${err.message}`, 'sys');
-    }
-  }, [user, pushAudit, startCall]);
-
-  const handleAcceptCall = useCallback(async () => {
-    const audio = document.getElementById("remoteAudio");
-    if (audio) audio.play().catch(() => {});
-    
-    pushAudit(`VOICE_LINK connected with @${callerName}`, 'ok');
-    try {
-      await acceptCall();
-    } catch (err) {
-      pushAudit(`VOICE_LINK ERROR: ${err.message}`, 'sys');
-    }
-  }, [callerName, pushAudit, acceptCall]);
-
-  const handleEndCall = useCallback(() => {
-    pushAudit('VOICE_LINK terminated.', 'sys');
-    endCall();
-  }, [pushAudit, endCall]);
-
-  const executeSystemCommand = (command) => {
+  // Shell Command Processor
+  const executeSystemCommand = (input) => {
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
+    const parts = input.trim().split(/\s+/);
+    const command = parts[0].toLowerCase();
+
     if (command === '/clear') {
       setMessages([]);
       pushAudit('MEM_PURGE triggered successfully', 'ok');
-      return;
-    }
-
-    if (command === '/call') {
-      if (!isConnected) {
-        pushAudit('Cannot initiate call: Network offline.', 'sys');
-        return;
-      }
-      handleStartCall();
-      return;
-    }
-    if (command === '/end') {
-      if (!isInCall) {
-        pushAudit('No active VOICE_LINK stream to terminate.', 'sys');
-        return;
-      }
-      handleEndCall();
       return;
     }
 
@@ -206,11 +113,9 @@ function ChatComponent() {
         {
           sender: 'system',
           text: 'AVAILABLE CONSOLE SHELL COMMANDS:\n' +
-                '  /help    - Prints list of diagnostic operations.\n' +
-                '  /clear   - Purges message memory snapshot buffers.\n' +
-                '  /call    - Initiates outward WebRTC voice stream link.\n' +
-                '  /end     - Terminates active WebRTC voice stream link.\n' +
-                '  /status  - Executes trace route checks for network health.',
+                '  /help                 - Prints diagnostic operations guide.\n' +
+                '  /clear                - Purges message memory snapshot buffers.\n' +
+                '  /status               - Executes trace route checks for network health.',
           timestamp,
           type: 'system'
         }
@@ -226,7 +131,6 @@ function ChatComponent() {
           text: `NETWORK METRICS STATUS:\n` +
                 `  [STATE] online\n` +
                 `  [LATENCY] ${latency}ms\n` +
-                `  [VOICE_STREAM] ${isInCall ? 'CONNECTED' : 'IDLE'}\n` +
                 `  [OPERATOR] ${user?.username || 'GuestOperator'}`,
           timestamp,
           type: 'system'
@@ -293,14 +197,6 @@ function ChatComponent() {
             </div>
 
             <div className="chat-status-indicator">
-              <span className="hud-label">VOICE_STREAM</span>
-              <span className="hud-value">
-                <span className={`chat-status-dot ${isInCall ? 'connected' : 'disconnected'}`} />
-                {isInCall ? 'ACTIVE' : 'IDLE'}
-              </span>
-            </div>
-
-            <div className="chat-status-indicator">
               <span className="hud-label">LATENCY</span>
               <span className="hud-value hud-value-latency">
                 {latency}ms
@@ -316,7 +212,7 @@ function ChatComponent() {
           </div>
         </div>
 
-        {/* Live system logs pipeline */}
+        {/* Live System Logs Pipeline */}
         <div className="chat-audit-wrapper">
           <span className="chat-audit-header">
             <Cpu size={12} /> AUDIT_LOG_BUFFER
@@ -351,41 +247,14 @@ function ChatComponent() {
 
       {/* Main Streaming Feed Area */}
       <main className="chat-main">
+        {/* Header Bar */}
         <header className="chat-header">
           <div className="chat-header-channel">
             <Hash size={16} className="text-muted" />
             <span>stdout_stream</span>
           </div>
 
-          {/* Voice Call UI Controls in Header */}
-          <div className="chat-call-controls">
-            {hasIncomingCall && !isInCall && (
-              <button className="chat-call-btn call-accept" onClick={handleAcceptCall}>
-                <PhoneCall size={14} /> 
-                <span className="btn-call-text">Accept Call from @{callerName}</span>
-              </button>
-            )}
-
-            {!isInCall && !hasIncomingCall && (
-              <button 
-                className="chat-call-btn call-start" 
-                onClick={handleStartCall}
-                disabled={!isConnected}
-              >
-                <Phone size={14} /> 
-                <span className="btn-call-text">Start Voice Link</span>
-              </button>
-            )}
-
-            {isInCall && (
-              <button className="chat-call-btn call-end" onClick={handleEndCall}>
-                <PhoneOff size={14} /> 
-                <span className="btn-call-text">Disconnect ({callerName ? `@${callerName}` : 'In Call'})</span>
-              </button>
-            )}
-          </div>
-
-          {/* Mobile Status Panel */}
+          {/* Mobile Metrics Bar */}
           <div className="chat-mobile-metrics-bar">
             <div className="chat-mobile-status-wrapper">
               <span className={`chat-status-dot ${isConnected ? 'connected' : 'disconnected'}`} />
@@ -409,7 +278,7 @@ function ChatComponent() {
           {messages.length === 0 ? (
             <div className="chat-empty-state">
               <span className="chat-empty-prompt">&gt;</span> 
-              STREAM IDLE. Enter <code className="chat-empty-highlight">/help</code>...
+              STREAM IDLE. Enter text messages or <code className="chat-empty-highlight">/help</code>...
             </div>
           ) : (
             messages.map((msg, index) => {
@@ -472,8 +341,6 @@ function ChatComponent() {
           </form>
         </footer>
       </main>
-
-      <audio id="remoteAudio" autoPlay playsInline style={{ display: 'none' }} />
     </div>
   );
 }

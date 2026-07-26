@@ -54,6 +54,8 @@ export default function useWebRTC(socket,invitee=[]) {
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
+          autoGainControl:true,
+          channelCount:1
         },
       });
     } catch (err) {

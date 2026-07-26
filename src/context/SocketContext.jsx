@@ -16,7 +16,6 @@ export function SocketProvider({ children }) {
 
     const onConnect = () => {
       setIsConnected(true);
-      socket.emit("users:online:get");
     };
 
     const onDisconnect = () => setIsConnected(false);
@@ -26,9 +25,6 @@ export function SocketProvider({ children }) {
     socket.on('disconnect', onDisconnect);
     socket.on("users:online", handleOnlineUsers);
 
-    if (socket.connected) {
-      socket.emit("users:online:get");
-    }
 
     return () => {
       socket.off('connect', onConnect);

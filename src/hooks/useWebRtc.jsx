@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 const CALL_EVENTS = {
   CREATE:"CREATE",
   JOIN:"JOIN",
+  INVITE:"INVITE",
   LEFT:"LEFT",
   KICK:"KICK",
   END:"END",
@@ -14,6 +15,7 @@ export default function useWebRTC(socket,invitee=[]) {
   const iceQueue = useRef(new Map());
   const membersRef = useRef([]);
   const inviteeRef = useRef(invitee);
+  const currentCallId = useRef('');
 
   useEffect(() => {
     inviteeRef.current = invitee;
@@ -168,20 +170,29 @@ export default function useWebRTC(socket,invitee=[]) {
   const startCall = useCallback(async () => {
     if (isInCall) return;
     socket.emit("call:create");
-  }, [isInCall]);
+  }, [isInCall,socket]);
 
   const acceptCall = useCallback(async () => {
     if (!incomingData) return;
 
-    const {callId} = incomingData;
+    currentCallId.current = incomingData.callId;
 
     socket.emit("call:join", {
-      callId
+      callId:currentCallId.current
     });
 
     setIncomingData(null);
     setIsInCall(true);
   }, [incomingData]);
+
+  const inviteMorePeers = useCallback((peer)=>{
+    if(!isInCall) return;
+    addCallEvent(
+      CALL_EVENTS.INVITE,
+      peer
+    )
+    socket.emit("call:invite", { to: peer, callId:currentCallId.current });
+  },[isInCall,socket,addCallEvent])
 
   const endCall = useCallback((notify = true) => {
     addCallEvent(
@@ -194,6 +205,7 @@ export default function useWebRTC(socket,invitee=[]) {
     });
 
     peers.current.clear();
+    currentCallId.current = '';
     forceUpdate();
 
     if (localStream.current) {
@@ -299,12 +311,12 @@ export default function useWebRTC(socket,invitee=[]) {
         CALL_EVENTS.CREATE,
         "you"
       );
+      currentCallId.current = callId;
       inviteeRef.current.forEach(user => {
         socket.emit("call:invite", { to: user, callId });
       });
     })
     const handleInvited = (({from,callId})=>{
-      console.log("invited")
       setIncomingData({from,callId})
       addCallEvent(
           CALL_EVENTS.INCOMING,
@@ -363,7 +375,7 @@ export default function useWebRTC(socket,invitee=[]) {
       socket.off("peer:left", handlePeerLeft);
       socket.off("call:end", handleCallEnd);
     };
-  }, [socket, processIceQueue, removePeer, endCall,createPeer,makeOffer,isInCall]);
+  }, [socket, processIceQueue, removePeer, endCall,createPeer,makeOffer]);
 
   useEffect(() => {
     return () => {
@@ -375,6 +387,7 @@ export default function useWebRTC(socket,invitee=[]) {
     startCall,
     acceptCall,
     endCall,
+    inviteMorePeers,
     isInCall,
     getPeers,
     inCallMembers,

@@ -43,6 +43,7 @@ export default function VoiceCallRoom() {
     startCall,
     acceptCall,
     endCall,
+    inviteMorePeers,
     isInCall,
     getPeers,
     inCallMembers,
@@ -62,6 +63,14 @@ export default function VoiceCallRoom() {
   // Handle direct call initiation via form submission
   const handleInitiateCall = (e) => {
     e?.preventDefault();
+    if(isInCall)
+    {
+      const peers = cleanPeers(targetUser);
+      peers.forEach(peer=>{
+        inviteMorePeers(peer);
+      })
+      return;
+    }
     if (!targetUser.trim()) return;
     const peersToInvite = cleanPeers(targetUser)
     if(peersToInvite.length===0) return;

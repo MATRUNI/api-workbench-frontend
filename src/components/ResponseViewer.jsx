@@ -16,11 +16,10 @@ const ResponseViewer = forwardRef((props, ref) =>{
     
     function getStatusClass(status)
     {
-      if(!status) return "";
+      if(!status) return "error";
       if(status>=200 && status<300) return "success";
       if(status>=400 && status<500) return "warning";
       if(status>=500) return "error";
-      return ""
     }
     const handleCopy=async(e)=>{
       e.preventDefault();

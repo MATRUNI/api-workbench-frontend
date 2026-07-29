@@ -44,8 +44,9 @@ function Console() {
 
   const getStatusClass = (status) => {
     const statusNum = parseInt(status, 10);
-    if (statusNum >= 200 && statusNum < 300) return 'success';
-    if (statusNum >= 400) return 'error';
+    if(status>=200 && status<300) return "success";
+    if(status>=400 && status<500) return "warning";
+    if(status>=500) return "error";
     return 'warning';
   };
 

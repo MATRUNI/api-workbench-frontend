@@ -28,27 +28,9 @@ export async function callAPI(url,method,request)
         const endTime=Date.now();
         const timeTaken = endTime - startTime;
         const resClone=res.clone();
-        if(!res.ok)
-        {
-            let errorMessage = "";
 
-            const contentType = res.headers.get("content-type");
-
-            if (contentType?.includes("application/json")) {
-              const data = await res.json().catch(() => null);
-              errorMessage =
-                data?.message || getDefaultErrorMessage(res.status);
-            } else {
-              const text = await res.text();
-              errorMessage = text || getDefaultErrorMessage(res.status);
-            }
-            const error = new Error(errorMessage);
-            error.status = res.status;
-            throw error;
-        }
-        const contentType = res.headers.get("content-type").split(';')[0];
+        const contentType = (res.headers.get("content-type")||"").split(';')[0];
         let handlerFunction=contentTypeHandlers[contentType] || contentTypeHandlers["default"];
-        // const data = contentType && contentType.includes("application/json")? await res.json(): await res.text();
         let {length,data}=await handlerFunction(resClone);
         return {
           status: res.status,

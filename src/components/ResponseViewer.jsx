@@ -53,7 +53,7 @@ const ResponseViewer = forwardRef((props, ref) =>{
           
           <div className="response-meta">
             <span className={`status-${getStatusClass(response.status)}`}>
-              {`${getStatusText(response.status)}`}
+              {`${getStatusText(response.status)} ${response.status||""}`}
               </span>
             <span className="time-badge">{`${response.time||"0"} ms`}</span>
           </div>

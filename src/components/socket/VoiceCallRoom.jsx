@@ -23,7 +23,7 @@ import '../../style/VoiceCallRoom.css';
 
 export default function VoiceCallRoom() {
   const { user } = useContext(UserContext);
-  const { socket, onlineUsers } = useContext(SocketContext);
+  const { socket, onlineUsers, stopRing } = useContext(SocketContext);
   const navigate = useNavigate();
 
   const [targetUser, setTargetUser] = useState('');
@@ -140,10 +140,16 @@ export default function VoiceCallRoom() {
             <span>INCOMING PATCH SIGNAL FROM: <strong>@{callerName}</strong></span>
           </div>
           <div className="alert-actions">
-            <button className="accept-btn" onClick={acceptCall}>
+            <button className="accept-btn" onClick={()=>{
+              stopRing();
+              acceptCall();
+              }}>
               ACCEPT_LINK
             </button>
-            <button className="decline-btn" onClick={() => endCall(false)}>
+            <button className="decline-btn" onClick={() => {
+              stopRing()
+              endCall(false)
+              }}>
               REJECT
             </button>
           </div>

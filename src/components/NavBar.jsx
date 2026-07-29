@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
 import { UserContext } from '../context/UserContext';
 import { Search, X } from 'lucide-react';
+import { SocketContext } from '../context/SocketContext';
 
 function NavBar() {
     const location = useLocation();
@@ -13,7 +14,13 @@ function NavBar() {
     const { user } = useContext(UserContext);
 
     const isChatActive = location.pathname === '/chat';
+    const { stopRing } = useContext(SocketContext);
 
+    useEffect(() => {
+      if (!isChatActive) {
+        stopRing();
+      }
+    }, [isChatActive, stopRing]);
     useEffect(() => {
         const handleKeyDown = (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

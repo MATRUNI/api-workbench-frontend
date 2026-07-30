@@ -22,35 +22,31 @@ export function SocketProvider({ children }) {
     const onDisconnect = () => setIsConnected(false);
     const handleOnlineUsers = (usersList) => setOnlineUsers(usersList);
     const handleCallRing = async ({track})=>{
-      if(!isConnected) return;
-
-      if(track === "call-invite")
+      if(track !== "call-invite") return;
+      try 
       {
-        try 
-        {
-          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/audio/call-invite`,{
-            credentials: 'include',
-            headers:{
-              "x-api-key": import.meta.env.VITE_BACKEND_KEY
-            }
-          })
-          if(!res.ok)
-            return;
-          const blob = await res.blob()
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          audioRef.current = audio
-          audio.loop = true;
-          
-          // Handle potential Autoplay Policy rejections
-          audio.play().catch(err => {
-            console.warn("Ringtone blocked by browser autoplay policy:", err);
-          });
-        } 
-        catch (error) 
-        {
-          console.log("Error while fetching ringtone")
-        }
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/audio/call-invite`,{
+          credentials: 'include',
+          headers:{
+            "x-api-key": import.meta.env.VITE_BACKEND_KEY
+          }
+        })
+        if(!res.ok)
+          return;
+        const blob = await res.blob()
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audioRef.current = audio
+        audio.loop = true;
+        
+        // Handle potential Autoplay Policy rejections
+        audio.play().catch(err => {
+          console.warn("Ringtone blocked by browser autoplay policy:", err);
+        });
+      } 
+      catch (error) 
+      {
+        console.log("Error while fetching ringtone")
       }
     }
 

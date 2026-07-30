@@ -6,6 +6,7 @@ const CALL_EVENTS = {
   INVITE:"INVITE",
   LEFT:"LEFT",
   KICK:"KICK",
+  REJECT:"REJECT",
   END:"END",
   INCOMING:"INCOMING"
 };
@@ -176,7 +177,6 @@ export default function useWebRTC(socket,invitee=[]) {
     if (!incomingData) return;
 
     currentCallId.current = incomingData.callId;
-
     socket.emit("call:join", {
       callId:currentCallId.current
     });
@@ -184,6 +184,17 @@ export default function useWebRTC(socket,invitee=[]) {
     setIncomingData(null);
     setIsInCall(true);
   }, [incomingData]);
+
+  const rejectCall = useCallback(async()=>{
+    if(!incomingData) return;
+    const caller = incomingData.from;
+    addCallEvent(
+      CALL_EVENTS.REJECT,
+      "you"
+    )
+    setIncomingData(null)
+    socket.emit("call:reject",{callerId:caller})
+  },[incomingData])
 
   const inviteMorePeers = useCallback((peer)=>{
     if(!isInCall) return;
@@ -354,24 +365,34 @@ export default function useWebRTC(socket,invitee=[]) {
       });
       updateMembers(participants);   
     }
+    const handleRejection = ({rejectedBy})=>{
+      addCallEvent(
+        CALL_EVENTS.REJECT,
+        rejectedBy
+      );
+      setIncomingData(null);
+      setIsInCall(false);
+    }
     socket.on("call:created", handleCreated);
-    socket.on("call:invite", handleInvited);
+    socket.on("call:invited", handleInvited);
     socket.on("call:joined", handleJoined);
     socket.on("offer", handleOffer);
     socket.on("answer", handleAnswer);
     socket.on("ice", handleIce);
     socket.on("call:update", handleCallUpdate);
+    socket.on("call:rejected",handleRejection)
     socket.on("peer:left", handlePeerLeft);
     socket.on("call:end", handleCallEnd);
     
     return () => {
       socket.off("call:created", handleCreated);
-      socket.off("call:invite", handleInvited);
+      socket.off("call:invited", handleInvited);
       socket.off("call:joined", handleJoined);
       socket.off("offer", handleOffer);
       socket.off("answer", handleAnswer);
       socket.off("ice", handleIce);
       socket.off("call:update", handleCallUpdate);
+      socket.off("call:rejected",handleRejection)
       socket.off("peer:left", handlePeerLeft);
       socket.off("call:end", handleCallEnd);
     };
@@ -387,6 +408,7 @@ export default function useWebRTC(socket,invitee=[]) {
     startCall,
     acceptCall,
     endCall,
+    rejectCall,
     inviteMorePeers,
     isInCall,
     getPeers,

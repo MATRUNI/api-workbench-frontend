@@ -41,7 +41,11 @@ export function SocketProvider({ children }) {
           const audio = new Audio(url);
           audioRef.current = audio
           audio.loop = true;
-          audio.play();          
+          
+          // Handle potential Autoplay Policy rejections
+          audio.play().catch(err => {
+            console.warn("Ringtone blocked by browser autoplay policy:", err);
+          });
         } 
         catch (error) 
         {

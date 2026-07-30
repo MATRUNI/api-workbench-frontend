@@ -43,6 +43,7 @@ export default function VoiceCallRoom() {
     startCall,
     acceptCall,
     endCall,
+    rejectCall,
     inviteMorePeers,
     isInCall,
     getPeers,
@@ -148,7 +149,7 @@ export default function VoiceCallRoom() {
             </button>
             <button className="decline-btn" onClick={() => {
               stopRing()
-              endCall(false)
+              rejectCall()
               }}>
               REJECT
             </button>

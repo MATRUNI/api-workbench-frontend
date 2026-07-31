@@ -8,6 +8,7 @@ export function SocketProvider({ children }) {
   const { user } = useContext(UserContext);
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [member, setMember] = useState(0);
   const audioRef = useRef(null)
 
   useEffect(() => {
@@ -20,7 +21,10 @@ export function SocketProvider({ children }) {
     };
 
     const onDisconnect = () => setIsConnected(false);
-    const handleOnlineUsers = (usersList) => setOnlineUsers(usersList);
+    const handleOnlineUsers = (usersList) =>{
+      setOnlineUsers(usersList);
+      setMember(usersList.length)
+    }
     const handleCallRing = async ({track})=>{
       if(track !== "call-invite") return;
       try 
@@ -75,7 +79,7 @@ export function SocketProvider({ children }) {
     }
   };
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineUsers, stopRing }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineUsers, member,stopRing }}>
       {children}
     </SocketContext.Provider>
   );

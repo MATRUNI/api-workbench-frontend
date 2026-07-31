@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 
 function ChatComponent() {
   const { user } = useContext(UserContext);
-  const { socket, isConnected } = useContext(SocketContext);
+  const { socket, isConnected, member } = useContext(SocketContext);
   const navigate = useNavigate();
 
   // Redirect if unauthenticated
@@ -33,7 +33,6 @@ function ChatComponent() {
   // Application & Metrics States
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
-  const [member, setMember] = useState(0);
   const [auditLog, setAuditLog] = useState([]);
   const [latency, setLatency] = useState(12);
 
@@ -54,7 +53,9 @@ function ChatComponent() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+  useEffect(()=>{
+    pushAudit(`NODE_SWEEP done. Relays: ${member}`, 'default');
+  },[member])
   useEffect(() => {
     auditEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [auditLog]);
@@ -72,11 +73,6 @@ function ChatComponent() {
   useEffect(() => {
     pushAudit('INIT Channel network routing context...', 'sys');
 
-    function onMembers(data) {
-      setMember(data);
-      pushAudit(`NODE_SWEEP done. Relays: ${data}`, 'default');
-    }
-
     function onMessageReceived(value) {
       const verifiedPayload = typeof value === 'string' 
         ? { sender: 'RemoteOperator', text: value, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
@@ -86,11 +82,9 @@ function ChatComponent() {
       pushAudit(`RECV package from @${verifiedPayload.sender || 'system'}`);
     }
 
-    socket.on('members', onMembers);
     socket.on('chat:receive', onMessageReceived);
 
     return () => {
-      socket.off('members', onMembers);
       socket.off('chat:receive', onMessageReceived);
     };
   }, [socket, pushAudit]);

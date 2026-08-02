@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import NavBar from './NavBar'
 import {Outlet} from 'react-router-dom'
 import StartBootLoader from './StartBootLoader'
+import SystemFooter from './Footer'
 
 function Home() {
   return (
@@ -10,6 +11,7 @@ function Home() {
         <Suspense fallback={<StartBootLoader/>}>
           <Outlet/>
         </Suspense>
+        <SystemFooter/>
     </>
   )
 }

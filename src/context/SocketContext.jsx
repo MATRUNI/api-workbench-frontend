@@ -9,15 +9,39 @@ export function SocketProvider({ children }) {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [member, setMember] = useState(0);
+  const [latency,setLatency] = useState(null)
   const audioRef = useRef(null)
 
+
+  
   useEffect(() => {
     if (!user) return;
-
+    
     socket.connect();
+    
+    function measureLatency() {
+      const start = performance.now();
+      let finished = false;
+  
+      const timeout = setTimeout(() => {
+        if (!finished) {
+          setLatency(null); // timeout
+        }
+      }, 3000);
+  
+      socket.emit("ping", () => {
+        finished = true;
+        clearTimeout(timeout);
+  
+        setLatency(Math.round(performance.now() - start));
+  
+        setTimeout(measureLatency, 5000);
+      });
+    } // fro RTT (Rounf-trip Time -> Latency)
 
     const onConnect = () => {
       setIsConnected(true);
+      measureLatency();
     };
 
     const onDisconnect = () => setIsConnected(false);
@@ -79,7 +103,7 @@ export function SocketProvider({ children }) {
     }
   };
   return (
-    <SocketContext.Provider value={{ socket, isConnected, onlineUsers, member,stopRing }}>
+    <SocketContext.Provider value={{ socket, isConnected, onlineUsers, member,stopRing,latency }}>
       {children}
     </SocketContext.Provider>
   );

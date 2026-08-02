@@ -40,15 +40,6 @@ function HomeHero() {
             </div>
           </div>
         </div>
-
-        <div className="bottom-bar">
-          <div className="metric-group">
-            <div className="metric"><span>LATENCY</span> 12ms</div>
-            <div className="metric"><span>STATE</span> ISOLATED</div>
-            <div className="metric"><span>PROTOCOL</span> HTTP/S</div>
-          </div>
-          <div className="copyright">© 2026 API_OS_TECH</div>
-        </div>
       </div>
     </div>
   );

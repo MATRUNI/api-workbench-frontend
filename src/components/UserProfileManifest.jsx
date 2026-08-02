@@ -6,6 +6,7 @@ import '../style/UserProfileManifest.css';
 import ThemeToggle from './ThemeToogle';
 import Overview from './profile/Overview';
 import MatrixStats from './profile/MatrixStats';
+import SystemFooter from './Footer';
 
 export default function UserDashboard() {
     const { user, handleLogout } = useContext(UserContext);
@@ -81,14 +82,7 @@ export default function UserDashboard() {
             stats={profile.stats}
             />
             }
-            {/* --- DASHBOARD SYSTEM FOOTER --- */}
-            <footer className="bottom-bar" style={{ marginTop: '60px', padding: '20px 40px' }}>
-                <div className="metric-group">
-                    <div className="metric"><span>ENV:</span>PRODUCTION</div>
-                    <div className="metric"><span>SOCKET:</span>CONNECTED</div>
-                </div>
-                <div className="copyright">© 2026 CORE_OS ENTERPRISE SHIELD</div>
-            </footer>
+            <SystemFooter />
         </div>
     );
 }

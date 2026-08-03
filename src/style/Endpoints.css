@@ -1,7 +1,8 @@
 .workbench-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 90dvh;
+  min-height: 90dvh;
+  height: auto;
   background-color: var(--bg-color);
   color: var(--text-main);
 }

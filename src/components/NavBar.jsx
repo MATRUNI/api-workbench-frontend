@@ -3,8 +3,9 @@ import '../style/NavBar.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
 import { UserContext } from '../context/UserContext';
-import { Search, X } from 'lucide-react';
-import { SocketContext } from '../context/SocketContext';
+import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageSquareCodeIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { appear } from '../animations/Motion';
 
 function NavBar() {
     const location = useLocation();
@@ -41,17 +42,21 @@ function NavBar() {
     };
 
     return (
-        <nav id="utility-nav" className={isChatActive ? 'chat-workspace-active' : ''}>
+        <motion.nav id="utility-nav" 
+        className={isChatActive ? 'chat-workspace-active' : ''}
+        initial="hidden"
+        animate="visible"
+        {...appear}>
             <div className="nav-group" onClick={() => { navigate('/'); }}>
-                <span id="logo">⚡ API.OS<sub>v1.3</sub></span>
+                <span id="logo"><Zap size={14}/> API.OS<sub>v{(import.meta.env.VITE_VERSION)}</sub></span>
             </div>
 
             <div className="nav-group main-links">
-                <button className={`btn ${activeBtn('/endpoints') ? 'active' : ""}`} onClick={() => navigate('/endpoints')}>Endpoints</button>
-                <button className={`btn ${activeBtn('/docs') ? 'active' : ""}`} onClick={() => navigate('/docs')} >Docs</button>
-                <button className={`btn ${activeBtn('/console') ? 'active' : ""}`} onClick={() => navigate('/console')} >Console</button>
-                {user&&(<button className={`btn ${activeBtn('/chat') ? 'active' : ""}`} onClick={() => navigate('/chat')}>Chat</button>)}
-                <button className="btn fetch-trigger" onClick={() => { navigate('/fetch'); }}>Fetch Data</button>
+                <button className={`btn ${activeBtn('/endpoints') ? 'active' : ""}`} onClick={() => navigate('/endpoints')}><Terminal size={14}/>Endpoints</button>
+                <button className={`btn ${activeBtn('/docs') ? 'active' : ""}`} onClick={() => navigate('/docs')} ><Book size={14}/> Docs</button>
+                <button className={`btn ${activeBtn('/console') ? 'active' : ""}`} onClick={() => navigate('/console')} ><History size={14}/> Console</button>
+                {user&&(<button className={`btn ${activeBtn('/chat') ? 'active' : ""}`} onClick={() => navigate('/chat')}><MessageSquareCodeIcon size={14}/>Chat</button>)}
+                <button className="btn fetch-trigger" onClick={() => { navigate('/fetch'); }}><Database size={14}/> Fetch Data</button>
             </div>
 
             <div className="nav-group">
@@ -61,7 +66,7 @@ function NavBar() {
                 </div>
                 <div id='profile-panel'>
                     <div id='profile' onClick={handleProfileClick}>
-                        <div className="avatar"></div>
+                        <div className="avatar">{user?<User/>:<LogIn size={17}/>}</div>
                         <span>{user ? user.username : "Login"}</span>
                     </div>
                 </div>
@@ -84,7 +89,7 @@ function NavBar() {
                 </div>
             )}
             <ThemeToggle location='nav'/>
-        </nav>
+        </motion.nav>
     );
 }
 

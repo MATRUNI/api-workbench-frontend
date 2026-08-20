@@ -1,5 +1,6 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { RequestContext } from '../context/RequestContext';
+import { PlusSquare, Trash2 } from "lucide-react"
 
 function Header_panel() {
   const {request,setRequest} =useContext(RequestContext)
@@ -24,7 +25,7 @@ function Header_panel() {
     <div className="kv-container">
       <div className="pane-header">
         <span className="label">Request Headers</span>
-        <button className="add-row-btn" onClick={addHeader}>+ Add Header</button>
+        <button className="add-row-btn" onClick={addHeader}><PlusSquare size={15}/> Add Header</button>
       </div>
 
       <div className="kv-table">
@@ -42,7 +43,7 @@ function Header_panel() {
               value={header.value} 
               onChange={(e) => updateHeader(index, 'value', e.target.value)}
             />
-            <button className="remove-row" onClick={() => removeHeader(index)}>✕</button>
+            <button className="remove-row" onClick={() => removeHeader(index)}><Trash2 size={15}/></button>
           </div>
         ))}
         {request.header.length === 0 && (

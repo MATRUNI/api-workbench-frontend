@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useRef } from 'react'
 import Tabs from '../request-panel/Tabs'
 import Body_panel from '../request-panel/Body_panel'
 import Header_panel from '../request-panel/Header_panel'
@@ -6,10 +6,12 @@ import Query_panel from '../request-panel/Query_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
+import { Send } from "lucide-react"
 
 function RequestBuilder({ scrollToResponse }) {
-    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod}=useContext(RequestContext)
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest}=useContext(RequestContext)
     const [activeTab,setActiveTab]=useState('body')
+    const bodyRef = useRef(null);
     const isValidURL=(value)=>
     {
       try{
@@ -29,13 +31,15 @@ function RequestBuilder({ scrollToResponse }) {
         alert("Invalid URL");
         return;
       }
+      const body = bodyRef.current.getCurrentBody()
+      setRequest(pre=>({...pre,body}))
       setIsLoading(true);
       scrollToResponse();
       setRequestPhase('initializing')
       await new Promise(res => setTimeout(res, 250));
       try{
         setRequestPhase("connecting");
-        const response=await callAPI(url, method, request);
+        const response=await callAPI(url, method, {...request,body});
 
         setRequestPhase('processing')
         await new Promise(res => setTimeout(res, 350));
@@ -83,11 +87,13 @@ function RequestBuilder({ scrollToResponse }) {
           <option value="DELETE">DELETE</option>
         </select>
         <input type="text" className="url-input" value={url} onChange={(e)=>setURL(e.target.value)}/>
-        <button className="send-button" type='submit'>Send</button>
+        <button className="send-button" type='submit'>
+          <Send size={18}/>
+        </button>
       </form>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {activeTab === "body" && <Body_panel/>}
+      {activeTab === "body" && <Body_panel ref={bodyRef}/>}
       {activeTab === "headers" && <Header_panel/>}
       {activeTab === "query-params" && <Query_panel/>}
     </section>

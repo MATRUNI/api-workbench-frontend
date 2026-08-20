@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToogle';
 import Overview from './profile/Overview';
 import MatrixStats from './profile/MatrixStats';
 import SystemFooter from './Footer';
+import { House, LayoutDashboard, BarChart3, User } from 'lucide-react';
 
 export default function UserDashboard() {
     const { user, handleLogout } = useContext(UserContext);
@@ -53,17 +54,26 @@ export default function UserDashboard() {
         <div className="dashboard-shell">
             <header id="utility-nav">
                 <div className="nav-group" onClick={()=> navigate('/')}>
-                    <span id="logo">HOME</span>
+                    <span id="logo"><House size={14}/> HOME</span>
                     <div className='pulse-dot'></div>
                 </div>
                 <div className="nav-group main-links">
-                    <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => {setActiveTab('overview');setIsOverview(true)}}>OVERVIEW</button>
-                    <button className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => {setActiveTab('analytics');setIsOverview(false)}}>METRICS</button>
+                    <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} 
+                    onClick={() => {setActiveTab('overview');setIsOverview(true)}}
+                    ><LayoutDashboard size={15}/>
+                        OVERVIEW
+                    </button>
+                    <button className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} 
+                    onClick={() => {setActiveTab('analytics');setIsOverview(false)}}
+                    >
+                        <BarChart3 size={15}/>
+                        METRICS
+                    </button>
                     <ThemeToggle location='profile'/>
                 </div>
                 <div className="nav-group" id="profile-panel">
                     <div id="profile">
-                        <div className="avatar"></div>
+                        <div className="avatar"><User /></div>
                         <span>{user?.username || 'OPERATOR'}</span>
                     </div>
                     <button className="logout-btn" onClick={() => handleLogout()}>⏻ LOGOUT</button>

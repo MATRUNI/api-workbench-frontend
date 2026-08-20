@@ -1,20 +1,26 @@
-import React from 'react'
-
+import { FileCode, KeyRound, ListFilter } from "lucide-react"
 function Tabs({activeTab,setActiveTab}) {
   return (
     <div className="tab-container">
           <button 
           className={`tab ${activeTab==='body'?'active':''}`}
-          onClick={e=>{setActiveTab('body')}}
-          >Body</button>
+          onClick={()=>{setActiveTab('body')}}
+          >
+            <FileCode size={14}/>
+            Body
+          </button>
           <button 
           className={`tab ${activeTab==='headers'?'active':''}`}
-          onClick={e=>{setActiveTab('headers')}}
-          >Headers</button>
+          onClick={()=>{setActiveTab('headers')}}
+          >
+            <KeyRound size={14}/>
+            Headers</button>
           <button 
           className={`tab ${activeTab==='query-params'?'active':''}`}
-          onClick={e=>{setActiveTab('query-params')}}
-          >Query Params</button>
+          onClick={()=>{setActiveTab('query-params')}}
+          >
+            <ListFilter size={14}/>
+            Query Params</button>
     </div>
   )
 }

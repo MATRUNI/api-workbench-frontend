@@ -1,8 +1,10 @@
-import React, { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Terminal, Globe, Languages, Monitor, House } from 'lucide-react';
 import '../style/Footer.css';
 import { SocketContext } from '../context/SocketContext';
+import { fadeFooter, fadeFromLeft, fadeFromRight } from '../animations/Motion';
+import { motion } from 'framer-motion';
 
 const GithubIcon = ({ size = 16, style = {}, ...props }) => (
   <svg 
@@ -22,26 +24,98 @@ export default function SystemFooter() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { isConnected, latency } = useContext(SocketContext)
+  const { isConnected, latency } = useContext(SocketContext);
+
+  // State to hold dynamic environment details
+  const [envInfo, setEnvInfo] = useState({
+    browser: 'CHROME',
+    os: 'LINUX',
+    timezone: 'ASIA/KOLKATA',
+    language: 'EN-IN'
+  });
+
+  useEffect(() => {
+    try {
+      const ua = navigator.userAgent;
+      let browser = 'UNKNOWN';
+      if (/SamsungBrowser/i.test(ua)) {
+        browser = 'SAMSUNG';
+      }
+      else if (/Edg/i.test(ua)) {
+        browser = 'EDGE';
+      }
+      else if (/OPR|Opera/i.test(ua)) {
+        browser = 'OPERA';
+      }
+      else if (/Firefox/i.test(ua)) {
+        browser = 'FIREFOX';
+      }
+      else if (/Chrome|CriOS/i.test(ua)) {
+        browser = 'CHROME';
+      }
+      else if (/Safari/i.test(ua)) {
+        browser = 'SAFARI';
+      }
+
+      let os = 'UNKNOWN OS';
+
+      const platform = navigator.platform || navigator.userAgentData?.platform || '';
+
+      if (/android/i.test(ua)) {
+        os = 'ANDROID';
+      }
+      else if (/iphone|ipad|ipod/i.test(ua)) {
+        os = 'IOS';
+      }
+      else if (/win/i.test(platform) || /win/i.test(ua)) {
+        os = 'WINDOWS';
+      }
+      else if (/mac/i.test(platform) || /mac/i.test(ua)) {
+        os = 'MACOS';
+      }
+      else if (/linux/i.test(platform) || /linux/i.test(ua)) {
+        os = 'LINUX';
+      }
+
+      let timezone = 'UTC';
+      try {
+        timezone = Intl.DateTimeFormat().resolvedOptions().timeZone?.toUpperCase() || 'UTC';
+      } catch {
+
+      }
+
+      const language = (navigator.language || 'en-US').toUpperCase();
+
+      setEnvInfo({ browser, os, timezone, language });
+    } catch {
+    }
+  }, []);
 
   if (location.pathname === '/chat') {
     return null;
   }
 
   return (
-    <footer className="prism-footer-shell" aria-label="Application Geometric Prism Footer">
-      {/* Animated Light Beam / Glow Line scanning across the top */}
+    <motion.footer
+     className="prism-footer-shell" 
+     aria-label="Application Geometric Prism Footer"
+     initial="hidden"
+     whileInView="visible"
+     viewport={{once:true,amount:0.2}}
+     {...fadeFooter}
+     >
       <div className="prism-top-scanline-container" aria-hidden="true">
         <div className="prism-top-scanline-beam"></div>
       </div>
 
-      <div className="prism-left-section">
+      <motion.div className="prism-left-section" {...fadeFromLeft}>
         <button 
           type="button" 
           className="prism-logo-btn" 
           onClick={() => navigate('/')} 
           title="Return to Hub"
         >
+          <House size={15}/>
           API.OS
         </button>
 
@@ -57,14 +131,30 @@ export default function SystemFooter() {
                 </span>
               </span>
             ) : (
-              <span>OFFLINE</span>
+              <span> OFFLINE</span>
             )}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="prism-right-section">
+      <motion.div className="prism-middle-section" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+        <div className="prism-env-pill">
+          <Terminal size={14}/>
+          <span>{envInfo.browser}</span>
+          <span className="prism-env-separator">·</span>
+          <Monitor size={14}/>
+          <span>{envInfo.os}</span>
+          <span className="prism-env-separator">·</span>
+          <Globe size={14}/>
+          <span>{envInfo.timezone}</span>
+          <span className="prism-env-language-separator">·</span>
+          <Languages size={14} className='prism-env-language'/>
+          <span className='prism-env-language-separator'>{envInfo.language}</span>
+        </div>
+      </motion.div>
+
+      <motion.div className="prism-right-section" {...fadeFromRight}>
         <div className="prism-telemetry">
-          <span>VERSION: <b className="prism-cipher-text">1.3</b></span>
+          <span>VERSION: <b className="prism-cipher-text">{import.meta.env.VITE_VERSION}</b></span>
           <div className="prism-divider" aria-hidden="true" />
           <span>© {new Date().getFullYear()}</span>
         </div>
@@ -83,7 +173,7 @@ export default function SystemFooter() {
             <ExternalLink size={13} className="prism-external-icon" />
           </span>
         </a>
-      </div>
-    </footer>
+      </motion.div>
+    </motion.footer>
   );
 }

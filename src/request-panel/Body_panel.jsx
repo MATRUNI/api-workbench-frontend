@@ -1,5 +1,11 @@
-import React, { memo, useContext, useState } from 'react'
+import { memo, useContext, useState, forwardRef, useImperativeHandle } from 'react'
 import { RequestContext } from '../context/RequestContext';
+import { FileBraces, FileCode, FileText, CheckCircle, AlertTriangle, Sparkles, CodeXml } from "lucide-react"
+import { CustomDropdown } from '../components/utility_Components/CustomDropdown';
+import CodeMirrorEditor from '../components/utility_Components/CodeMirrorEditor';
+
+import { jsonProperties } from '../assets/jsonProperties'
+
 import '../style/Generic.css'
 
 function formatXml(xml) {
@@ -28,45 +34,70 @@ function formatXml(xml) {
     return formatted.trim();
 }
 
-function Body_panel() {
-    const {request,setRequest, contentTypeTemplates} =useContext(RequestContext)
-    const [error,setError]=useState(null);
-    const [contentType,setContentType] = useState('application/json')
-    const [localString,setLocalString]=useState(JSON.stringify(request.body||{},null,2))
-    function handleInput(e)
-    {
-      const value=e.target.value;
-      setLocalString(value)
-      
-      if(value.trim()==="")
-      {
+const Body_panel = forwardRef((props, ref) => {
+
+    const { request, setRequest, contentTypeTemplates } = useContext(RequestContext)
+    const [error, setError] = useState(null);
+    const [contentType, setContentType] = useState(request.contentType)
+    const [localString, setLocalString] = useState(() => {
+      if (typeof request.body === 'object' && request.body !== null) {
+        return JSON.stringify(request.body, null, 2);
+      }
+      return typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2);
+    })
+
+    const typeOptions = [
+      { value: 'application/json', label: 'JSON' },
+      { value: 'text/html', label: 'HTML' },
+      { value: 'application/xml', label: 'XML' },
+      { value: 'text/plain', label: 'Text' },
+    ];
+
+    useImperativeHandle(ref, () => ({
+      getCurrentBody() {
+        return localString
+      }
+    }));
+
+    const completions = jsonProperties.map(label=>({label,type:"property"}))
+
+    const validateInput = (value, type) => {
+      if (value.trim() === "") {
         setError(null);
         return;
       }
-
-      try
-      {
-        if (contentType === 'application/json') {
+      try {
+        if (type === 'application/json') {
           JSON.parse(value);
-        } else if (contentType === 'application/xml') {
+        } else if (type === 'application/xml') {
           const parser = new DOMParser();
           const dom = parser.parseFromString(value, "application/xml");
           if (dom.querySelector('parsererror')) {
-              throw new Error("Invalid XML");
+              throw new Error("Invalid XML structure");
           }
         }
-        // HTML and plain text are generally always valid as strings
-        setError(null)
+        setError(null);
+      } catch (err) {
+        setError(err.message);
       }
-      catch(err)
-      {
-        setError(err.message)
+    };
+
+    const handleEditorChange = (newValue) => {
+      setLocalString(newValue);
+      validateInput(newValue, contentType);
+    };
+
+    const getLangKey = (type) => {
+      switch (type) {
+        case 'application/json': return 'json';
+        case 'text/html': return 'html';
+        case 'application/xml': return 'xml';
+        case 'text/plain':
+        default: return 'text';
       }
-    }
-    async function handleSync()
-    {
-      try
-      {
+    };
+    async function handleSync() {
+      try {
         let formatted = localString;
         let finalBody = localString;
 
@@ -83,60 +114,76 @@ function Body_panel() {
                 console.error("Prettier formatting failed", e);
             }
         } else if (contentType === 'application/xml') {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(localString, "application/xml");
-            if (dom.querySelector('parsererror')) {
-                throw new Error("Invalid XML");
-            }
             formatted = formatXml(localString);
+            finalBody = formatted;
         }
 
-        setRequest(prev=>({
+        setRequest(prev => ({
           ...prev,
           body: finalBody
         }))
         setLocalString(formatted)
         setError(null);
-      }
-      catch(err)
-      {
-        setError("SyncError: "+err.message)
+      } catch (err) {
+        setError("SyncError: " + err.message)
       }
     }
-    function handleTypeChange(e)
-    {
+
+    function handleTypeChange(e) {
       let selected = e.target.value;
       setContentType(selected)
-      setLocalString(contentTypeTemplates[selected])
+      let template = contentTypeTemplates[selected] || "";
+      setRequest(pre=>({...pre,contentType:selected,body:template}))
+      
+      if (selected === 'application/json') {
+        try {
+          const parsed = typeof template === 'string' ? JSON.parse(template) : template;
+          template = JSON.stringify(parsed, null, 2);
+        } catch {
+          template = String(template);
+        }
+      }
+
+      setLocalString(template);
       setError(null)
     }
+
+    const renderTypeIcon = () => {
+      switch (contentType) {
+        case 'application/json': return <FileBraces size={15}/>;
+        case 'text/html': return <FileCode size={15}/>;
+        case 'application/xml': return <CodeXml size={15}/>;
+        case 'text/plain':
+        default: return <FileText size={15}/>;
+      }
+    };
+
   return (
-  <div className="editor-area">
+    <div className="editor-area">
       <div className='pane-header'>
         <div className="pane-header-left">
-          <select className="dropdown" value={contentType} onChange={handleTypeChange}>
-            <option value="application/json">JSON</option>
-            <option value="text/html">HTML</option>
-            <option value="application/xml">XML</option>
-            <option value="text/plain">Text</option>
-          </select>
-          <span className='label'>BODY</span>
+            <CustomDropdown 
+              value={contentType} 
+              onChange={handleTypeChange} 
+              options={typeOptions} 
+              icon={renderTypeIcon()}
+            />
+          <span className='label' style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginLeft: '10px' }}>
+            {renderTypeIcon()} BODY
+          </span>
           <span className={`length-badge ${error ? 'status-error' : 'status-success'}`}>
-                {error ? 'Invalid' : 'Valid'}
-            </span>
+            {error ? <><AlertTriangle size={14}/>Invalid</> : <><CheckCircle size={14}/>Valid</>}
+          </span>
         </div>
-          <button onClick={handleSync} className='add-row-btn'>Format</button>
+        <button onClick={handleSync} className='add-row-btn'><Sparkles size={15}/>Format</button>
       </div>
+      
       <div className="editor-window">
-        <textarea 
-          className="code-input ghost-textarea"
-          onChange={handleInput}
-          onBlur={handleSync}
-          value={localString}
-          spellCheck='false'
-          autoCapitalize='none'
-        />
-        {error&&(
+        <div style={{ height: '100%', width: '100%' }} onBlur={handleSync}>
+          <CodeMirrorEditor value={localString} onChange={handleEditorChange} lang={getLangKey(contentType)} completions={completions}/>
+        </div>
+        
+        {error && (
           <div className='validation-error'>
             <span style={{ fontWeight: 'bold' }}>✕</span>
             {error}
@@ -145,6 +192,6 @@ function Body_panel() {
       </div>
     </div>
   )
-}
+})
 
 export default memo(Body_panel)

@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
+import { SunDim, MoonStar } from "lucide-react"
 
 function ThemeToggle({location='nav'}) {
   const [isLight, setIsLight] = useState(()=>{
@@ -21,8 +22,9 @@ function ThemeToggle({location='nav'}) {
       className="btn theme-toggle-btn" 
       data-theme={location==='nav'?"notvisible":"visible"}
       onClick={() => setIsLight(!isLight)}
+      title={!isLight?`Light Theme`:"Dark Theme"}
     >
-      {isLight ? '🔆 LIGHT_OS' : '🌙 DARK_OS'}
+      {!isLight ? <SunDim/> : <MoonStar/>}
     </button>
   );
 }

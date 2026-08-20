@@ -1,5 +1,6 @@
-import React, {useContext} from 'react';
+import {useContext} from 'react';
 import { RequestContext } from '../context/RequestContext';
+import { PlusSquare, Trash2 } from "lucide-react"
 
 function Query_panel() {
   const {request,setRequest} =useContext(RequestContext)
@@ -23,7 +24,7 @@ function Query_panel() {
     <div className="kv-container">
       <div className="pane-header">
         <span className="label">Query Parameters</span>
-        <button className="add-row-btn" onClick={addQuery}>+ Add Param</button>
+        <button className="add-row-btn" onClick={addQuery}><PlusSquare size={15}/> Add Param</button>
       </div>
 
       <div className="kv-table">
@@ -41,7 +42,7 @@ function Query_panel() {
               value={q.value} 
               onChange={(e) => updateQuery(index, 'value', e.target.value)}
             />
-            <button className="remove-row" onClick={() => removeQuery(index)}>✕</button>
+            <button className="remove-row" onClick={() => removeQuery(index)}><Trash2 size={15}/></button>
           </div>
         ))}
         {request.query.length === 0 && (

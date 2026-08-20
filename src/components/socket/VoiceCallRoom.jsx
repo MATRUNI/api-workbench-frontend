@@ -49,7 +49,7 @@ export default function VoiceCallRoom() {
     getPeers,
     inCallMembers,
     callEvents,
-    callerName,
+    callerId,
     hasIncomingCall
   } = useWebRTC(socket, invitee);
 
@@ -81,8 +81,8 @@ export default function VoiceCallRoom() {
   };
 
   // Handle direct call via roster selection
-  const handleDirectCall = (peerUsername) => {
-    const peersToInvite = Array.from(new Set([...invitee,...cleanPeers(peerUsername)]))
+  const handleDirectCall = (peerUserId) => {
+    const peersToInvite = Array.from(new Set([...invitee,...cleanPeers(peerUserId)]))
     setInvitee(peersToInvite);
     
     startCall();
@@ -108,8 +108,14 @@ export default function VoiceCallRoom() {
 
   const toggleDeafen = () => setIsDeafened((prev) => !prev);
 
+  const getUsername = (id) => {
+    if (id === 'you' || id === 'host') return id.toUpperCase();
+    const found = onlineUsers.find(u => u.userId === id);
+    return found ? found.username : id?.substring(0, 6) || id;
+  };
+
   const activePeers = getPeers();
-  const otherOperators = onlineUsers.filter((u) => u !== user.username);
+  const otherOperators = onlineUsers.filter((u) => u.username !== user.username);
 
   return (
     <div className="comm-deck-workbench">
@@ -138,7 +144,7 @@ export default function VoiceCallRoom() {
         <div className="incoming-call-alert-bar">
           <div className="alert-message">
             <PhoneIncoming size={16} className="pulse-icon" />
-            <span>INCOMING PATCH SIGNAL FROM: <strong>@{callerName}</strong></span>
+            <span>INCOMING PATCH SIGNAL FROM: <strong>@{getUsername(callerId)}</strong></span>
           </div>
           <div className="alert-actions">
             <button className="accept-btn" onClick={()=>{
@@ -196,19 +202,19 @@ export default function VoiceCallRoom() {
                   <div className="roster-empty">NO OTHER OPERATORS ONLINE</div>
                 ) : (
                   otherOperators.map((peerName) => {
-                    const isConnected = inCallMembers.includes(peerName);
+                    const isConnected = inCallMembers.includes(peerName.userId);
 
                     return (
-                      <div key={peerName} className="roster-item-row">
+                      <div key={peerName.username} className="roster-item-row">
                         <div className="roster-user-info">
                           <span className="online-dot-led" />
-                          <span className="roster-username">@{peerName}</span>
+                          <span className="roster-username">@{peerName.username}</span>
                         </div>
 
                         {!isConnected ? (
                           <button 
                             className="roster-call-action-btn" 
-                            onClick={() => handleDirectCall(peerName)}
+                            onClick={() => handleDirectCall(peerName.userId)}
                             disabled={isInCall}
                           >
                             <PhoneCall size={12} />
@@ -238,7 +244,7 @@ export default function VoiceCallRoom() {
                     <div key={idx} className="event-log-item">
                       <span className="event-time">{new Date(ev.time).toLocaleTimeString()}</span>
                       <span className={`event-type ${ev.type.toLowerCase()}`}>[{ev.type}]</span>
-                      <span className="event-user">@{ev.user}</span>
+                      <span className="event-user">@{getUsername(ev.user)}</span>
                     </div>
                   ))
                 )}
@@ -275,11 +281,11 @@ export default function VoiceCallRoom() {
                 </div>
 
                 {/* REMOTE OPERATOR TILES */}
-                {activePeers.map(([peerName, peerData]) => (
-                  <div key={peerName} className="operator-card remote-operator">
+                {activePeers.map(([peerId, peerData]) => (
+                  <div key={peerId} className="operator-card remote-operator">
                     <div className="op-card-top">
                       <span className="op-role-badge remote">PEER</span>
-                      <span className="op-handle">@{peerName}</span>
+                      <span className="op-handle">@{getUsername(peerId)}</span>
                     </div>
                     <div className="op-card-bottom">
                       <span className="op-led online" />

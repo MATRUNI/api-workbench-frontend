@@ -1,5 +1,4 @@
 .home-hero-prism {
-  height: 100vh;
   background-color: var(--bg-color);
   color: var(--text-main); /* Changed from #fff */
   font-family: 'Inter', sans-serif;
@@ -55,6 +54,8 @@
 .status-pill {
   font-family: monospace;
   font-size: 0.7rem;
+  display: flex;
+  gap: 2px;
   padding: 4px 12px;
   border: 1px solid var(--brand-green); /* Changed from #49cc90 */
   color: var(--brand-green);
@@ -63,6 +64,8 @@
 
 .version-info {
   font-family: monospace;
+  display: flex;
+  gap: 2px;
   font-size: 0.7rem;
   color: var(--text-muted); /* Changed from #444 */
 }
@@ -98,15 +101,14 @@
 
 /* Split Navigation */
 .split-nav {
-  display: flex;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   margin-top: 60px;
-  height: 250px;
-  background: var(--border-color); /* Acts as an edge seam spacer grid line */
+  background: var(--border-color);
 }
 
 .nav-item {
-  flex: 1;
   position: relative;
   padding: 30px;
   background: var(--card-bg); /* Changed from #0a0a0a */
@@ -116,7 +118,9 @@
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
-
+.split-nav.logged-in .nav-item.fetch {
+  grid-column: span 2;
+}
 .nav-item .item-bg {
   position: absolute;
   inset: 0;
@@ -142,8 +146,10 @@
   position: relative;
   z-index: 1;
   font-family: monospace;
-  font-size: 0.7rem;
+  font-size: 1rem;
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
   color: var(--text-muted); /* Changed from #444 */
 }
 
@@ -169,13 +175,14 @@
 
 @media (max-width: 1220px) {
   .split-nav {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     height: auto;
     gap: 10px;
     background: transparent;
   }
   .nav-item {
     border-radius: 8px;
+    grid-column: span 1 !important
   }
   .huge-title {
     font-size: 5rem;

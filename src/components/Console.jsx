@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw } from "lucide-react";
 import { RequestContext } from '../context/RequestContext';
+import { prismMotion, fadeFromLeft, fadeFromRight } from "../animations/Motion.js";
 import '../style/console.css';
 
 function Console() {
@@ -28,13 +31,14 @@ function Console() {
     
     setRequest({
       body: log.request.body,
+      contentType: log.request.contentType,
       header: log.request.header,
       query: log.request.query
     });
     
     setResponse({
       status: log.response.status,
-      data: Object.keys(log.response.data).length === 0?"{}": log.response.data,
+      data: Object.keys(log.response.data || {}).length === 0 ? "{}" : log.response.data,
       message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
       time: log.response.time
     });
@@ -44,9 +48,9 @@ function Console() {
 
   const getStatusClass = (status) => {
     const statusNum = parseInt(status, 10);
-    if(status>=200 && status<300) return "success";
-    if(status>=400 && status<500) return "warning";
-    if(status>=500) return "error";
+    if(statusNum >= 200 && statusNum < 300) return "success";
+    if(statusNum >= 400 && statusNum < 500) return "warning";
+    if(statusNum >= 500) return "error";
     return 'warning';
   };
 
@@ -59,61 +63,103 @@ function Console() {
   });
 
   return (
-    <div className="fetch-container console-container">
+    <motion.div className="fetch-container console-container" initial="hidden" animate="visible" {...prismMotion}>
+      <div className="prism-backdrop">
+        <div className="line-y"></div>
+        <div className="line-x"></div>
+      </div>
+
       <header className="fetch-header">
-        <h1>Cache Console</h1>
-        <p>Rehydrate historical request variables back into your current session workbench.</p>
+        <div className='top-section'>
+          <motion.div className="status-pill" {...fadeFromLeft}>
+            <History size={14} />
+            SYSTEM_TELEMETRY
+          </motion.div>
+        </div>
+        <motion.h1 {...fadeFromRight}>Cache Console</motion.h1>
+        <motion.p {...fadeFromLeft}>Rehydrate historical request variables back into your current session workbench.</motion.p>
       </header>
 
-      <div className="console-toolbar">
+      <motion.div className="console-toolbar" {...fadeFromLeft}>
         <div className="format-toggle">
-          <button className={`format-btn ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>All Core</button>
-          <button className={`format-btn ${filter === 'SUCCESS' ? 'active active-success' : ''}`} onClick={() => setFilter('SUCCESS')}>Success</button>
-          <button className={`format-btn ${filter === 'FAILED' ? 'active active-error' : ''}`} onClick={() => setFilter('FAILED')}>Failures</button>
+          <button className={`format-btn ${filter === 'ALL' ? 'active' : ''}`} onClick={() => setFilter('ALL')}>
+            <Terminal size={14} /> All
+          </button>
+          <button className={`format-btn ${filter === 'SUCCESS' ? 'active active-success' : ''}`} onClick={() => setFilter('SUCCESS')}>
+            <CheckCircle2 size={14} /> Success
+          </button>
+          <button className={`format-btn ${filter === 'FAILED' ? 'active active-error' : ''}`} onClick={() => setFilter('FAILED')}>
+            <AlertTriangle size={14} /> Failures
+          </button>
         </div>
 
-        <button className="copy-btn purge-btn" disabled={logs.length === 0} onClick={clearHistory}>
-          Purge Memory
-        </button>
-      </div>
+        <motion.button 
+          className="copy-btn purge-btn" 
+          disabled={logs.length === 0} 
+          onClick={clearHistory}
+          whileHover={logs.length > 0 ? { scale: 1.02 } : {}}
+          whileTap={logs.length > 0 ? { scale: 0.98 } : {}}
+        >
+          <Trash2 size={16} />
+        </motion.button>
+      </motion.div>
 
       <div className="editor-window console-window">
         {filteredLogs.length === 0 ? (
           <div className="empty-state terminal-empty">
-            <span className="terminal-prompt">&gt;</span> COLD STORAGE INACTIVE. PROCESS RUNS TO BEGIN INGESTION...
+            <motion.span 
+              className="terminal-prompt"
+              animate={{ opacity: [1, 0.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              &gt;
+            </motion.span> 
+            COLD STORAGE INACTIVE. PROCESS RUNS TO BEGIN INGESTION...
           </div>
         ) : (
           <div className="console-log-list">
-            {filteredLogs.map((log) => (
-              <div key={log.id} className="console-log-row" onClick={() => handleRestoreCache(log)}>
-                <div className="log-meta">
-                  <span className={`method-${log.method} log-time`}>
-                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </span>
-                  <span className={`method-dropdown method-${log.method} log-method-badge`}>
-                    {log.method}
-                  </span>
-                </div>
-                
-                <div className="log-url-zone">
-                  <span className="log-url" title={log.url}>{log.url}</span>
-                  {log.request.body && Object.keys(log.request.body).length > 0 && (
-                    <span className="payload-indicator-dot">⚡ JSON</span>
-                  )}
-                </div>
-                
-                <div className="log-metrics">
-                  <span className="log-size">{log.size ? `${(log.size / 1024).toFixed(2)} KB` : '0 B'}</span>
-                  <span className={`status-${getStatusClass(log.response.status)} log-status`}>
-                    {log.response.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+            <AnimatePresence>
+              {filteredLogs.map((log, index) => (
+                <motion.div 
+                  key={log.id || index} 
+                  className="console-log-row" 
+                  onClick={() => handleRestoreCache(log)}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2, delay: index * 0.03 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  <div className="log-meta">
+                    <span className={`method-${log.method} log-time`}>
+                      {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </span>
+                    <span className={`method-dropdown method-${log.method} log-method-badge`}>
+                      {log.method}
+                    </span>
+                  </div>
+                  
+                  <div className="log-url-zone">
+                    <span className="log-url" title={log.url}>{log.url}</span>
+                    {log.request?.body && Object.keys(log.request.body).length > 0 && (
+                      <span className="payload-indicator-dot"><Zap size={12} /> JSON</span>
+                    )}
+                  </div>
+                  
+                  <div className="log-metrics">
+                    <span className="log-size">{log.size ? `${(log.size / 1024).toFixed(2)} KB` : '0 B'}</span>
+                    <span className={`status-${getStatusClass(log.response.status)} log-status`}>
+                      {log.response.status}
+                    </span>
+                    <RefreshCw size={14} className="restore-icon" />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 

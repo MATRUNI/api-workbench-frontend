@@ -9,3 +9,69 @@
     outline: none;
     font-family: 'Fira Code', monospace;
 }
+.cm-editor {
+  height: 100% !important;
+  background-color: transparent !important;
+  color: var(--text-main) !important;
+  font-family: 'Fira Code', monospace !important;
+  font-size: 13px !important;
+}
+
+.cm-scroller {
+  font-family: 'Fira Code', monospace !important;
+  line-height: 1.5;
+  overflow: auto !important;
+}
+
+.cm-content {
+  caret-color: var(--brand-color) !important;
+  padding: 15px 0 !important;
+}
+
+.cm-cursor {
+  border-left-color: var(--brand-color) !important;
+}
+
+.cm-gutters {
+  background-color: transparent !important;
+  color: var(--text-muted) !important;
+  border: none !important;
+  padding-right: 8px !important;
+}
+
+.cm-activeLine {
+  background-color: color-mix(in srgb, var(--text-main) 3%) !important;
+}
+
+.cm-activeLineGutter {
+  background-color: transparent !important;
+  color: var(--brand-color) !important;
+}
+
+.cm-selectionBackground, 
+&.cm-focused .cm-selectionBackground {
+  background-color: color-mix(in srgb, var(--brand-color) 25%, transparent) !important;
+}
+
+/* Autocomplete Popups & Tooltips */
+.cm-tooltip {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cm-tooltip.cm-completionInfo {
+  padding: 8px !important;
+  color: var(--text-main) !important;
+}
+
+.cm-tooltip-autocomplete > ul > li {
+  padding: 6px 10px !important;
+  color: var(--text-main) !important;
+}
+
+.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: color-mix(in srgb, var(--brand-color) 15%) !important;
+  color: var(--brand-color) !important;
+}

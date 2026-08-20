@@ -47,6 +47,8 @@
     cursor: pointer;
     border-radius: 4px;
     transition: 0.2s;
+    display: flex;
+    gap: 0.2rem;
 }
 
 .format-btn:hover {
@@ -138,4 +140,73 @@
 
 .copy-popup {
   animation: fadeInOut 2s forwards;
+}
+.response-sub-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sub-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Fira Code', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sub-tab:hover {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--brand-color) 10%, transparent);
+}
+
+.sub-tab.active {
+  color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 20%, transparent);
+  font-weight: 600;
+}
+
+.response-headers-list {
+  padding: 12px;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.header-row {
+  display: flex;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.header-key {
+  color: var(--brand-color);
+  width: 200px;
+  font-weight: bold;
+}
+
+.header-val {
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+.response-pane-expanded {
+  position: fixed !important;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 9999;
+  height: calc(100vh - 20px) !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }

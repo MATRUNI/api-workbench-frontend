@@ -2,7 +2,9 @@ import React, { memo, useContext, useCallback } from 'react';
 import { RequestContext } from '../context/RequestContext';
 import { useNavigate } from 'react-router-dom';
 import { LibraryContext } from '../context/LibraryContext';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Sparkles, Terminal, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cardVariants, gridVariants } from '../animations/Motion';
 
 function API_Library() {
   const { setURL, setMethod } = useContext(RequestContext);
@@ -16,17 +18,29 @@ function API_Library() {
   }, [setMethod, setURL, navigate]);
 
   return (
-    <div className="api-grid">
+    <motion.div 
+    className="api-grid"
+    variants={gridVariants}
+    initial="hidden"
+    animate="visible"
+    >
       {APIList.map((api) => {
         const isFeatured = api.priority === 100;
         return (
-          <div 
+          <motion.div 
             key={api._id}
             className={`api-card ${isFeatured ? 'featured-card' : ''}`}
+            variants={cardVariants}
           >
-            {isFeatured && <div className="featured-ribbon">{`By ${api.developer}`}</div>}
+            {isFeatured && <div className="featured-ribbon">
+              <Sparkles size={12} />
+              {`By ${api.developer}`}
+              </div>}
             <div className="card-meta">
-              <div className="card-badge">{api.category}</div>
+              <div className="card-badge">
+                <Terminal size={14}/>
+                {api.category}
+                </div>
               <div className="response-tag">
                 <span className="pulse-dot"></span>
                 {api.responseType}
@@ -55,11 +69,12 @@ function API_Library() {
               onClick={() => handleConfigure(api)}
             >
               Configure in Endpoints
+              <ArrowRight size={18}/>
             </button>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 

@@ -42,17 +42,17 @@
 }
 
 .fetch-header p {
-  color: var(--text-muted); /* Changed from #8b949e */
+  color: var(--text-muted); 
 }
 
-/* --- Grid Layout --- */
+
 .api-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
   gap: 1.5rem;
 }
 
-/* --- Card Styles --- */
+
 .api-card {
   position: relative;
   background: var(--card-bg);
@@ -61,17 +61,59 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  transition:
+    border-color 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+    background 0.3s ease,
+    transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   overflow: hidden;
 }
 
-.api-card:hover {
-  border-color: var(--brand-color);
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
-  transform: translateY(-5px);
+
+.api-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    color-mix(in srgb, var(--text-main) 10%, transparent) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  transition: none;
+  pointer-events: none;
 }
 
-/* --- Card Top Section (Badges) --- */
+.api-card:hover {
+  
+  background: color-mix(in srgb, var(--card-bg) 75%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  
+  
+  border-color: color-mix(in srgb, var(--brand-color) 70%, var(--border-color));
+  
+  transform: translateY(-5px);
+  
+  
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.35),
+    0 0 25px color-mix(in srgb, var(--brand-color) 20%, transparent),
+    inset 0 1px 0 0 color-mix(in srgb, var(--text-main) 25%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--text-main) 3%, transparent);
+}
+
+
+.api-card:hover::before {
+  left: 150%;
+  transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
 .card-meta {
   display: flex;
   justify-content: space-between;
@@ -84,6 +126,8 @@
   background: rgba(168, 85, 247, 0.1);
   color: var(--brand-color);
   padding: 4px 8px;
+  display: flex;
+  align-items: center;
   border-radius: 6px;
   text-transform: uppercase;
   font-weight: bold;
@@ -95,8 +139,8 @@
   background: color-mix(in srgb, var(--text-main) 4%, transparent);
   padding: 4px 10px;
   border-radius: 4px;
-  border: 1px solid var(--border-color); /* Changed from rgba(255,255,255,0.1) */
-  color: var(--text-muted); /* Changed from #8b949e */
+  border: 1px solid var(--border-color); 
+  color: var(--text-muted); 
   display: flex;
   align-items: center;
   gap: 6px;
@@ -104,15 +148,15 @@
 }
 
 .api-card:hover .response-tag {
-  color: var(--text-main); /* Changed from #fff */
+  color: var(--text-main); 
   border-color: var(--brand-color);
 }
 
-/* --- Pulsing Status Dot --- */
+
 .pulse-dot {
   width: 6px;
   height: 6px;
-  background: var(--brand-green); /* Changed from #49cc90 */
+  background: var(--brand-green); 
   border-radius: 50%;
   position: relative;
 }
@@ -139,14 +183,14 @@
 
 .api-card p {
   font-size: 0.9rem;
-  color: var(--text-muted); /* Changed from #a1a1aa to sync readability */
+  color: var(--text-muted); 
   line-height: 1.5;
   margin-bottom: 20px;
   flex-grow: 1;
 }
 
 .endpoint-preview {
-  background: var(--terminal-input); /* Changed from #09090b */
+  background: var(--terminal-input); 
   padding: 10px;
   border-radius: 8px;
   font-family: monospace;
@@ -160,12 +204,12 @@
 }
 
 .endpoint-preview code {
-  color: var(--brand-green); /* Changed from #49cc90 */
+  color: var(--brand-green); 
   font-weight: bold;
 }
 
 .endpoint-preview span {
-  color: var(--text-muted); /* Changed from #8b949e */
+  color: var(--text-muted); 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -173,22 +217,25 @@
 
 .configure-btn {
   background: var(--accent-color);
-  color: var(--bg-color); /* Dynamically inverts background text colors cleanly across themes */
+  color: var(--bg-color); 
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 12px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
-/* Container check to make sure items sit nicely inline */
+
 .endpoint-preview {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Lucide Docs Button styling */
+
 .docs-icon-btn {
     display: flex;
     align-items: center;
@@ -201,13 +248,13 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Icon internal colors */
+
 .docs-icon-btn .docs-icon {
     color: var(--text-muted);
     transition: color 0.2s ease;
 }
 
-/* Tech Hover Interactive States */
+
 .docs-icon-btn:hover {
     border-style: solid;
     border-color: var(--brand-color);
@@ -220,10 +267,10 @@
 }
 .api-card:hover .configure-btn {
   background: var(--brand-color);
-  color: white; /* Contrast-locked visibility for focus highlights */
+  color: white; 
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
 }
-/* --- Featured Card (Priority 100) Layout Overrides --- */
+
 .api-card.featured-card {
   border-color: rgba(168, 85, 247, 0.4); 
   box-shadow: 
@@ -241,18 +288,19 @@
   box-shadow: 
     0 0 25px rgba(168, 85, 247, 0.25),
     inset 0 0 15px rgba(168, 85, 247, 0.1);
-  transform: translateY(-6px);
 }
 
 .api-card.featured-card h3 {
-  color: var(--brand-color); /* Makes your custom API names pop in the primary brand theme color */
+  color: var(--brand-color); 
 }
 
-/* --- Optional: Corner Ribbon Tag --- */
+
 .featured-ribbon {
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  gap: 2px;
   background: linear-gradient(135deg, var(--brand-color), #6366f1);
   color: white;
   font-family: monospace;

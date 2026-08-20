@@ -40,6 +40,9 @@
     font-size: 0.9rem;
     padding: 0 10px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
 }
 #logo sub{
     color: var(--accent-color);
@@ -61,6 +64,9 @@
     border: none;
     color: var(--text-muted); 
     padding: 6px 12px; 
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
     font-size: 0.85rem;
     font-weight: 500;
     border-radius: 8px;
@@ -129,10 +135,14 @@
 }
 
 .avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
+    color: white;
     background: linear-gradient(to bottom right, var(--brand-color), #6366f1);
-    border-radius: 50%;
+    border-radius: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 1220px) {

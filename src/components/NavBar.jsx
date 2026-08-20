@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
 import { UserContext } from '../context/UserContext';
 import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageSquareCodeIcon } from 'lucide-react';
+import { SocketContext } from '../context/SocketContext';
 import { motion } from 'framer-motion';
 import { appear } from '../animations/Motion';
 

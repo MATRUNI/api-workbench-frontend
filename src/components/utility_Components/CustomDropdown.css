@@ -1,0 +1,80 @@
+.custom-dropdown-container {
+  position: relative;
+  display: inline-block;
+  -webkit-user-select: none;
+}
+
+.custom-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  transition: border-color 0.2s ease;
+  min-width: 120px;
+}
+
+.custom-dropdown-trigger:hover {
+  border-color: var(--brand-color);
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 140px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  list-style: none;
+  padding: 4px;
+  z-index: 999;
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+}
+
+.dropdown-label
+{
+  display: flex;
+  gap: 0.2rem;
+}
+
+.custom-dropdown-item {
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background 0.15s ease;
+}
+
+.custom-dropdown-item:hover {
+  background-color: color-mix(in srgb, var(--brand-color) 15%, transparent);
+}
+
+.custom-dropdown-item.active {
+  color: var(--brand-color);
+  font-weight: bold;
+}
+
+.pane-header {
+  transition: all 0.3s ease;
+  padding-bottom: 10px;
+}
+
+.pane-header-scrolled {
+  background-color: color-mix(in srgb, var(--bg-color) 90%, transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px;
+  border-radius: 8px;
+}

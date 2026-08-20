@@ -183,7 +183,7 @@ export default function useWebRTC(socket,invitee=[]) {
 
     setIncomingData(null);
     setIsInCall(true);
-  }, [incomingData]);
+  }, [incomingData, socket]);
 
   const rejectCall = useCallback(async()=>{
     if(!incomingData) return;
@@ -191,10 +191,10 @@ export default function useWebRTC(socket,invitee=[]) {
     addCallEvent(
       CALL_EVENTS.REJECT,
       "you"
-    )
-    setIncomingData(null)
-    socket.emit("call:reject",{callerId:caller})
-  },[incomingData])
+    );
+    setIncomingData(null);
+    socket.emit("call:reject", { callerId: caller });
+  }, [incomingData, socket, addCallEvent]);
 
   const inviteMorePeers = useCallback((peer)=>{
     if(!isInCall) return;
@@ -205,11 +205,18 @@ export default function useWebRTC(socket,invitee=[]) {
     socket.emit("call:invite", { to: peer, callId:currentCallId.current });
   },[isInCall,socket,addCallEvent])
 
+  const kickPeer = useCallback((peer) => {
+    if (!isInCall) return;
+    socket.emit("call:kick", { callId: currentCallId.current, peer });
+  }, [isInCall, socket]);
+
   const endCall = useCallback((notify = true) => {
-    addCallEvent(
-      CALL_EVENTS.END,
-      "you"
-    );
+    if (notify) {
+      addCallEvent(
+        CALL_EVENTS.END,
+        "you"
+      );
+    }
     peers.current.forEach((peer) => {
       peer.pc.onconnectionstatechange = null;
       peer.pc.close();
@@ -373,6 +380,10 @@ export default function useWebRTC(socket,invitee=[]) {
       setIncomingData(null);
       setIsInCall(false);
     }
+    const handleKicked = () => {
+      addCallEvent(CALL_EVENTS.KICK, "host");
+      endCall(false);
+    };
     socket.on("call:created", handleCreated);
     socket.on("call:invited", handleInvited);
     socket.on("call:joined", handleJoined);
@@ -383,6 +394,7 @@ export default function useWebRTC(socket,invitee=[]) {
     socket.on("call:rejected",handleRejection)
     socket.on("peer:left", handlePeerLeft);
     socket.on("call:end", handleCallEnd);
+    socket.on("call:kicked", handleKicked);
     
     return () => {
       socket.off("call:created", handleCreated);
@@ -395,8 +407,9 @@ export default function useWebRTC(socket,invitee=[]) {
       socket.off("call:rejected",handleRejection)
       socket.off("peer:left", handlePeerLeft);
       socket.off("call:end", handleCallEnd);
+      socket.off("call:kicked", handleKicked);
     };
-  }, [socket, processIceQueue, removePeer, endCall,createPeer,makeOffer]);
+  }, [socket, processIceQueue, removePeer, endCall, createPeer, makeOffer, addCallEvent]);
 
   useEffect(() => {
     return () => {
@@ -410,12 +423,13 @@ export default function useWebRTC(socket,invitee=[]) {
     endCall,
     rejectCall,
     inviteMorePeers,
+    kickPeer,
     isInCall,
     getPeers,
     inCallMembers,
     callEvents,
     CALL_EVENTS,
-    callerName: incomingData?.from,
+    callerId: incomingData?.from,
     hasIncomingCall: !!incomingData,
   };
 }

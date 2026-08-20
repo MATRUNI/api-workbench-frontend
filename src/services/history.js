@@ -10,6 +10,7 @@ export const saveToHistory = (url, method, currentRequest, currentResponse) => {
       
       request: {
         body: currentRequest.body,
+        contentType:currentRequest.contentType,
         header: currentRequest.header || [],
         query: currentRequest.query || []
       },

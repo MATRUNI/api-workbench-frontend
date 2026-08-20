@@ -21,7 +21,6 @@ async function loadPrettier()
 export const contentTypeHandlers = {
   // JSON content
   "application/json": async (res) => {
-    console.log("called json")
     let length=await getResponseSize(res);
     let data=await res.json();
     data=JSON.stringify(data,null,2)
@@ -30,7 +29,6 @@ export const contentTypeHandlers = {
 
   // Text-based content
   "text/plain": async (res) => {
-    console.log("called for text")
     let length=await getResponseSize(res);
     let data=await res.text();
     return {length,data};
@@ -38,7 +36,6 @@ export const contentTypeHandlers = {
   
   // HTML content (render or show as raw)
   "text/html": async (res) => {
-    console.log("called for html")
     let length=await getResponseSize(res);
     let html = await res.text();
     const {prettier,plugins}=await loadPrettier();
@@ -48,7 +45,6 @@ export const contentTypeHandlers = {
   
   // CSS content (render or show as raw)
   "text/css": async (res) => {
-    console.log('called for css')
     let length=await getResponseSize(res);
     let css = await res.text();
     const {prettier,plugins}=await loadPrettier();

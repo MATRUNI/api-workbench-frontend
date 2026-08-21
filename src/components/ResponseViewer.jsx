@@ -4,6 +4,7 @@ import { Copy, Check, Trash2, Download, Maximize2, FileCode, FileText, KeyRound 
 import VoidLoader from './VoidLoader';
 import '../style/responseViewer.css';
 import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
+import KeyValueList from './utility_Components/KeyValueList';
 
 
 const ResponseViewer = forwardRef((props, ref) => {
@@ -144,18 +145,16 @@ const ResponseViewer = forwardRef((props, ref) => {
                         }
                         
                         {activeTab === 'headers' && (
-                            <div className="response-headers-list" style={{ height: '100%', overflowY: 'auto' }}>
-                                {response.headers ? (
-                                    Object.entries(response.headers).map(([k, v], i) => (
-                                        <div key={i} className="header-row">
-                                            <span className="header-key">{k}:</span>
-                                            <span className="header-val">{v}</span>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="empty-state">No header information available.</div>
-                                )}
-                            </div>
+                            <KeyValueList
+                                items={Object.entries(response.headers || {}).map(([key, value]) => ({
+                                    key,
+                                    value
+                                }))}
+                                editable={false}
+                                showAddBtn={false}
+                                label="Response Headers"
+                                emptyMessage="No header information available."
+                            />
                         )}
 
                         {activeTab === 'preview' && (

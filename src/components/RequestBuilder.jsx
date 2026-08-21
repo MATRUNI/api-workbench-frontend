@@ -1,12 +1,11 @@
 import React, { useContext, useState, useRef } from 'react'
 import Tabs from '../request-panel/Tabs'
 import Body_panel from '../request-panel/Body_panel'
-import Header_panel from '../request-panel/Header_panel'
-import Query_panel from '../request-panel/Query_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
 import { Send } from "lucide-react"
+import KeyValueList from './utility_Components/KeyValueList'
 
 function RequestBuilder({ scrollToResponse }) {
     const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest}=useContext(RequestContext)
@@ -31,7 +30,7 @@ function RequestBuilder({ scrollToResponse }) {
         alert("Invalid URL");
         return;
       }
-      const body = bodyRef.current.getCurrentBody()
+      const body = bodyRef.current?.getCurrentBody()
       setRequest(pre=>({...pre,body}))
       setIsLoading(true);
       scrollToResponse();
@@ -48,8 +47,10 @@ function RequestBuilder({ scrollToResponse }) {
         const finalResponse = {
           status: response.status,
           data: response.data,
+          headers:response.headers,
           time: response.time || 12,
-          length: response.length || 0
+          length: response.length || 0,
+          type: response.type
         };
         setResponse(response)
         saveToHistory(url,method,request,finalResponse)
@@ -94,8 +95,40 @@ function RequestBuilder({ scrollToResponse }) {
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "body" && <Body_panel ref={bodyRef}/>}
-      {activeTab === "headers" && <Header_panel/>}
-      {activeTab === "query-params" && <Query_panel/>}
+
+      {activeTab === "headers" && (
+          <KeyValueList
+              items={request.headers}
+              onChange={(headers) => {
+                  setRequest(prev => ({
+                      ...prev,
+                      headers
+                  }));
+              }}
+              editable={true}
+              showAddBtn={true}
+              label="Request Headers"
+              addLable="Add Header"
+              emptyMessage="No headers defined. Click add to begin."
+          />
+      )}
+
+      {activeTab === "query-params" && (
+          <KeyValueList
+              items={request.query}
+              onChange={(queries) => {
+                  setRequest(prev => ({
+                      ...prev,
+                      query: queries
+                  }));
+              }}
+              editable={true}
+              showAddBtn={true}
+              label="Query Parameters"
+              addLable="Add Parameter"
+              emptyMessage="No query parameters defined. Click add to begin."
+          />
+      )}
     </section>
   )
 }

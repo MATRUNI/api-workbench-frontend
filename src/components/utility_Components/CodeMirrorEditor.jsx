@@ -45,6 +45,9 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
     const readOnlyCompartment = useRef(new Compartment());
     const editableCompartment = useRef(new Compartment());
     const spellCheckCompartment = useRef(new Compartment());
+    const wrapCompartment = useRef(new Compartment());
+    const wrapRef = useRef(false);
+
     const completionsRef = useRef(completions);
 
     const onChangeRef = useRef(onChange);
@@ -87,6 +90,25 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
             extensions:[
                 basicSetup,
                 search(),
+                wrapCompartment.current.of([]),
+                keymap.of([
+                    {
+                        key: "Alt-z",
+                        run: (view) => {
+                            wrapRef.current = !wrapRef.current;
+                        
+                            view.dispatch({
+                                effects: wrapCompartment.current.reconfigure(
+                                    wrapRef.current
+                                        ? EditorView.lineWrapping
+                                        : []
+                                )
+                            });
+                        
+                            return true;
+                        }
+                    }
+                ]),
                 autocompletion(),
                 placeholder(placeholderText),
                 syntaxHighlighting(editorHighlightStyle),

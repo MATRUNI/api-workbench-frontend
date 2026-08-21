@@ -11,6 +11,7 @@
     --terminal-input: #010409;
     --scrollbar-track: #121316;
     --scrollbar-thumb: #6b21a8;
+    --config-color: #f59e0b;
 }
 
 html.light-theme {
@@ -26,6 +27,7 @@ html.light-theme {
     --terminal-input: #f8f8fa;
     --scrollbar-track: #e4e4e7;
     --scrollbar-thumb: #a855f7;
+    --config-color: #d97706;
 }
 html,
 body,

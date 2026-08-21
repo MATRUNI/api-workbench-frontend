@@ -2,7 +2,7 @@ import { useRef, useEffect } from "react";
 import { basicSetup, EditorView } from "codemirror";
 import { placeholder, keymap } from "@codemirror/view";
 import { search, searchKeymap } from "@codemirror/search"
-import { autocompletion, completeFromList } from "@codemirror/autocomplete";
+import { autocompletion } from "@codemirror/autocomplete";
 import { linter } from "@codemirror/lint"
 import { EditorState, Compartment } from "@codemirror/state";
 import { syntaxHighlighting, syntaxTree, language } from "@codemirror/language";
@@ -109,7 +109,8 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
                 }),
                 spellCheckCompartment.current.of(
                     EditorView.contentAttributes.of({
-                        spellcheck: langRef.current==="text" ? "true" : "false"
+                        spellcheck: langRef.current==="text" ? "true" : "false",
+                        tabindex:"0"
                     })
                 ),
             ]
@@ -160,7 +161,8 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
                 ),
                 spellCheckCompartment.current.reconfigure(
                     EditorView.contentAttributes.of({
-                        spellcheck: langRef.current==="text" ? "true" : "false"
+                        spellcheck: langRef.current==="text" ? "true" : "false",
+                        tabindex:"0"
                     })
                 )
             ]

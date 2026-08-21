@@ -202,10 +202,12 @@
 
 .response-pane-expanded {
   position: fixed !important;
-  top: 10px;
+  background-color: var(--bg-color);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  top: -8px;
   left: 10px;
   right: 10px;
-  bottom: 10px;
   z-index: 9999;
   height: calc(100vh - 20px) !important;
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);

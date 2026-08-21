@@ -39,34 +39,33 @@ html.light-theme #root {
     background-color: var(--bg-color, #f4f4f5);
 }
 body {
-    /* background-color: var(--bg-color); */
     padding-top: 80px;
     font-family: 'Geist', 'Inter', sans-serif;
 }
 
 ::-webkit-scrollbar {
-    width: 10px !important;
-    height: 10px !important;
-    display: block !important;
+    width: 10px;
+    height: 10px;
+    display: block;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track) !important;
-    border-left: 1px solid var(--border-color) !important;
+    background: var(--scrollbar-track);
+    border-left: 1px solid var(--border-color);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb) !important;
+    background: var(--scrollbar-thumb);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a855f7 !important; 
+    background: #a855f7; 
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: #c084fc !important;
+    background: #c084fc;
 }
 
 * {
-    scrollbar-width: thin !important;
-    scrollbar-color: #6b21a8 #121316 !important;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }

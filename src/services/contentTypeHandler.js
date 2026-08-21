@@ -24,14 +24,14 @@ export const contentTypeHandlers = {
     let length=await getResponseSize(res);
     let data=await res.json();
     data=JSON.stringify(data,null,2)
-    return {length,data}; // Parse as JSON
+    return {length,data,type:"JSON"}; // Parse as JSON
   },
 
   // Text-based content
   "text/plain": async (res) => {
     let length=await getResponseSize(res);
     let data=await res.text();
-    return {length,data};
+    return {length,data,type:"TEXT"};
   },
   
   // HTML content (render or show as raw)
@@ -40,7 +40,7 @@ export const contentTypeHandlers = {
     let html = await res.text();
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(html,{parser:'html',plugins})
-    return {length,data};
+    return {length,data,type:"HTML"};
   },
   
   // CSS content (render or show as raw)
@@ -49,7 +49,7 @@ export const contentTypeHandlers = {
     let css = await res.text();
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(css,{parser:'css',plugins})
-    return {length,data};
+    return {length,data,type:"CSS"};
   },
   
   // JavaScript content (render or show as raw)
@@ -58,7 +58,7 @@ export const contentTypeHandlers = {
     let js = await res.text();
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(js,{parser:'babel',plugins});
-    return {length,data};
+    return {length,data,type:"JS"};
   },
 
   // XML content
@@ -67,46 +67,46 @@ export const contentTypeHandlers = {
     const xml = await res.text();
     const parser = new DOMParser();
     const data = parser.parseFromString(xml, "application/xml");
-    return {length,data};
+    return {length,data,type:"XML"};
   },
   "text/xml": async (res) => {
     let length=await getResponseSize(res);
     const xml = await res.text();
     const parser = new DOMParser();
     const data = parser.parseFromString(xml, "application/xml");
-    return {length,data};
+    return {length,data,type:"XML"};
   },
 
   "image/png": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"PNG" };
   },
   "image/jpeg": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"JPEG" };
   },
   "application/pdf": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"PDF" };
   },
   "audio/mpeg": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"MPEG" };
   },
   "video/mp4": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"MP4" };
   },
 
   // Default fallback
   "default": async (res) => {
     const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data };
+    return { length, data, type:"BLOB" };
   }
 };

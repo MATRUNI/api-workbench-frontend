@@ -19,7 +19,7 @@ export function RequestProvider({children})
               "data": "input your JSON here"
             },
         contentType: "application/json",
-        header:[],
+        headers:[],
         query:[]
     });
     const [response,setResponse]=useState({

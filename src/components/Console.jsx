@@ -32,15 +32,18 @@ function Console() {
     setRequest({
       body: log.request.body,
       contentType: log.request.contentType,
-      header: log.request.header,
+      headers: log.request.headers,
       query: log.request.query
     });
     
     setResponse({
       status: log.response.status,
       data: Object.keys(log.response.data || {}).length === 0 ? "{}" : log.response.data,
+      headers:log.response.headers,
       message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
-      time: log.response.time
+      length: log.response.length,
+      time: log.response.time,
+      type: log.response.type
     });
 
     navigate('/endpoints'); 
@@ -141,9 +144,7 @@ function Console() {
                   
                   <div className="log-url-zone">
                     <span className="log-url" title={log.url}>{log.url}</span>
-                    {log.request?.body && Object.keys(log.request.body).length > 0 && (
-                      <span className="payload-indicator-dot"><Zap size={12} /> JSON</span>
-                    )}
+                    <span className="payload-indicator-dot"><Zap size={12} /> {log.type}</span>
                   </div>
                   
                   <div className="log-metrics">

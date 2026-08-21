@@ -31,13 +31,14 @@ export async function callAPI(url,method,request)
 
         const contentType = (res.headers.get("content-type")||"").split(';')[0];
         let handlerFunction=contentTypeHandlers[contentType] || contentTypeHandlers["default"];
-        let {length,data}=await handlerFunction(resClone);
+        let {length,data,type}=await handlerFunction(resClone);
         return {
           status: res.status,
-          header: Object.fromEntries(res.headers.entries()),
+          headers: Object.fromEntries(res.headers.entries()),
           data,
           time:timeTaken,
-          length
+          length,
+          type
         };
     }catch(error)
     {

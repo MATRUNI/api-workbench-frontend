@@ -11,18 +11,20 @@ export const saveToHistory = (url, method, currentRequest, currentResponse) => {
       request: {
         body: currentRequest.body,
         contentType:currentRequest.contentType,
-        header: currentRequest.header || [],
+        headers: currentRequest.headers || [],
         query: currentRequest.query || []
       },
       
       response: {
         status: currentResponse.status,
         data: currentResponse.data || currentResponse.message || "", 
+        headers: currentResponse.headers || [],
         time: currentResponse.time || "0 ms",
-        length: currentResponse.length || 0
+        length: currentResponse.length || 0,
       },
+      type: currentResponse.type,
       
-    size: currentResponse.data ? encodeURIComponent(String(currentResponse.data)).length : 0
+      size: currentResponse.data ? encodeURIComponent(String(currentResponse.data)).length : 0
     };
 
     const updatedHistory = [newLog, ...history].slice(0, 50);

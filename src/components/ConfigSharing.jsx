@@ -9,7 +9,7 @@ let configData = [];
 
 function ConfigSharing({ isOpen, onClose }) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState()
+  const [searchResults, setSearchResults] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([])
   const [message, setMessage] = useState('');
   const [isSharing, setIsSharing] = useState(false)
@@ -85,6 +85,7 @@ function ConfigSharing({ isOpen, onClose }) {
             id: item.id || String(idx),
             username: item.username || item
           }))
+          setSearchResults(configData)
         }
       } catch (error) {
         console.error("Failed to search users:", error);

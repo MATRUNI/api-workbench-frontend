@@ -1,0 +1,287 @@
+.config-modal-surface {
+  width: 100%;
+  height: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+}
+
+.config-modal-content {
+  width: auto;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.config-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.config-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-brand-icon {
+  color: var(--config-color);
+}
+
+.config-header-row h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.config-header-row .modal-close-corner-btn {
+  position: static;
+}
+
+.config-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.config-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0 10px;
+}
+
+.config-search-icon {
+  color: var(--text-muted);
+  margin-right: 8px;
+}
+
+.config-search-field {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  outline: none;
+  width: 100%;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.config-clear-btn {
+  background-color: transparent;
+  color: var(--brand-color);
+  border: 2px solid var(--brand-color);
+  font-weight: bold;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 0 14px;
+  height: auto;
+  transition: all 0.2s ease;
+}
+.config-clear-btn:hover{
+  background-color: var(--brand-color);
+  color: white;
+}
+.config-results-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 42vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.config-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+
+.config-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.config-item-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.config-item-endpoint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: 'Fira Code', monospace;
+}
+
+.config-action-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.config-action-btn:hover {
+  border-color: var(--brand-color);
+  color: var(--text-main);
+}
+
+.config-action-btn.copied {
+  color: var(--brand-green);
+  border-color: var(--brand-green);
+}
+
+.config-empty-state {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.config-empty-icon {
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.config-empty-state p {
+  margin: 0;
+}
+
+.config-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  color: var(--brand-color);
+  font-weight: bold;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+.config-selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.config-selected-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: bold;
+}
+
+.config-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.config-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--brand-color);
+  color: var(--text-main);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.config-chip-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.config-chip-remove:hover {
+  color: var(--brand-color);
+}
+.config-message-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.config-message-textarea {
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.config-message-textarea:focus {
+  border-color: var(--brand-color);
+}
+
+.config-footer-action {
+  margin-top: 16px;
+  display: flex;
+  justify-content: stretch;
+}
+
+.config-share-submit-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--brand-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.config-share-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.config-share-submit-btn:not(:disabled):hover {
+  opacity: 0.9;
+}

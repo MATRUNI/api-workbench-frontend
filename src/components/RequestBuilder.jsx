@@ -8,9 +8,12 @@ import { Send, Share2, X, Construction } from "lucide-react"
 import KeyValueList from './utility_Components/KeyValueList'
 
 import "../style/RequestBuilder.css"
+import ConfigSharing from './ConfigSharing'
+import { UserContext } from '../context/UserContext'
 
 function RequestBuilder({ scrollToResponse }) {
     const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest}=useContext(RequestContext)
+    const {user} = useContext(UserContext)
     const [activeTab,setActiveTab]=useState('body')
     const [modalActive,setModalActive] = useState(false);
     const bodyRef = useRef(null);
@@ -132,29 +135,13 @@ function RequestBuilder({ scrollToResponse }) {
               emptyMessage="No query parameters defined. Click add to begin."
           />
       )}
-      <div>
+      {user && <div>
           <button type="button" className="config-btn" title='Share your configuration with others.' onClick={()=>setModalActive(true)}>
               CONFIG <Share2 size={15} />
           </button>
-      </div>
+      </div>}
       {modalActive &&
-      <div className="modal-backdrop" onClick={()=>setModalActive(false)}>
-        <div className="modal-surface" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-interior-content">
-            <button 
-              className="modal-close-corner-btn" 
-              onClick={()=>setModalActive(false)} 
-              title="Close Panel (ESC)"
-            >
-              <X size={16} />
-              <span>ESC</span>
-            </button>
-            <Construction size={50}/>
-            <h3>Configuration Sharing</h3>
-            <p>Work in progress.</p>
-          </div>
-        </div>
-      </div>
+      <ConfigSharing isOpen={modalActive} onClose={()=>setModalActive(false)}/>
       }
     </section>
   )

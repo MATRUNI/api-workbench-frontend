@@ -88,8 +88,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 42vh;
   overflow-y: auto;
+  height: 50dvh;
   padding-right: 2px;
 }
 
@@ -148,9 +148,14 @@
 
 .config-empty-state {
   text-align: center;
+  height: 100%;
   padding: 24px 0;
   color: var(--text-muted);
   font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
 }
 
 .config-empty-icon {
@@ -284,4 +289,42 @@
 
 .config-share-submit-btn:not(:disabled):hover {
   opacity: 0.9;
+}
+.config-options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.config-checkboxes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.config-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.config-checkbox-label input {
+  accent-color: var(--brand-color);
+  cursor: pointer;
+}
+.config-sub-options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding-left: 8px;
+  border-left: 2px solid var(--brand-color);
 }

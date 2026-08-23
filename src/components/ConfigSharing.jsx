@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { X, Search, Sparkles, Terminal, UserPlus, Check, Send } from "lucide-react"
 import { motion, AnimatePresence } from 'framer-motion'
 import { customFetch } from '../services/customFetch'
+import SelectUser from './SelectUser'
+import SelectDataToShare from './SelectDataToShare'
+import { RequestContext } from '../context/RequestContext'
 
 import "../style/ConfigSharing.css"
+import { UserContext } from '../context/UserContext'
 
 let configData = [];
 
@@ -12,7 +16,10 @@ function ConfigSharing({ isOpen, onClose }) {
   const [searchResults, setSearchResults] = useState([])
   const [selectedUsers, setSelectedUsers] = useState([])
   const [message, setMessage] = useState('');
-  const [isSharing, setIsSharing] = useState(false)
+  const [isUserSelect, setIsUserSelect] = useState(true)
+  const [isSharing,setIsSharing] = useState(false)
+  const {url, request, method} = useContext(RequestContext);
+  const { user } = useContext(UserContext)
 
   if (!isOpen) return null
 
@@ -28,37 +35,45 @@ function ConfigSharing({ isOpen, onClose }) {
     }
   }, [isOpen])
 
-  const handleAddUser = (username) => {
-    if (!selectedUsers.includes(username)) {
-      setSelectedUsers(prev => [...prev, username])
-    }
+  function handleAddUser(user) {
+    setSelectedUsers((currentUsers) => {
+      if (currentUsers.some((currentUser) => currentUser.id === user.id)) {
+        return currentUsers;
+      }
+      return [...currentUsers, user];
+    });
   }
 
-  const handleRemoveUser = (usernameToRemove) => {
-    setSelectedUsers(prev => prev.filter(u => u !== usernameToRemove))
+  function handleRemoveUser(user) {
+    setSelectedUsers((currentUsers) =>
+      currentUsers.filter((currentUser) => currentUser.id !== user.id)
+    );
   }
 
-  const handleShareConfig = async () => {
+  const handleShareConfig = async (shareOptions) => {
     if (selectedUsers.length === 0) {
       alert("Please select at least one user to share with.")
       return
     }
-
     setIsSharing(true)
-    try {
-      // Implement your share API call payload here
-      const payload = {
-        users: selectedUsers,
-        message: message
-      }
-      
-      // Example call:
-      // await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/config`, {
-      //   method: 'POST',
-      //   body: JSON.stringify(payload)
-      // })
 
-      alert("WORK IN PROGRESS!!")
+    try {
+      const recievers = selectedUsers.map(item=>item.id);
+      
+      let config = {url:shareOptions.url===true ? url : "", method};
+
+      for(let {k,v} in shareOptions)
+      {
+        if(v)
+          config[k] = request[k]
+      }
+
+      // const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/config`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({recievers, config, message})
+      // })
+      // const data = await res.json();
+
       onClose()
     } catch (error) {
       console.error("Failed to share configuration:", error)
@@ -73,23 +88,14 @@ function ConfigSharing({ isOpen, onClose }) {
       return
     }
 
-    let isMounted = true
-
     async function searchUsers() {
       try {
         const response = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/users/search/${searchQuery}`);
-        const data = await response.json();
+        configData = await response.json();
         
-        if (isMounted) {
-          configData = (data || []).map((item, idx) => ({
-            id: item.id || String(idx),
-            username: item.username || item
-          }))
-          setSearchResults(configData)
-        }
+        setSearchResults(configData)
       } catch (error) {
         console.error("Failed to search users:", error);
-        if (isMounted) setSearchResults([]);
       }
     }
 
@@ -107,7 +113,6 @@ function ConfigSharing({ isOpen, onClose }) {
     finding()
 
     return () => {
-      isMounted = false
       clearTimeout(debounceTimer)
     }
   }, [searchQuery])
@@ -127,7 +132,7 @@ function ConfigSharing({ isOpen, onClose }) {
           <div className="config-header-row">
             <div className="config-title-group">
               <Sparkles size={18} className="config-brand-icon" />
-              <h3>Search User</h3>
+              <h3>{isUserSelect ? "Search User" : "Config data"}</h3>
             </div>
             <button 
               className="modal-close-corner-btn" 
@@ -139,129 +144,23 @@ function ConfigSharing({ isOpen, onClose }) {
             </button>
           </div>
 
-          <div className="config-search-row">
-            <div className="config-search-input-wrapper">
-              <Search size={15} className="config-search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search username (min 3 chars)..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="config-search-field"
-              />
-            </div>
-            <button 
-              type="button"
-              className="config-clear-btn"
-              onClick={() => setSearchQuery('')}
-            >
-              Clear
-            </button>
-          </div>
-
-          {selectedUsers.length > 0 && (
-            <div className="config-selected-list">
-              <span className="config-selected-label">Selected Users:</span>
-              <div className="config-chips-container">
-                {selectedUsers.map((user) => (
-                  <div key={user} className="config-user-chip">
-                    <span>{user}</span>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveUser(user)}
-                      className="config-chip-remove"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="config-message-section">
-            <label className="config-selected-label">Optional Message / Note:</label>
-            <textarea
-              className="config-message-textarea"
-              placeholder="Add a note or message for the configuration..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={2}
+          {isUserSelect ? (
+            <SelectUser searchQuery={searchQuery}
+            searchResults={searchResults}
+            selectedUsers={selectedUsers}
+            handleAddUser={handleAddUser}
+            handleRemoveUser={handleRemoveUser}
+            handleAddedUsers={()=>setIsUserSelect(false)}
+            setSearchQuery={setSearchQuery}/>
+          ):(
+            <SelectDataToShare setMessage={setMessage} 
+            message={message} 
+            selectedUsers={selectedUsers}
+            handleRemoveUser={handleRemoveUser}
+            handleShareConfig={handleShareConfig}
+            setIsUserSelect={setIsUserSelect}
             />
-          </div>
-
-          <div className="config-results-feed">
-            <AnimatePresence>
-              {searchQuery.trim().length < 3 ? (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="config-empty-state"
-                >
-                  <Terminal size={24} className="config-empty-icon" />
-                  <p>Type at least 3 characters to search users...</p>
-                </motion.div>
-              ) : searchResults.length > 0 ? (
-                searchResults.map((user) => {
-                  const isAlreadySelected = selectedUsers.includes(user.username);
-                  return (
-                    <motion.div
-                      key={user.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.15 }}
-                      className="config-item-card"
-                    >
-                      <div className="config-item-info">
-                        <div className="config-user-profile">
-                          <div className="config-user-avatar">
-                            {user.username.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="config-item-title">
-                            {user.username}
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleAddUser(user.username)}
-                        disabled={isAlreadySelected}
-                        className={`config-action-btn ${isAlreadySelected ? 'copied' : ''}`}
-                        title={isAlreadySelected ? "Already added" : "Add user"}
-                      >
-                        {isAlreadySelected ? <Check size={14} /> : <UserPlus size={14} />}
-                        <span>{isAlreadySelected ? 'Added' : 'Add'}</span>
-                      </button>
-                    </motion.div>
-                  )
-                })
-              ) : (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="config-empty-state"
-                >
-                  <Terminal size={24} className="config-empty-icon" />
-                  <p>No users found.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="config-footer-action">
-            <button
-              type="button"
-              className="config-share-submit-btn"
-              onClick={handleShareConfig}
-              disabled={isSharing || selectedUsers.length === 0}
-            >
-              <Send size={15} />
-              <span>{isSharing ? "Sharing..." : `Share Config (${selectedUsers.length})`}</span>
-            </button>
-          </div>
+          )}
 
         </div>
       </motion.div>

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Search, Terminal, UserPlus, X, ArrowRightCircle } from "lucide-react";
+import { Check, Search, Terminal, UserPlus, X, ArrowRightCircle, Loader2 } from "lucide-react"; // Added Loader2 for loading icon
 
 function SelectUser({
   searchQuery,
@@ -8,7 +8,8 @@ function SelectUser({
   selectedUsers,
   handleAddUser,
   handleAddedUsers,
-  handleRemoveUser
+  handleRemoveUser,
+  isLoading // <-- 1. Accept isLoading prop
 }) {
   return (
     <>
@@ -51,20 +52,36 @@ function SelectUser({
           </div>
         </div>
       )}
+
       <div className="config-results-feed">
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {searchQuery.trim().length < 3 ? (
             <motion.div
+              key="min-chars"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="config-empty-state"
             >
               <Terminal size={24} className="config-empty-icon" />
               <p>Type at least 3 characters to search users...</p>
             </motion.div>
+          ) : isLoading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="config-empty-state"
+            >
+              <Loader2 size={24} className="config-empty-icon config-spinner" />
+              <p>Searching users...</p>
+            </motion.div>
           ) : searchResults.length > 0 ? (
             searchResults.map((user) => {
-              const isAlreadySelected = selectedUsers.includes(user.username);
+              const isAlreadySelected = selectedUsers.some(
+                (u) => u.id === user.id || u.username === user.username
+              );
               return (
                 <motion.div
                   key={user.id}
@@ -103,8 +120,10 @@ function SelectUser({
             })
           ) : (
             <motion.div
+              key="no-results"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="config-empty-state"
             >
               <Terminal size={24} className="config-empty-icon" />

@@ -1,0 +1,86 @@
+/* Container fixed at the bottom right of the screen */
+.global-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  pointer-events: none; /* Allows clicking through empty space */
+}
+
+/* Toast Card Styling */
+.global-toast-card {
+  pointer-events: auto; /* Re-enables clicking on the card */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--terminal-input, #1e1e1e);
+  border: 1px solid var(--border-color, #333333);
+  border-left: 4px solid var(--brand-color, #6366f1); /* Vibrant left accent border */
+  padding: 14px 16px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 
+              0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  max-width: 380px;
+  width: 100%;
+  color: var(--text-main, #ffffff);
+  font-family: inherit;
+}
+
+/* Icon Wrapper */
+.global-toast-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--brand-color, #6366f1);
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.global-toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0; /* Prevents text overflow breaking layout */
+}
+
+.global-toast-content h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main, #ffffff);
+  letter-spacing: -0.01em;
+}
+
+.global-toast-content p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Close Button */
+.global-toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #9ca3af);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.global-toast-close:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main, #ffffff);
+}

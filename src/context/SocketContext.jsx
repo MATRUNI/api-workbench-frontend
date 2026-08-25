@@ -77,22 +77,18 @@ export function SocketProvider({ children }) {
         console.log("Error while fetching ringtone")
       }
     }
-    function handleShareReceived(payload) {
-      console.log("Share received:", payload);
-    }
+
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('audio:play', handleCallRing);
     socket.on("users:online", handleOnlineUsers);
-    socket.on("share:received",handleShareReceived)
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('audio:play', handleCallRing);
       socket.off("users:online", handleOnlineUsers);
-      socket.off("share:received",handleShareReceived);
     };
   }, [user]);
   

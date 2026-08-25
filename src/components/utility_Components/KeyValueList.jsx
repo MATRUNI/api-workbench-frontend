@@ -7,8 +7,7 @@ export default function KeyValueList ({items=[],onChange, editable = true, showA
             ...items,
             {
                 key:"",
-                value:"",
-                active:true
+                value:""
             }
         ])
     };

@@ -147,19 +147,16 @@
 }
 
 .config-empty-state {
-  text-align: center;
   height: 100%;
-  padding: 24px 0;
   color: var(--text-muted);
-  font-size: 0.85rem;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
 }
 
 .config-empty-icon {
-  margin-bottom: 8px;
   opacity: 0.5;
 }
 
@@ -327,4 +324,22 @@
   margin-bottom: 16px;
   padding-left: 8px;
   border-left: 2px solid var(--brand-color);
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.config-spinner {
+  animation: spin 1s linear infinite;
+  color: var(--brand-color);
+}
+.config-share-submit-btn.success {
+  background-color: var(--brand-green, #10b981) !important;
+  cursor: default;
+  transition: background-color 0.3s ease;
 }

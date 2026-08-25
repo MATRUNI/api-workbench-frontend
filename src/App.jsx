@@ -14,8 +14,11 @@ import StartBootLoader from './components/StartBootLoader'
 import UserProfileManifest from './components/UserProfileManifest'
 import { customFetch } from './services/customFetch'
 import ApiDocumentationModal from './components/ApiDocumentationModal'
-import ChatComponent from './components/socket/ChatComponent'
 import CommMatrixShell from './components/socket/CommMatrixShell'
+
+import GlobalNotificationToast from './components/GlobalNotificationToast'
+import FloatingSharedIndicator from './components/FloatingSharedIndicator'
+import SharedInboxModal from './components/SharedInboxModal'
 
 const router=new createBrowserRouter([
   {
@@ -64,10 +67,12 @@ const router=new createBrowserRouter([
   }
 ])
 
-function App() {
+function AppContent() {
   const {setAPIList} =useContext(LibraryContext)
   const {setUser} = useContext(UserContext)
   const [isBooting, setIsBooting]=useState(true);
+  const [isInboxOpen, setIsInboxOpen] = useState(false);
+
   useEffect(()=>{
     async function initAPIs() {
       try 
@@ -122,10 +127,23 @@ function App() {
     }
     initAPIs()
   },[setAPIList,setUser])
+
   if(isBooting)
     return <StartBootLoader/>
+  return (
+    <>
+      <RouterProvider router={router}/>
+      <GlobalNotificationToast />
+      <FloatingSharedIndicator onOpenInbox={()=>setIsInboxOpen(true)}/>
+      <SharedInboxModal onClose={()=>setIsInboxOpen(false)} isOpen={isInboxOpen} />
+    </>
+  )
+}
 
-  return <RouterProvider router={router}/>
+function App() {
+  return (
+      <AppContent />
+  )
 }
 
 export default App

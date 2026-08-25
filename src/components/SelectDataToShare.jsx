@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Send, X } from "lucide-react";
+import { Send, X, Loader2, Check } from "lucide-react";
 
 function SelectDataToShare({ 
   message, 
@@ -7,13 +7,15 @@ function SelectDataToShare({
   selectedUsers, 
   handleRemoveUser, 
   handleShareConfig,
-  setIsUserSelect
+  setIsUserSelect,
+  isSharing,
+  isSuccess
 }) {
   const [shareOptions, setShareOptions] = useState({
     url: true,
     body: true,
     query: true,
-    header: true,
+    headers: true,
     headerKey: true, 
     headerValue: false 
   });
@@ -52,6 +54,7 @@ function SelectDataToShare({
                   type="button" 
                   onClick={() => handleRemoveUser(user)}
                   className="config-chip-remove"
+                  disabled={isSharing}
                 >
                   <X size={12} />
                 </button>
@@ -64,13 +67,14 @@ function SelectDataToShare({
       <div className="config-options-section">
         <label className="config-selected-label">Include Data Elements:</label>
         <div className="config-checkboxes-grid">
-          {['url', 'body', 'query', 'header'].map((key) => (
+          {['url', 'body', 'query', 'headers'].map((key) => (
             <label key={key} className="config-checkbox-label">
               <input 
                 type="checkbox"
                 name={key}
                 checked={shareOptions[key]}
                 onChange={handleCheckboxChange}
+                disabled={isSharing}
               />
               <span className="config-checkbox-text">{key.toUpperCase()}</span>
             </label>
@@ -78,7 +82,7 @@ function SelectDataToShare({
         </div>
       </div>
 
-      {shareOptions.header && (
+      {shareOptions.headers && (
         <div className="config-sub-options-section">
           <span className="config-selected-label">Header Details:</span>
           <div className="config-checkboxes-grid">
@@ -88,6 +92,7 @@ function SelectDataToShare({
                 name="headerKey"
                 checked={shareOptions.headerKey}
                 onChange={handleCheckboxChange}
+                disabled={isSharing}
               />
               <span className="config-checkbox-text">Include Header Key</span>
             </label>
@@ -97,6 +102,7 @@ function SelectDataToShare({
                 name="headerValue"
                 checked={shareOptions.headerValue}
                 onChange={handleCheckboxChange}
+                disabled={isSharing}
               />
               <span className="config-checkbox-text">Include Header Value</span>
             </label>
@@ -112,17 +118,33 @@ function SelectDataToShare({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={2}
+          disabled={isSharing}
         />
       </div>
 
       <div className="config-footer-action">
         <button
           type="button"
-          className="config-share-submit-btn"
+          className={`config-share-submit-btn ${isSuccess ? "success" : ""}`}
           onClick={handleSubmit}
+          disabled={isSharing || isSuccess}
         >
-          <Send size={15} />
-          <span>Send Configuration</span>
+          {isSuccess ? (
+            <>
+              <Check size={18} className="config-success-icon" />
+              <span>Successfully Shared!</span>
+            </>
+          ) : isSharing ? (
+            <>
+              <Loader2 size={15} className="config-spinner" />
+              <span>Sharing Configuration...</span>
+            </>
+          ) : (
+            <>
+              <Send size={15} />
+              <span>Send Configuration</span>
+            </>
+          )}
         </button>
       </div>
     </div>

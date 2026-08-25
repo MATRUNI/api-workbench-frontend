@@ -1,0 +1,56 @@
+.floating-shared-badge {
+  position: fixed;
+  bottom: 70px;
+  left: 24px;
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--terminal-input, #1e1e1e);
+  border: 1px solid var(--brand-color, #6366f1);
+  padding: 10px 16px;
+  border-radius: 30px;
+  color: var(--text-main, #ffffff);
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3),
+              0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  -webkit-user-select: none;
+}
+
+.floating-shared-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px -5px rgba(99, 102, 241, 0.5);
+  border-color: var(--brand-color, #6366f1);
+}
+
+.floating-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-color, #6366f1);
+}
+
+.floating-badge-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.floating-badge-count {
+  background: var(--brand-color, #6366f1);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.floating-badge-sparkle {
+  color: var(--brand-color, #6366f1);
+  opacity: 0.8;
+}

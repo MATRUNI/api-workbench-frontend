@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Home from './components/Home'
 import Endpoints from './components/Endpoints'
@@ -19,59 +19,62 @@ import CommMatrixShell from './components/socket/CommMatrixShell'
 import GlobalNotificationToast from './components/GlobalNotificationToast'
 import FloatingSharedIndicator from './components/FloatingSharedIndicator'
 import SharedInboxModal from './components/SharedInboxModal'
-
+import { Outlet } from 'react-router-dom';
 const router=new createBrowserRouter([
   {
-    path:'/',
-    element:<Home/>,
+    element:<AppLayout />,
     children:[
-      {
-        path:'',
-        element:<HomeHero/>
-      },
-      {
-        path:'/endpoints',
-        element:<Endpoints/>
-      },
-      {
-        path:'/docs',
-        element:<Docs/>
-      },
-      {
-        path:'/console',
-        element:<Console/>
-      },
-      {
-        path:'/fetch',
-        element:<FetchComponent/>,
-        children: [
-          {
-            path: 'api/:id',
-            element: <ApiDocumentationModal/>
-          }
-        ]
-      },
-      {
-        path:'/auth',
-        element:<Auth/>
-      },
-      {
-        path:'/chat',
-        element:<CommMatrixShell/>
-      }
-    ]
-  },
-  {
-    path:'/profile',
-    element:<UserProfileManifest/>
-  }
+    {
+      path:'/',
+      element:<Home/>,
+      children:[
+        {
+          path:'',
+          element:<HomeHero/>
+        },
+        {
+          path:'/endpoints',
+          element:<Endpoints/>
+        },
+        {
+          path:'/docs',
+          element:<Docs/>
+        },
+        {
+          path:'/console',
+          element:<Console/>
+        },
+        {
+          path:'/fetch',
+          element:<FetchComponent/>,
+          children: [
+            {
+              path: 'api/:id',
+              element: <ApiDocumentationModal/>
+            }
+          ]
+        },
+        {
+          path:'/auth',
+          element:<Auth/>
+        },
+        {
+          path:'/chat',
+          element:<CommMatrixShell/>
+        }
+      ]
+    },
+    {
+      path:'/profile',
+      element:<UserProfileManifest/>
+    }
+  ]}
 ])
 
 function AppContent() {
   const {setAPIList} =useContext(LibraryContext)
   const {setUser} = useContext(UserContext)
   const [isBooting, setIsBooting]=useState(true);
-  const [isInboxOpen, setIsInboxOpen] = useState(false);
 
   useEffect(()=>{
     async function initAPIs() {
@@ -130,14 +133,27 @@ function AppContent() {
 
   if(isBooting)
     return <StartBootLoader/>
+  return <RouterProvider router={router}/>
+}
+function AppLayout() {
+  const [isInboxOpen, setIsInboxOpen] = useState(false);
+
   return (
     <>
-      <RouterProvider router={router}/>
+      <Outlet />
+
       <GlobalNotificationToast />
-      <FloatingSharedIndicator onOpenInbox={()=>setIsInboxOpen(true)}/>
-      <SharedInboxModal onClose={()=>setIsInboxOpen(false)} isOpen={isInboxOpen} />
+
+      <FloatingSharedIndicator
+        onOpenInbox={() => setIsInboxOpen(true)}
+      />
+
+      <SharedInboxModal
+        isOpen={isInboxOpen}
+        onClose={() => setIsInboxOpen(false)}
+      />
     </>
-  )
+  );
 }
 
 function App() {

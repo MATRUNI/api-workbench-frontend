@@ -1,25 +1,41 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { ShareContext } from '../context/ShareContext';
 import { RequestContext } from '../context/RequestContext'; 
-import { X, Share2, ArrowRight, Terminal, Inbox, Send, Users } from 'lucide-react';
+import { X, Share2, ArrowRight, Terminal, Inbox, Send, Users, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import "../style/SharedInboxModal.css";
+import { customFetch } from '../services/customFetch';
+import { useNavigate } from 'react-router-dom';
 
 function SharedInboxModal({ isOpen, onClose }) {
   const { unreadShares, clearUnreadShare, sentShares } = useContext(ShareContext);
-  const { setUrl, setMethod } = useContext(RequestContext); 
+  const { setURL, setMethod, setRequest } = useContext(RequestContext); 
   const [activeTab, setActiveTab] = useState("received");
+  const [isLoadingConfig,setIsLoadingConfig] = useState(false)
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
-  const handleApplyConfig = (item) => {
-    if (item.config) {
-      if (item.config.url) setUrl(item.config.url);
-      if (item.config.method) setMethod(item.config.method);
-    }
+  const handleApplyConfig = async (item) => {
+    setIsLoadingConfig(true);
+    const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/consume/${item.sharedDataId}`);
+    const data = (await res.json()).decrypted;
+    setURL(data.url);
+    setMethod(data.method);
+
+    setRequest(prev => ({
+      ...prev,
+      headers: data.headers,
+      query: data.query,
+      body: data.body,
+    }));
     clearUnreadShare(item.sharedDataId);
+    setIsLoadingConfig(false);
+    onClose();
+    navigate("/endpoints");
   };
+
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -85,8 +101,11 @@ function SharedInboxModal({ isOpen, onClose }) {
                     {item.message && <p className="shared-item-message">"{item.message}"</p>}
                     <div className="shared-item-actions">
                       <button type="button" className="config-action-btn" onClick={() => handleApplyConfig(item)}>
-                        <span>Load Config</span>
-                        <ArrowRight size={14} />
+                        <span>{isLoadingConfig?"Loading":"Load Config"}</span>
+                        {isLoadingConfig?
+                        <Loader size={14}/>
+                        :<ArrowRight size={14} />
+                        }
                       </button>
                     </div>
                   </div>

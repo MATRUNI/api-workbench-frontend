@@ -1,5 +1,7 @@
 # API-OS Frontend
 
+**🌐 Live Demo:** [https://api-os.pages.dev](https://api-os.pages.dev)
+
 A highly interactive, real-time API workbench and team collaboration platform. Designed with a sleek, terminal-inspired "operator" aesthetic, this application goes beyond simple API testing by integrating real-time team communication, WebRTC voice channels, and instant API configuration sharing.
 
 > **Note:** This repository contains only the frontend application. It relies on a separate backend server to function completely.

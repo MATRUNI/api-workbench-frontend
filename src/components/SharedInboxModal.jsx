@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { ShareContext } from '../context/ShareContext';
 import { RequestContext } from '../context/RequestContext'; 
 import { X, Share2, ArrowRight, Terminal, Inbox, Send, Users, Loader } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import "../style/SharedInboxModal.css";
 import { customFetch } from '../services/customFetch';
@@ -12,8 +12,47 @@ function SharedInboxModal({ isOpen, onClose }) {
   const { unreadShares, clearUnreadShare, sentShares } = useContext(ShareContext);
   const { setURL, setMethod, setRequest } = useContext(RequestContext); 
   const [activeTab, setActiveTab] = useState("received");
-  const [isLoadingConfig,setIsLoadingConfig] = useState(false)
+  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
+  
+  const [sentShareDetails, setSentShareDetails] = useState({});
+  const [isLoadingSent, setIsLoadingSent] = useState(false);
+  const [expandedIndex, setExpandedIndex] = useState(null);
+
   const navigate = useNavigate();
+
+  const normalizedSentIds = Array.isArray(sentShares) 
+    ? sentShares 
+    : sentShares 
+      ? [sentShares] 
+      : [];
+
+  useEffect(() => {
+    if (activeTab === "shared" && normalizedSentIds.length > 0) {
+      const fetchSentDetails = async () => {
+        setIsLoadingSent(true);
+        try {
+          const detailsMap = {};
+          await Promise.all(
+            normalizedSentIds.map(async (id, index) => {
+              const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/recipients/${id}`);
+              const usernames = await res.json(); 
+              detailsMap[index] = Array.isArray(usernames) ? usernames : [];
+            })
+          );
+          setSentShareDetails(detailsMap);
+        } catch (error) {
+          console.error("Failed to fetch sent share details", error);
+        } finally {
+          setIsLoadingSent(false);
+        }
+      };
+
+      fetchSentDetails();
+    } else {
+      setSentShareDetails({});
+      setExpandedIndex(null);
+    }
+  }, [activeTab, sentShares]);
 
   if (!isOpen) return null;
 
@@ -36,6 +75,9 @@ function SharedInboxModal({ isOpen, onClose }) {
     navigate("/endpoints");
   };
 
+  const handleCardClick = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -78,7 +120,7 @@ function SharedInboxModal({ isOpen, onClose }) {
             >
               <Send size={15} />
               <span>Shared by You</span>
-              {sentShares.length > 0 && <span className="shared-tab-badge">{sentShares.length}</span>}
+              {normalizedSentIds.length > 0 && <span className="shared-tab-badge">{normalizedSentIds.length}</span>}
             </button>
           </div>
 
@@ -101,35 +143,71 @@ function SharedInboxModal({ isOpen, onClose }) {
                     {item.message && <p className="shared-item-message">"{item.message}"</p>}
                     <div className="shared-item-actions">
                       <button type="button" className="config-action-btn" onClick={() => handleApplyConfig(item)}>
-                        <span>{isLoadingConfig?"Loading":"Load Config"}</span>
-                        {isLoadingConfig?
-                        <Loader size={14}/>
-                        :<ArrowRight size={14} />
-                        }
+                        <span>{isLoadingConfig ? "Loading" : "Load Config"}</span>
+                        {isLoadingConfig ? <Loader size={14}/> : <ArrowRight size={14} />}
                       </button>
                     </div>
                   </div>
                 ))
               )
             ) : (
-              sentShares.length === 0 ? (
+              normalizedSentIds.length === 0 ? (
                 <div className="config-empty-state">
                   <Terminal size={24} className="config-empty-icon" />
                   <p>You haven't shared any configurations yet.</p>
                 </div>
+              ) : isLoadingSent ? (
+                <div className="config-empty-state">
+                  <Loader size={24} className="config-empty-icon animate-spin" />
+                  <p>Loading shared configurations...</p>
+                </div>
               ) : (
-                sentShares.map((item, index) => (
-                  <div key={item.sharedDataId || index} className="shared-item-card">
-                    <div className="shared-item-header">
-                      <span className="shared-sender">Status: <strong className="sent-badge">Active Share</strong></span>
-                      <span className="shared-remaining-tag">
-                        <Users size={12} />
-                        <span>{item.recipientsRemainingCount ?? 0} remaining</span>
-                      </span>
+                normalizedSentIds.map((id, index) => {
+                  const isExpanded = expandedIndex === index;
+                  const usernames = sentShareDetails[index] || [];
+
+                  return (
+                    <div 
+                      key={id || index} 
+                      className="shared-item-card clickable-card" 
+                      onClick={() => handleCardClick(index)}
+                    >
+                      <div className="shared-item-main-row">
+                        <div className="shared-sender">
+                          <span>sharedID:<strong className="shared-id-text">{id}</strong></span>
+                        </div>
+                        <div className="shared-remaining-tag">
+                          <Users size={12} />
+                          <span>remaining people: <strong>{usernames.length}</strong></span>
+                        </div>
+                      </div>
+
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            className="shared-expanded-content"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <p className="recipients-title">Recipients List</p>
+                            {usernames.length === 0 ? (
+                              <p className="no-recipients-text">No recipients found.</p>
+                            ) : (
+                              <ul className="recipients-list">
+                                {usernames.map((username, uIdx) => (
+                                  <li key={uIdx} className="recipient-item">{username}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                    {item.message && <p className="shared-item-message">"{item.message}"</p>}
-                  </div>
-                ))
+                  );
+                })
               )
             )}
           </div>

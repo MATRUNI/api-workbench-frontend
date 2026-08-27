@@ -247,3 +247,81 @@
   border-color: #ef4444;
   color: #ef4444;
 }
+.clickable-card {
+  cursor: pointer;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.clickable-card:hover {
+  border-color: var(--brand-color);
+}
+
+.shared-item-main-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.shared-sender {
+  display: block;
+  color: var(--text-main);
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.shared-id-text {
+  font-weight: 600;
+  color: var(--brand-color);
+}
+
+.shared-remaining-tag {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 10rem;
+}
+
+.shared-remaining-tag strong {
+  color: var(--accent-color);
+}
+
+.shared-expanded-content {
+  overflow: hidden;
+  border-top: 1px solid var(--border-color);
+  margin-top: 10px;
+  padding-top: 8px;
+}
+
+.recipients-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.no-recipients-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.recipients-list {
+  list-style-type: disc;
+  padding-left: 16px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-main);
+}
+
+.recipient-item {
+  font-weight: 500;
+  color: var(--accent-color);
+}

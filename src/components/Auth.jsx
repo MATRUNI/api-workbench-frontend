@@ -178,7 +178,7 @@ function Auth() {
           navigate('/');
         } else {
           const userData = await me();
-          setUser(userData);
+          setUser({username:userData.username});
           navigate('/');
         }
       } catch (err) {

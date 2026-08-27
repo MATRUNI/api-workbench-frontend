@@ -1,5 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { LogoutCall, me } from '../services/AuthCall';
+import { createContext, useState, useEffect, useContext } from 'react';
+import { LogoutCall } from '../services/AuthCall';
 import { LibraryContext } from './LibraryContext';
 // 1. Changed setUser default to a safe dummy function
 export const UserContext = createContext({

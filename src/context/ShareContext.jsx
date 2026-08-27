@@ -7,7 +7,7 @@ export function ShareProvider({ children }) {
   const { socket } = useContext(SocketContext);
   
   const [unreadShares, setUnreadShares] = useState([]);
-  const [sentShares, setSentShares] = useState([]);
+  const [sentShares, setSentShares] = useState(null);
   const [toastQueue, setToastQueue] = useState([]);
 
   useEffect(() => {
@@ -35,18 +35,16 @@ export function ShareProvider({ children }) {
   const removeTopToast = () => {
     setToastQueue((prev) => prev.slice(1));
   };
-  const addSentShare = (payload) => {
-    setSentShares((prev) => [payload, ...prev]);
-  };
 
   return (
     <ShareContext.Provider value={{
       unreadShares,
       clearUnreadShare,
       sentShares,
-      addSentShare,
       toastQueue,
-      removeTopToast
+      removeTopToast,
+      sentShares,
+      setSentShares
     }}>
       {children}
     </ShareContext.Provider>

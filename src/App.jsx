@@ -20,6 +20,7 @@ import GlobalNotificationToast from './components/GlobalNotificationToast'
 import FloatingSharedIndicator from './components/FloatingSharedIndicator'
 import SharedInboxModal from './components/SharedInboxModal'
 import { Outlet } from 'react-router-dom';
+import { ShareContext } from './context/ShareContext'
 const router=new createBrowserRouter([
   {
     element:<AppLayout />,
@@ -74,6 +75,7 @@ const router=new createBrowserRouter([
 function AppContent() {
   const {setAPIList} =useContext(LibraryContext)
   const {setUser} = useContext(UserContext)
+  const {setSentShares} = useContext(ShareContext)
   const [isBooting, setIsBooting]=useState(true);
 
   useEffect(()=>{
@@ -110,11 +112,13 @@ function AppContent() {
             try 
             {
               const user = await me();
-              setUser(user);
+              setUser({username:user.username});
+              setSentShares(user.sharedDataId)
             } 
             catch (error) 
             {
               setUser(null);
+              setSentShares("")
             }
           })()
         ])

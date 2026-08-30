@@ -1,10 +1,11 @@
-import { memo, useContext, useState, forwardRef, useImperativeHandle } from 'react'
+import { memo, useContext, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import { RequestContext } from '../context/RequestContext';
 import { FileBraces, FileCode, FileText, CheckCircle, AlertTriangle, Sparkles, CodeXml } from "lucide-react"
 import { CustomDropdown } from '../components/utility_Components/CustomDropdown';
 import CodeMirrorEditor from '../components/utility_Components/CodeMirrorEditor';
 
 import { jsonProperties } from '../assets/jsonProperties'
+import { readJSONList, saveLearnedkeys } from '../repository/db';
 
 import '../style/Generic.css'
 
@@ -45,7 +46,14 @@ const Body_panel = forwardRef((props, ref) => {
       }
       return typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2);
     })
-
+    const [dynamicCompletions, setDynamicCompletions] = useState([]);
+    useEffect(()=>{
+      readJSONList().then(entreis=>{
+        const learnedProp = entreis.map(([k])=>k)
+        const allProps = [...new Set([...learnedProp,...jsonProperties])]
+        setDynamicCompletions(allProps.map((label)=>({label,type:"property"})))
+      })
+    },[])
     const typeOptions = [
       { value: 'application/json', label: 'JSON' },
       { value: 'text/html', label: 'HTML' },
@@ -58,8 +66,6 @@ const Body_panel = forwardRef((props, ref) => {
         return localString
       }
     }));
-
-    const completions = jsonProperties.map(label=>({label,type:"property"}))
 
     const validateInput = (value, type) => {
       if (value.trim() === "") {
@@ -105,6 +111,12 @@ const Body_panel = forwardRef((props, ref) => {
             const parsed = JSON.parse(localString);
             finalBody = parsed;
             formatted = JSON.stringify(parsed, null, 2);
+            saveLearnedkeys(parsed).then(async()=>{
+              const entreis = await readJSONList(true)
+              const learnedProp = entreis.map(([k])=>k)
+              const allProps = [...new Set([...learnedProp,...jsonProperties])]
+              setDynamicCompletions(allProps.map((label)=>({label,type:"property"})))
+            }).catch(err=>console.error("Learning background tak failed. :",err))
         } else if (contentType === 'text/html') {
             try {
                 const prettier = await import("prettier/standalone");
@@ -180,7 +192,7 @@ const Body_panel = forwardRef((props, ref) => {
       
       <div className="editor-window">
         <div style={{ height: '100%', width: '100%' }} onBlur={handleSync}>
-          <CodeMirrorEditor value={localString} onChange={handleEditorChange} lang={getLangKey(contentType)} completions={completions}/>
+          <CodeMirrorEditor value={localString} onChange={handleEditorChange} lang={getLangKey(contentType)} completions={dynamicCompletions}/>
         </div>
         
         {error && (

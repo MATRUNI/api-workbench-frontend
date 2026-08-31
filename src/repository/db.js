@@ -36,7 +36,7 @@ export async function saveLearnedkeys(payload) {
 
     // Enforce the 800 limit using frequency sorting
     if (freqMap.size > MAX_KEYS) {
-        const sortedArray = Array.from(freqMap.entries()).sort((a, b) => b[1] - s[1]); // Wait, b[1] - a[1]
+        const sortedArray = Array.from(freqMap.entries()).sort((a, b) => b[1] - a[1]); // Wait, b[1] - a[1]
         const trimmed = sortedArray.slice(0, MAX_KEYS);
         freqMap.clear();
         trimmed.forEach(([k, v]) => freqMap.set(k, v));

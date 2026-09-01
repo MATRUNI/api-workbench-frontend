@@ -22,7 +22,7 @@ export async function saveLearnedkeys(payload) {
     if (uniqueKeys.size === 0) return;
 
     await initDB();
-    if (!cacheList) await readJSONList();
+    await readJSONList();
 
     const freqMap = new Map(cacheList);
 
@@ -33,16 +33,14 @@ export async function saveLearnedkeys(payload) {
             freqMap.set(key, existingCount + 1);
         }
     }
+    let sortedArray = Array.from(freqMap.entries()).sort((a, b) => b[1] - a[1]);
 
     // Enforce the 800 limit using frequency sorting
     if (freqMap.size > MAX_KEYS) {
-        const sortedArray = Array.from(freqMap.entries()).sort((a, b) => b[1] - a[1]); // Wait, b[1] - a[1]
-        const trimmed = sortedArray.slice(0, MAX_KEYS);
-        freqMap.clear();
-        trimmed.forEach(([k, v]) => freqMap.set(k, v));
+        sortedArray = sortedArray.slice(0, MAX_KEYS);
     }
 
-    await saveJSONList(Array.from(freqMap.entries()));
+    await saveJSONList(sortedArray);
 }
 
 // 3. Database Initialization

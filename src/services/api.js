@@ -5,7 +5,7 @@ import APIMask from "../utils/APIMask";
 import { customFetch } from "./customFetch";
 export async function callAPI(url,method,request)
 {
-    const header=ArrayToObject(request.header);
+    const header=ArrayToObject(request.headers);
     const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
       ...ArrayToObject(request.query || {})
     }).toString();
@@ -21,7 +21,6 @@ export async function callAPI(url,method,request)
     try{
         const startTime=Date.now()
         const requestUrl = `${finalUrl}${queryString ? "?" + queryString : ""}`;
-
         const res = isMasked
           ? await customFetch(requestUrl, options)
           : await fetch(requestUrl, options);

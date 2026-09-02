@@ -123,6 +123,13 @@ const ResponseViewer = forwardRef((props, ref) => {
                 >
                     <KeyRound size={13} /> Headers
                 </button>
+                <button 
+                    type="button"
+                    className={`sub-tab ${activeTab === 'raw' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('raw')}
+                >
+                    <FileText size={13} /> RAW
+                </button>
                 {contentType === 'text/html' && (
                     <button 
                         type="button"
@@ -142,6 +149,11 @@ const ResponseViewer = forwardRef((props, ref) => {
                         {
                             activeTab === "body" &&
                             (<CodeMirrorEditor editable={false} lang={getLanguageKey(contentType)} value={getFormattedData()} placeholderText={"RESPONSE DISPLAY"}/>)
+                        }
+
+                        {
+                            activeTab === "raw" &&
+                            (<CodeMirrorEditor editable={false} lang="text" value={typeof response.rawData === 'string' ? response.rawData : JSON.stringify(response.rawData)} placeholderText={"RAW RESPONSE DISPLAY"}/>)
                         }
                         
                         {activeTab === 'headers' && (

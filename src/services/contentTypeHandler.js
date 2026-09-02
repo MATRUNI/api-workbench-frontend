@@ -1,4 +1,4 @@
-import {getResponseSize} from '../utils/getResponseSize'
+import {getDataSize} from '../utils/getResponseSize'
 
 let pI=null;
 async function loadPrettier()
@@ -21,92 +21,95 @@ async function loadPrettier()
 export const contentTypeHandlers = {
   // JSON content
   "application/json": async (res) => {
-    let length=await getResponseSize(res);
-    let data=await res.json();
-    data=JSON.stringify(data,null,2)
-    return {length,data,type:"JSON"}; // Parse as JSON
+    let rawData=await res.text();
+    let length=getDataSize(rawData);
+    let data = rawData;
+    try {
+      data=JSON.stringify(JSON.parse(rawData),null,2);
+    } catch(e) {}
+    return {length,data,rawData,type:"JSON"}; // Parse as JSON
   },
 
   // Text-based content
   "text/plain": async (res) => {
-    let length=await getResponseSize(res);
-    let data=await res.text();
-    return {length,data,type:"TEXT"};
+    let rawData=await res.text();
+    let length=getDataSize(rawData);
+    return {length,data:rawData,rawData,type:"TEXT"};
   },
   
   // HTML content (render or show as raw)
   "text/html": async (res) => {
-    let length=await getResponseSize(res);
     let html = await res.text();
+    let length=getDataSize(html);
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(html,{parser:'html',plugins})
-    return {length,data,type:"HTML"};
+    return {length,data,rawData:html,type:"HTML"};
   },
   
   // CSS content (render or show as raw)
   "text/css": async (res) => {
-    let length=await getResponseSize(res);
     let css = await res.text();
+    let length=getDataSize(css);
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(css,{parser:'css',plugins})
-    return {length,data,type:"CSS"};
+    return {length,data,rawData:css,type:"CSS"};
   },
   
   // JavaScript content (render or show as raw)
   "text/javascript": async (res) => {
-    let length=await getResponseSize(res);
     let js = await res.text();
+    let length=getDataSize(js);
     const {prettier,plugins}=await loadPrettier();
     let data=prettier.format(js,{parser:'babel',plugins});
-    return {length,data,type:"JS"};
+    return {length,data,rawData:js,type:"JS"};
   },
 
   // XML content
   "application/xml": async (res) => {
-    let length=await getResponseSize(res);
     const xml = await res.text();
+    let length=getDataSize(xml);
     const parser = new DOMParser();
     const data = parser.parseFromString(xml, "application/xml");
-    return {length,data,type:"XML"};
+    return {length,data,rawData:xml,type:"XML"};
   },
   "text/xml": async (res) => {
-    let length=await getResponseSize(res);
     const xml = await res.text();
+    let length=getDataSize(xml);
     const parser = new DOMParser();
     const data = parser.parseFromString(xml, "application/xml");
-    return {length,data,type:"XML"};
+    return {length,data,rawData:xml,type:"XML"};
   },
 
   "image/png": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"PNG" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"PNG" };
   },
   "image/jpeg": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"JPEG" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"JPEG" };
   },
   "application/pdf": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"PDF" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"PDF" };
   },
   "audio/mpeg": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"MPEG" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"MPEG" };
   },
   "video/mp4": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"MP4" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"MP4" };
   },
 
   // Default fallback
   "default": async (res) => {
-    const length = await getResponseSize(res);
     const data = await res.blob();
-    return { length, data, type:"BLOB" };
+    const length = getDataSize(data);
+    return { length, data, rawData: data, type:"BLOB" };
   }
 };

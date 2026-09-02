@@ -53,6 +53,7 @@ function RequestBuilder({ scrollToResponse }) {
         const finalResponse = {
           status: response.status,
           data: response.data,
+          rawData: response.rawData,
           headers:response.headers,
           time: response.time || 12,
           length: response.length || 0,

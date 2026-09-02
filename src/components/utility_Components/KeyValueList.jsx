@@ -1,4 +1,4 @@
-import { PlusSquare, Trash2 } from "lucide-react";
+import { PlusSquare, Trash2, Copy } from "lucide-react";
 
 export default function KeyValueList ({items=[],onChange, editable = true, showAddBtn = true, label = "Key & Value", addLable = "Add", emptyMessage="No items available" })
 {
@@ -52,8 +52,17 @@ export default function KeyValueList ({items=[],onChange, editable = true, showA
                           <button className="remove-row" onClick={() => removeItem(index)}><Trash2 size={15}/></button>
                       </>) : (
                         <>
-                        <span className="header-key">{item.key}</span>
-                        <span className="header-val">{item.value}</span>
+                        <div className="kv-read-cell">
+                          <span className="header-key" title={item.key}>{item.key}</span>
+                          <button className="kv-copy-icon" onClick={() => navigator.clipboard.writeText(item.key)} title="Copy Key"><Copy size={10}/></button>
+                        </div>
+                        <div className="kv-read-cell">
+                          <span className="header-val" title={item.value}>{item.value}</span>
+                          <button className="kv-copy-icon" onClick={() => navigator.clipboard.writeText(item.value)} title="Copy Value"><Copy size={10}/></button>
+                        </div>
+                        <div className="kv-read-action">
+                          <button className="kv-copy-icon" onClick={() => navigator.clipboard.writeText(`${item.key}: ${item.value}`)} title="Copy Both"><Copy size={14}/></button>
+                        </div>
                         </>
                       )
                   }

@@ -1,4 +1,3 @@
-import { getDefaultErrorMessage } from "../utils/errors";
 import { ArrayToObject } from "./ArrayToObject"
 import {contentTypeHandlers} from '../services/contentTypeHandler'
 import APIMask from "../utils/APIMask";
@@ -30,11 +29,12 @@ export async function callAPI(url,method,request)
 
         const contentType = (res.headers.get("content-type")||"").split(';')[0];
         let handlerFunction=contentTypeHandlers[contentType] || contentTypeHandlers["default"];
-        let {length,data,type}=await handlerFunction(resClone);
+        let {length,data,rawData,type}=await handlerFunction(resClone);
         return {
           status: res.status,
           headers: Object.fromEntries(res.headers.entries()),
           data,
+          rawData: rawData !== undefined ? rawData : data,
           time:timeTaken,
           length,
           type

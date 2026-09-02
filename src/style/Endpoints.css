@@ -305,6 +305,48 @@
   outline: none;
 }
 
+.kv-read-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  overflow: hidden;
+  border-right: 1px solid var(--border-color);
+}
+
+.kv-read-cell span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kv-read-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kv-copy-icon {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.kv-copy-icon:hover {
+  background: var(--border-color);
+  color: var(--text-main);
+}
+
+
 .kv-row input:focus {
   background: color-mix(in srgb, var(--text-main) 2%, transparent);
 }

@@ -52,8 +52,7 @@ function RequestBuilder({ scrollToResponse }) {
         await new Promise(res => setTimeout(res, 200));
         const finalResponse = {
           status: response.status,
-          data: response.data,
-          rawData: response.rawData,
+          data: response.rawData,
           headers:response.headers,
           time: response.time || 12,
           length: response.length || 0,

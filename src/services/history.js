@@ -17,14 +17,14 @@ export const saveToHistory = (url, method, currentRequest, currentResponse) => {
       
       response: {
         status: currentResponse.status,
-        data: currentResponse.data || currentResponse.message || "", 
+        rawData: currentResponse.data, 
         headers: currentResponse.headers || [],
         time: currentResponse.time || "0 ms",
         length: currentResponse.length || 0,
       },
       type: currentResponse.type,
       
-      size: currentResponse.data ? encodeURIComponent(String(currentResponse.data)).length : 0
+      size: currentResponse.length
     };
 
     const updatedHistory = [newLog, ...history].slice(0, 50);

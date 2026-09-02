@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw } from "lucide-react";
 import { RequestContext } from '../context/RequestContext';
 import { prismMotion, fadeFromLeft, fadeFromRight } from "../animations/Motion.js";
 import '../style/console.css';
+import { formatContent } from '../services/contentTypeHandler.js';
 
 function Console() {
   const [logs, setLogs] = useState([]);
@@ -25,8 +26,9 @@ function Console() {
     }
   };
 
-  const handleRestoreCache = (log) => {
+  const handleRestoreCache = async (log) => {
     setURL(log.url);
+    console.log(log)
     if (setMethod) setMethod(log.method);
     
     setRequest({
@@ -35,15 +37,16 @@ function Console() {
       headers: log.request.headers,
       query: log.request.query
     });
-    
+    const data = await formatContent(log.response.rawData, log.type)
     setResponse({
       status: log.response.status,
-      data: Object.keys(log.response.data || {}).length === 0 ? "{}" : log.response.data,
+      data,
+      rawData: log.response.rawData,
       headers:log.response.headers,
       message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
       length: log.response.length,
       time: log.response.time,
-      type: log.response.type
+      type: log.type
     });
 
     navigate('/endpoints'); 
@@ -148,7 +151,7 @@ function Console() {
                   </div>
                   
                   <div className="log-metrics">
-                    <span className="log-size">{log.size ? `${(log.size / 1024).toFixed(2)} KB` : '0 B'}</span>
+                    <span className="log-size">{log.size}</span>
                     <span className={`status-${getStatusClass(log.response.status)} log-status`}>
                       {log.response.status}
                     </span>

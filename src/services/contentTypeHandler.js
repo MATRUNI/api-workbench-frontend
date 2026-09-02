@@ -18,15 +18,46 @@ async function loadPrettier()
   return pI;
 }
 
+export async function formatContent(rawData, type)
+{
+  switch (type) {
+    case "JSON":
+      try {
+        return JSON.stringify(JSON.parse(rawData), null, 2);
+      } catch (e) {
+        return rawData; // Fallback to raw text if it's not valid JSON
+      }
+    case "HTML":
+    {
+      const {prettier,plugins}=await loadPrettier();
+      return prettier.format(rawData,{parser:'html',plugins});
+    }
+    case "CSS":
+    {
+      const {prettier,plugins} = await loadPrettier();
+      return prettier.format(rawData,{parser:"css",plugins});
+    }
+    case "JS":
+    {
+      const {prettier,plugins}=await loadPrettier();
+      return prettier.format(rawData,{parser:'babel',plugins});
+    }
+    case "XML":
+    {
+      const parser = new DOMParser();
+      return parser.parseFromString(rawData, "application/xml");
+    }
+    default:
+      return rawData;
+  }
+}
+
 export const contentTypeHandlers = {
   // JSON content
   "application/json": async (res) => {
     let rawData=await res.text();
     let length=getDataSize(rawData);
-    let data = rawData;
-    try {
-      data=JSON.stringify(JSON.parse(rawData),null,2);
-    } catch(e) {}
+    const data = await formatContent(rawData, "JSON")
     return {length,data,rawData,type:"JSON"}; // Parse as JSON
   },
 
@@ -41,8 +72,7 @@ export const contentTypeHandlers = {
   "text/html": async (res) => {
     let html = await res.text();
     let length=getDataSize(html);
-    const {prettier,plugins}=await loadPrettier();
-    let data=prettier.format(html,{parser:'html',plugins})
+    const data = await formatContent(html, "HTML")
     return {length,data,rawData:html,type:"HTML"};
   },
   
@@ -50,8 +80,7 @@ export const contentTypeHandlers = {
   "text/css": async (res) => {
     let css = await res.text();
     let length=getDataSize(css);
-    const {prettier,plugins}=await loadPrettier();
-    let data=prettier.format(css,{parser:'css',plugins})
+    const data = await formatContent(css, "CSS")
     return {length,data,rawData:css,type:"CSS"};
   },
   
@@ -59,8 +88,7 @@ export const contentTypeHandlers = {
   "text/javascript": async (res) => {
     let js = await res.text();
     let length=getDataSize(js);
-    const {prettier,plugins}=await loadPrettier();
-    let data=prettier.format(js,{parser:'babel',plugins});
+    const data = await formatContent(js, "JS")
     return {length,data,rawData:js,type:"JS"};
   },
 
@@ -68,15 +96,13 @@ export const contentTypeHandlers = {
   "application/xml": async (res) => {
     const xml = await res.text();
     let length=getDataSize(xml);
-    const parser = new DOMParser();
-    const data = parser.parseFromString(xml, "application/xml");
+    const data = await formatContent(xml, "XML")
     return {length,data,rawData:xml,type:"XML"};
   },
   "text/xml": async (res) => {
     const xml = await res.text();
     let length=getDataSize(xml);
-    const parser = new DOMParser();
-    const data = parser.parseFromString(xml, "application/xml");
+    const data = await formatContent(xml, "XML")
     return {length,data,rawData:xml,type:"XML"};
   },
 

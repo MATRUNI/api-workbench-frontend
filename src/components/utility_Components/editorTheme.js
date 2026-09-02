@@ -8,7 +8,7 @@ export const editorHighlightStyle = HighlightStyle.define([
     { tag: tags.bool, color: "#fca130" },
     { tag: tags.null, color: "var(--text-muted)" },
 
-    { tag: tags.tagName, color: "#b7ff44" },
+    { tag: tags.tagName, color: "var(--brand-color)" },
     { tag: tags.angleBracket, color: "var(--text-muted)" },
     { tag: tags.attributeName, color: "#fca130" },
     { tag: tags.attributeValue, color: "var(--brand-green, #53fc44)" }

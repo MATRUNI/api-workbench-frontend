@@ -28,7 +28,6 @@ function Console() {
 
   const handleRestoreCache = async (log) => {
     setURL(log.url);
-    console.log(log)
     if (setMethod) setMethod(log.method);
     
     setRequest({

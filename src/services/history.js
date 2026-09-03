@@ -20,8 +20,9 @@ export const saveToHistory = (url, method, currentRequest, currentResponse) => {
         rawData: currentResponse.data, 
         headers: currentResponse.headers || [],
         time: currentResponse.time || "0 ms",
-        length: currentResponse.length || 0,
+        length: currentResponse.length || 0
       },
+      category: currentResponse.category,
       type: currentResponse.type,
       
       size: currentResponse.length

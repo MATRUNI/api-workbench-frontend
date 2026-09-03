@@ -29,7 +29,7 @@ export async function callAPI(url,method,request)
 
         const contentType = (res.headers.get("content-type")||"").split(';')[0];
         let handlerFunction=contentTypeHandlers[contentType] || contentTypeHandlers["default"];
-        let {length,data,rawData,type}=await handlerFunction(resClone);
+        let {length,data,rawData,type, category}=await handlerFunction(resClone);
         return {
           status: res.status,
           headers: Object.fromEntries(res.headers.entries()),
@@ -37,7 +37,8 @@ export async function callAPI(url,method,request)
           rawData: rawData !== undefined ? rawData : data,
           time:timeTaken,
           length,
-          type
+          type,
+          category
         };
     }catch(error)
     {

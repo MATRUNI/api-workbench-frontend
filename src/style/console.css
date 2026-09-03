@@ -57,14 +57,14 @@
 
 .console-log-row {
   display: grid;
-  grid-template-columns: 180px 1fr 160px;
+  grid-template-columns: 1fr 6fr 1fr ;
   align-items: center;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border-color);
   font-family: 'Fira Code', monospace;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
   color: var(--text-main);
 }
 
@@ -75,7 +75,6 @@
 .console-log-row:hover {
   background: rgba(168, 85, 247, 0.04);
   border-left: 3px solid var(--brand-color);
-  padding-left: 17px; 
 }
 
 .log-meta {
@@ -95,12 +94,36 @@
   border-radius: 4px !important;
 }
 
+.log-url-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  padding-right: 15px;
+}
+
+.log-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-badge {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--brand-color);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .log-url {
   color: var(--text-main); 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-right: 20px;
 }
 
 .console-log-row:hover .log-url {
@@ -135,7 +158,6 @@
     gap: 10px;
     padding: 16px;
   }
-
   
   .log-meta {
     display: flex;
@@ -167,15 +189,9 @@
     width: 100%;
   }
 
-  .console-log-row:hover {
-    padding-left: 17px;
-  }
-
   .log-metrics {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0;
+    gap: 1rem;
     border-top: 1px dashed var(--border-color);
     padding-top: 12px;
     margin-top: 4px;

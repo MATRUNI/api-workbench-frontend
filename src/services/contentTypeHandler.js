@@ -17,7 +17,11 @@ async function loadPrettier()
   }
   return pI;
 }
-
+function detectCSV(text) {
+  if (typeof text !== 'string') return false;
+  const lines = text.trim().split('\n');
+  return lines.length > 1 && lines[0].includes(',');
+}
 export async function formatContent(rawData, type)
 {
   switch (type) {
@@ -45,97 +49,72 @@ export async function formatContent(rawData, type)
     case "XML":
     {
       const parser = new DOMParser();
-      return parser.parseFromString(rawData, "application/xml");
+      const doc = parser.parseFromString(rawData, "application/xml");
+      if(doc.querySelector("parsererror"))
+      {
+        return {
+          message:"Invalid XML"
+        }
+      }
+      return rawData
     }
     default:
       return rawData;
   }
 }
 
-export const contentTypeHandlers = {
-  // JSON content
-  "application/json": async (res) => {
-    let rawData=await res.text();
-    let length=getDataSize(rawData);
-    const data = await formatContent(rawData, "JSON")
-    return {length,data,rawData,type:"JSON"}; // Parse as JSON
-  },
+const SUPPORTED_TYPES = {
+  "application/json":     { type: "JSON",     category: "TEXT",     method: "text" },
+  "text/plain":           { type: "TEXT",     category: "TEXT",     method: "text" },
+  "text/html":            { type: "HTML",     category: "TEXT",     method: "text" },
+  "text/css":             { type: "CSS",      category: "TEXT",     method: "text" },
+  "text/javascript":      { type: "JS",       category: "TEXT",     method: "text" },
+  "application/typescript":{ type: "TS",      category: "TEXT",     method: "text" },
+  "application/xml":      { type: "XML",      category: "TEXT",     method: "text" },
+  "text/xml":             { type: "XML",      category: "TEXT",     method: "text" },
+  "application/yaml":     { type: "YAML",     category: "TEXT",     method: "text" },
+  "text/markdown":        { type: "MARKDOWN", category: "TEXT",     method: "text" },
+  "text/csv":             { type: "CSV",      category: "DOCUMENT", method: "text" },
 
-  // Text-based content
-  "text/plain": async (res) => {
-    let rawData=await res.text();
-    let length=getDataSize(rawData);
-    return {length,data:rawData,rawData,type:"TEXT"};
-  },
-  
-  // HTML content (render or show as raw)
-  "text/html": async (res) => {
-    let html = await res.text();
-    let length=getDataSize(html);
-    const data = await formatContent(html, "HTML")
-    return {length,data,rawData:html,type:"HTML"};
-  },
-  
-  // CSS content (render or show as raw)
-  "text/css": async (res) => {
-    let css = await res.text();
-    let length=getDataSize(css);
-    const data = await formatContent(css, "CSS")
-    return {length,data,rawData:css,type:"CSS"};
-  },
-  
-  // JavaScript content (render or show as raw)
-  "text/javascript": async (res) => {
-    let js = await res.text();
-    let length=getDataSize(js);
-    const data = await formatContent(js, "JS")
-    return {length,data,rawData:js,type:"JS"};
-  },
+  "image/png":            { type: "PNG",      category: "IMAGE",    method: "blob" },
+  "image/jpeg":           { type: "JPEG",     category: "IMAGE",    method: "blob" },
+  "image/gif":            { type: "GIF",      category: "IMAGE",    method: "blob" },
+  "image/webp":           { type: "WEBP",     category: "IMAGE",    method: "blob" },
+  "image/svg+xml":        { type: "SVG",      category: "IMAGE",    method: "text" },
+  "image/x-icon":         { type: "ICO",      category: "IMAGE",    method: "blob" },
 
-  // XML content
-  "application/xml": async (res) => {
-    const xml = await res.text();
-    let length=getDataSize(xml);
-    const data = await formatContent(xml, "XML")
-    return {length,data,rawData:xml,type:"XML"};
-  },
-  "text/xml": async (res) => {
-    const xml = await res.text();
-    let length=getDataSize(xml);
-    const data = await formatContent(xml, "XML")
-    return {length,data,rawData:xml,type:"XML"};
-  },
+  "application/pdf":      { type: "PDF",      category: "DOCUMENT", method: "blob" },
 
-  "image/png": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"PNG" };
-  },
-  "image/jpeg": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"JPEG" };
-  },
-  "application/pdf": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"PDF" };
-  },
-  "audio/mpeg": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"MPEG" };
-  },
-  "video/mp4": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"MP4" };
-  },
+  "audio/mpeg":           { type: "MP3",      category: "AUDIO",    method: "blob" },
+  "audio/wav":            { type: "WAV",      category: "AUDIO",    method: "blob" },
+  "audio/ogg":            { type: "OGG",      category: "AUDIO",    method: "blob" },
 
-  // Default fallback
-  "default": async (res) => {
-    const data = await res.blob();
-    const length = getDataSize(data);
-    return { length, data, rawData: data, type:"BLOB" };
-  }
+  "video/mp4":            { type: "MP4",      category: "VIDEO",    method: "blob" },
+  "video/webm":           { type: "WEBM",     category: "VIDEO",    method: "blob" },
+
+  "application/zip":      { type: "ZIP",      category: "ARCHIVE",  method: "blob" }
+};
+
+export const contentTypeHandlers = Object.fromEntries(
+  Object.entries(SUPPORTED_TYPES).map(([mime, config]) => [
+    mime,
+    async (res) => {
+      const rawData = await res[config.method]();
+      let type = config.type;
+      let category = config.category;
+      if (mime === "text/plain" && detectCSV(rawData)) {
+        type = "CSV";
+        category = "DOCUMENT";
+      }
+      const length = getDataSize(rawData);
+      const data = config.method === "text" ? await formatContent(rawData, config.type) : rawData;
+      return { length, data, rawData, type, category };
+    }
+  ])
+);
+
+contentTypeHandlers["default"] = async (res) => {
+  const data = await res.blob();
+  const length = getDataSize(data);
+  return { length, data, rawData: data, type: "BLOB", category: "BLOB" };
 };

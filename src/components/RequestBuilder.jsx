@@ -1,10 +1,10 @@
-import React, { useContext, useState, useRef } from 'react'
+import { useContext, useState, useRef } from 'react'
 import Tabs from '../request-panel/Tabs'
 import Body_panel from '../request-panel/Body_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
-import { Send, Share2, X, Construction } from "lucide-react"
+import { Send, Share2, X } from "lucide-react"
 import KeyValueList from './utility_Components/KeyValueList'
 
 import "../style/RequestBuilder.css"
@@ -28,6 +28,9 @@ function RequestBuilder({ scrollToResponse }) {
         return false;
       }
     }
+    const handleClearUrl = () => {
+        setURL('');
+    };
     const handleSubmit=async(e)=>
     {
       e.preventDefault();
@@ -56,7 +59,8 @@ function RequestBuilder({ scrollToResponse }) {
           headers:response.headers,
           time: response.time || 12,
           length: response.length || 0,
-          type: response.type
+          type: response.type,
+          category: response.category
         };
         setResponse(response)
         saveToHistory(url,method,request,finalResponse)
@@ -93,7 +97,25 @@ function RequestBuilder({ scrollToResponse }) {
           <option value="PATCH">PATCH</option>
           <option value="DELETE">DELETE</option>
         </select>
-        <input type="text" className="url-input" value={url} onChange={(e)=>setURL(e.target.value)}/>
+        <div className="url-input-wrapper">
+            <input 
+                type="text" 
+                className="url-input" 
+                placeholder="Enter request URL..."
+                value={url} 
+                onChange={(e) => setURL(e.target.value)}
+            />
+            {url && (
+                <button 
+                    type="button" 
+                    className="url-clear-btn" 
+                    onClick={handleClearUrl}
+                    title="Clear URL"
+                >
+                    <X size={16} />
+                </button>
+            )}
+        </div>
         <button className="send-button" type='submit'>
           <Send size={18}/>
         </button>

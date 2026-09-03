@@ -26,7 +26,8 @@ export function RequestProvider({children})
               "status": 200,
               "results": [],
               "message": "Ready to fetch data",
-              "time":100
+              "time":100,
+              "category":""
             })
     const [url,setURL]=useState('http://localhost:3000')
     const [isLoading,setIsLoading]=useState(false);

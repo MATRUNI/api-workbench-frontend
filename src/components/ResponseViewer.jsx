@@ -1,18 +1,17 @@
 import { forwardRef, useContext, useState } from 'react';
 import { RequestContext } from '../context/RequestContext';
-import { Copy, Check, Trash2, Download, Maximize2, FileCode, FileText, KeyRound } from "lucide-react";
+import { Copy, Check, Trash2, Download, Maximize2, FileCode, FileText, KeyRound, Eye } from "lucide-react";
 import VoidLoader from './VoidLoader';
-import '../style/responseViewer.css';
 import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
 import KeyValueList from './utility_Components/KeyValueList';
-
+import ResponsePreview from './ResponsePreview';
+import '../style/responseViewer.css';
 
 const ResponseViewer = forwardRef((props, ref) => {
     const { response, isLoading, requestPhase, setResponse } = useContext(RequestContext);
     const [copied, setCopied] = useState(false);
-    const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'preview'
+    const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'raw' | 'preview'
     const [isExpanded, setIsExpanded] = useState(false);
-    
 
     // Detect content type or default to JSON
     const getContentType = (data) => {
@@ -31,6 +30,14 @@ const ResponseViewer = forwardRef((props, ref) => {
 
     const contentType = getContentType(response.data);
 
+    // Check if the current response type or category supports visual preview
+    const hasPreview = Boolean(
+        response.category && ['IMAGE', 'AUDIO', 'VIDEO', 'DOCUMENT'].includes(response.category) || 
+        response.type === 'HTML' || 
+        response.type === 'CSV' ||
+        contentType === 'text/html'
+    );
+
     const getLanguageKey = (type) => {
         switch (type) {
             case 'application/json': return 'json';
@@ -42,6 +49,7 @@ const ResponseViewer = forwardRef((props, ref) => {
 
     const getFormattedData = () => {
         if (response.data === undefined || response.data === null) return "";
+        if (response.data instanceof Blob) return "[Binary Blob Data]";
         if (typeof response.data === 'object') {
             return JSON.stringify(response.data, null, 2);
         }
@@ -81,11 +89,12 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     const handleDownload = () => {
-        const blob = new Blob([getFormattedData()], { type: 'text/plain;charset=utf-8' });
+        const fileData = response.rawData || getFormattedData();
+        const blob = fileData instanceof Blob ? fileData : new Blob([fileData], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `response-${Date.now()}.${contentType === 'text/html' ? 'html' : contentType === 'application/xml' ? 'xml' : 'json'}`;
+        link.download = `response-${Date.now()}.${response.type ? response.type.toLowerCase() : 'txt'}`;
         link.click();
         URL.revokeObjectURL(url);
     };
@@ -130,13 +139,13 @@ const ResponseViewer = forwardRef((props, ref) => {
                 >
                     <FileText size={13} /> RAW
                 </button>
-                {contentType === 'text/html' && (
+                {hasPreview && (
                     <button 
                         type="button"
                         className={`sub-tab ${activeTab === 'preview' ? 'active' : ''}`} 
                         onClick={() => setActiveTab('preview')}
                     >
-                        <FileText size={13} /> Preview
+                        <Eye size={13} /> Preview
                     </button>
                 )}
             </div>
@@ -146,15 +155,17 @@ const ResponseViewer = forwardRef((props, ref) => {
                     <VoidLoader currentPhase={requestPhase} />
                 ) : (
                     <>
-                        {
-                            activeTab === "body" &&
-                            (<CodeMirrorEditor editable={false} lang={getLanguageKey(contentType)} value={getFormattedData()} placeholderText={"RESPONSE DISPLAY"}/>)
-                        }
+                        {activeTab === "body" && (
+                            response.data instanceof Blob ? (
+                                <div className="blob-notice">Binary asset loaded. Switch to the <strong>Preview</strong> tab to view.</div>
+                            ) : (
+                                <CodeMirrorEditor editable={false} lang={getLanguageKey(contentType)} value={getFormattedData()} placeholderText={"RESPONSE DISPLAY"}/>
+                            )
+                        )}
 
-                        {
-                            activeTab === "raw" &&
-                            (<CodeMirrorEditor editable={false} lang="text" value={typeof response.rawData === 'string' ? response.rawData : JSON.stringify(response.rawData)} placeholderText={"RAW RESPONSE DISPLAY"}/>)
-                        }
+                        {activeTab === "raw" && (
+                            <CodeMirrorEditor editable={false} lang="text" value={typeof response.rawData === 'string' ? response.rawData : '[Binary Blob Raw Data]'} placeholderText={"RAW RESPONSE DISPLAY"}/>
+                        )}
                         
                         {activeTab === 'headers' && (
                             <KeyValueList
@@ -170,10 +181,10 @@ const ResponseViewer = forwardRef((props, ref) => {
                         )}
 
                         {activeTab === 'preview' && (
-                            <iframe 
-                                title="HTML Preview" 
-                                srcDoc={getFormattedData()} 
-                                style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }} 
+                            <ResponsePreview 
+                                data={response.rawData || response.data} 
+                                type={response.type} 
+                                category={response.category} 
                             />
                         )}
                     </>

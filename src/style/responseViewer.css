@@ -213,3 +213,20 @@
   height: calc(100vh - 20px) !important;
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
+.blob-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background-color: var(--terminal-input);
+  text-align: center;
+  padding: 20px;
+}
+
+.blob-notice strong {
+  color: var(--brand-color);
+  margin-left: 5px;
+}

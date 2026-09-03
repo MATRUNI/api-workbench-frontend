@@ -36,16 +36,19 @@ function Console() {
       headers: log.request.headers,
       query: log.request.query
     });
-    const data = await formatContent(log.response.rawData, log.type)
+    
+    const data = await formatContent(log.response.rawData, log.type);
+    
     setResponse({
       status: log.response.status,
       data,
       rawData: log.response.rawData,
-      headers:log.response.headers,
+      headers: log.response.headers,
       message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
       length: log.response.length,
       time: log.response.time,
-      type: log.type
+      type: log.type,
+      category: log.category
     });
 
     navigate('/endpoints'); 
@@ -146,7 +149,14 @@ function Console() {
                   
                   <div className="log-url-zone">
                     <span className="log-url" title={log.url}>{log.url}</span>
-                    <span className="payload-indicator-dot"><Zap size={12} /> {log.type}</span>
+                    <div className="log-badges">
+                      <span className="payload-indicator-dot category-badge">
+                        {log.category || 'BLOB'}
+                      </span>
+                      <span className="payload-indicator-dot">
+                        <Zap size={12} /> {log.type}
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="log-metrics">

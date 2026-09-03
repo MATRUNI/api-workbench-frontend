@@ -8,21 +8,24 @@ import { UserProvider } from './context/UserContext.jsx'
 import { ConfigApiProvider } from './context/ConfigureApiContext.jsx'
 import { SocketProvider } from './context/SocketContext.jsx'
 import { ShareProvider } from './context/ShareContext.jsx'
+import { ProxyProvider } from './context/ProxyContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RequestProvider>
-      <LibraryProvider>
-        <UserProvider>
-          <SocketProvider>
-            <ConfigApiProvider>
-              <ShareProvider>
-                <App />
-              </ShareProvider>
-            </ConfigApiProvider>
-          </SocketProvider>
-        </UserProvider>
-      </LibraryProvider>
-    </RequestProvider>
+    <ProxyProvider>
+      <RequestProvider>
+        <LibraryProvider>
+          <UserProvider>
+            <SocketProvider>
+              <ConfigApiProvider>
+                <ShareProvider>
+                  <App />
+                </ShareProvider>
+              </ConfigApiProvider>
+            </SocketProvider>
+          </UserProvider>
+        </LibraryProvider>
+      </RequestProvider>
+    </ProxyProvider>
   </StrictMode>
 )

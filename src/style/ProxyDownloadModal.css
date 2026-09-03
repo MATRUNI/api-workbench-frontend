@@ -1,0 +1,53 @@
+.proxy-modal-surface {
+    width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
+}
+
+.proxy-modal-body {
+    padding-top: 16px;
+}
+
+.proxy-description-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+}
+
+.proxy-empty-override {
+    padding: 24px 16px;
+}
+
+.proxy-error-text {
+    color: #ef4444;
+}
+
+.proxy-error-text .config-empty-icon {
+    color: #ef4444;
+}
+
+.proxy-instructions-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    margin: 12px 0;
+}
+
+.proxy-instructions-box code {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.proxy-instructions-box code:last-child {
+    margin-bottom: 0;
+}
+
+.proxy-dl-btn {
+    text-decoration: none;
+}
+

@@ -3,8 +3,10 @@ import '../style/NavBar.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
 import { UserContext } from '../context/UserContext';
-import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageSquareCodeIcon } from 'lucide-react';
+import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageSquareCodeIcon, Server } from 'lucide-react';
 import { SocketContext } from '../context/SocketContext';
+import { ProxyContext } from '../context/ProxyContext';
+import ProxyDownloadModal from './ProxyDownloadModal';
 import { motion } from 'framer-motion';
 import { appear } from '../animations/Motion';
 
@@ -14,6 +16,8 @@ function NavBar() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const activeBtn = (path) => location.pathname === path;
     const { user } = useContext(UserContext);
+    const { isProxyRunning } = useContext(ProxyContext);
+    const [isProxyModalOpen, setIsProxyModalOpen] = useState(false);
 
     const isChatActive = location.pathname === '/chat';
     const { stopRing } = useContext(SocketContext);
@@ -43,6 +47,7 @@ function NavBar() {
     };
 
     return (
+        <>
         <motion.nav id="utility-nav" 
         className={isChatActive ? 'chat-workspace-active' : ''}
         initial="hidden"
@@ -61,6 +66,14 @@ function NavBar() {
             </div>
 
             <div className="nav-group">
+                <div 
+                    className={`proxy-indicator ${isProxyRunning ? 'active' : 'offline'}`}
+                    onClick={() => { if (!isProxyRunning) setIsProxyModalOpen(true); }}
+                    title={isProxyRunning ? "Local Proxy is running" : "Click to download Local Proxy"}
+                >
+                    <Server size={14} className="proxy-icon" />
+                    <span className="proxy-text">{isProxyRunning ? 'Active' : 'Offline'}</span>
+                </div>
                 <div className='search'>
                     <input type="text" placeholder='⌘ + K to Search' readOnly onClick={() => setIsSearchOpen(true)} />
                     <Search className="search-icon" size={18} onClick={() => setIsSearchOpen(true)} />
@@ -91,6 +104,8 @@ function NavBar() {
             )}
             <ThemeToggle location='nav'/>
         </motion.nav>
+        <ProxyDownloadModal isOpen={isProxyModalOpen} onClose={() => setIsProxyModalOpen(false)} />
+        </>
     );
 }
 

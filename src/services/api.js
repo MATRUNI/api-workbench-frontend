@@ -19,7 +19,12 @@ export async function callAPI(url,method,request)
     const {isMasked, finalUrl} = APIMask(url)
     try{
         const startTime=Date.now()
-        const requestUrl = `${finalUrl}${queryString ? "?" + queryString : ""}`;
+        let requestUrl = `${finalUrl}${queryString ? "?" + queryString : ""}`;
+        
+        if (window.__is_proxy_running && !isMasked) {
+            requestUrl = `http://127.0.0.1:${window.__proxy_port || 17777}/?url=${encodeURIComponent(requestUrl)}`;
+        }
+
         const res = isMasked
           ? await customFetch(requestUrl, options)
           : await fetch(requestUrl, options);

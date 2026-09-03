@@ -119,6 +119,43 @@
     box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
 }
 
+.proxy-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    font-size: 0.85rem;
+}
+
+.proxy-indicator.active {
+    cursor: default;
+}
+
+.proxy-indicator.offline {
+    cursor: pointer;
+}
+
+.proxy-indicator.active .proxy-icon,
+.proxy-indicator.active .proxy-text {
+    color: var(--brand-green);
+}
+
+.proxy-indicator.offline .proxy-icon,
+.proxy-indicator.offline .proxy-text {
+    color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .proxy-indicator .proxy-text {
+        display: none;
+    }
+    .proxy-indicator {
+        padding: 6px 8px;
+    }
+}
+
 #profile-panel {
     display: flex;
     align-items: center;
@@ -338,6 +375,18 @@
         text-align: left;
         padding: 10px 12px;
         font-size: 0.75rem;
+    }
+    .nav-group:nth-child(3) {
+        gap: 4px; /* Slightly tighten spacing */
+    }
+
+    /* Make the proxy indicator compact on mobile */
+    .proxy-indicator {
+        padding: 6px 8px;
+    }
+    
+    .proxy-text {
+        display: none; /* Hide the 'Active' / 'Offline' text on smaller screens, keep the icon */
     }
 }
 

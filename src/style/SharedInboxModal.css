@@ -37,28 +37,6 @@
   color: var(--brand-color);
 }
 
-/* Close Button in Corner */
-.modal-close-corner-btn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.modal-close-corner-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-  border-color: var(--text-muted);
-}
-
-/* Tabs Navigation */
 .shared-tabs-row {
   display: flex;
   gap: 8px;

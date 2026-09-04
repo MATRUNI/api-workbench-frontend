@@ -7,6 +7,7 @@ import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageS
 import { SocketContext } from '../context/SocketContext';
 import { ProxyContext } from '../context/ProxyContext';
 import ProxyDownloadModal from './ProxyDownloadModal';
+import { docsRegistry } from '../docs/index.js';
 import { motion } from 'framer-motion';
 import { appear } from '../animations/Motion';
 
@@ -14,6 +15,7 @@ function NavBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const activeBtn = (path) => location.pathname === path;
     const { user } = useContext(UserContext);
     const { isProxyRunning } = useContext(ProxyContext);
@@ -44,6 +46,17 @@ function NavBar() {
         } else {
             navigate('/auth');
         }
+    };
+
+    const searchResults = searchQuery.trim() === '' ? [] : docsRegistry.filter(doc => 
+        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        doc.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const handleResultClick = (id) => {
+        navigate(`/docs?doc=${id}`);
+        setIsSearchOpen(false);
+        setSearchQuery('');
     };
 
     return (
@@ -89,16 +102,34 @@ function NavBar() {
             {isSearchOpen && (
                 <div className="search-modal-overlay" onClick={() => setIsSearchOpen(false)}>
                     <div className="search-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <Search size={20} className="modal-search-icon" />
-                        <input 
-                            type="text" 
-                            placeholder="Search endpoints or docs..." 
-                            autoFocus
-                            className="modal-input"
-                        />
-                        <button className="close-modal-btn" onClick={() => setIsSearchOpen(false)}>
-                            <X size={20} />
-                        </button>
+                        <div className="search-input-wrapper">
+                            <Search size={20} className="modal-search-icon" />
+                            <input 
+                                type="text" 
+                                placeholder="Search documentation..." 
+                                autoFocus
+                                className="modal-input"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <button className="close-modal-btn" onClick={() => setIsSearchOpen(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        {searchQuery && (
+                            <div className="search-results-container">
+                                {searchResults.length > 0 ? (
+                                    searchResults.map(doc => (
+                                        <div key={doc.id} className="search-result-item" onClick={() => handleResultClick(doc.id)}>
+                                            <div className="result-title">{doc.title}</div>
+                                            <div className="result-desc">{doc.description}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="search-no-results">No results found for "{searchQuery}"</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

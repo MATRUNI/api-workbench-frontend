@@ -1,121 +1,130 @@
-import React from 'react';
-import { 
-  Terminal, 
-  Book,
-  History,
-  MessageSquareCodeIcon,
-  Database,
-  ShieldCheck,
-  Lock
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { docsRegistry } from '../docs/index.js';
+import * as LucideIcons from 'lucide-react';
 import '../style/Docs.css';
 
+// A helper to safely render a dynamic icon from lucide-react
+const DynamicIcon = ({ name, size = 18 }) => {
+  const IconComponent = LucideIcons[name];
+  return IconComponent ? <IconComponent size={size} /> : <LucideIcons.FileText size={size} />;
+};
+
 function Docs() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const docId = searchParams.get('doc') || 'getting-started';
+  
+  const [activeDoc, setActiveDoc] = useState(null);
+
+  useEffect(() => {
+    const doc = docsRegistry.find(d => d.id === docId);
+    if (doc) {
+      setActiveDoc(doc);
+    } else {
+      setActiveDoc(docsRegistry[0]);
+    }
+  }, [docId]);
+
+  const handleNavClick = (id) => {
+    navigate(`/docs?doc=${id}`);
+  };
+
   return (
-    <div className="docs-container">
-      <header className="docs-header">
-        <h1 className="docs-title">SYSTEM DOCUMENTATION // V1</h1>
-        <p className="docs-subtitle">OPERATOR MANUAL & PLATFORM GUIDE</p>
-      </header>
+    <div className="docs-layout">
+      {/* Sidebar Navigation */}
+      <aside className="docs-sidebar">
+        <div className="docs-sidebar-header">
+          <h2>SYSTEM DOCS</h2>
+          <p>OPERATOR MANUAL</p>
+        </div>
+        <nav className="docs-nav-list">
+          {docsRegistry.map((doc) => (
+            <button
+              key={doc.id}
+              className={`docs-nav-btn ${activeDoc?.id === doc.id ? 'active' : ''}`}
+              onClick={() => handleNavClick(doc.id)}
+            >
+              <DynamicIcon name={doc.icon} />
+              <span>{doc.title}</span>
+            </button>
+          ))}
+        </nav>
+      </aside>
 
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <Book className="docs-icon" size={20} />
-          OVERVIEW
-        </h2>
-        <div className="docs-content">
-          <p>
-            Welcome to <span className="docs-highlight">API-OS</span>, a real-time API workbench operating as a collaborative "Comm Matrix".
-            This platform merges robust RESTful HTTP testing with real-time peer-to-peer WebRTC voice communication, terminal-styled team chat, and instant configuration sharing via WebSockets.
-          </p>
-        </div>
-      </section>
+      {/* Main Markdown Content */}
+      <main className="docs-main-content">
+        {activeDoc ? (
+          <div className="markdown-body">
+            <Markdown 
+              remarkPlugins={[remarkGfm]} 
+              rehypePlugins={[rehypeRaw]}
+              components={{
+                blockquote({ node, children, ...props }) {
+                  let alertType = null;
+                  
+                  const processChildren = (nodes) => {
+                    return React.Children.map(nodes, child => {
+                      if (typeof child === 'string') {
+                        if (!alertType) {
+                          const match = child.match(/^\s*\[!(TIP|WARNING|IMPORTANT|NOTE|CAUTION)\]/i);
+                          if (match) {
+                            alertType = match[1].toLowerCase();
+                            return child.replace(match[0], '').replace(/^\s*<br\s*\/?>\s*/i, '').trimStart();
+                          }
+                        }
+                        return child;
+                      }
+                      if (React.isValidElement(child)) {
+                        return React.cloneElement(child, {}, processChildren(child.props.children));
+                      }
+                      return child;
+                    });
+                  };
 
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <Terminal className="docs-icon" size={20} />
-          ENDPOINTS
-        </h2>
-        <div className="docs-content">
-          <p>
-            The <strong>Endpoints</strong> tab is your primary workbench for making API calls.
-          </p>
-          <ul className="docs-list">
-            <li><strong>Request Execution:</strong> Construct and fire requests across standard HTTP methods with dynamic headers, query parameters, and body payloads.</li>
-            <li><strong>Config Sharing:</strong> Includes a dedicated <strong>CONFIG</strong> button that allows you to instantly share your exact API configuration with any registered user (they do not need to be online to receive it).</li>
-          </ul>
-        </div>
-      </section>
-      
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <History className="docs-icon" size={20} />
-          CONSOLE
-        </h2>
-        <div className="docs-content">
-          <p>
-            The <strong>Console</strong> tab serves entirely as your execution history vault.
-          </p>
-          <ul className="docs-list">
-            <li><strong>Execution Logs:</strong> Every API call you make is automatically logged here, allowing you to easily track and review your past requests, response statuses, and latency metrics.</li>
-          </ul>
-        </div>
-      </section>
+                  const processedChildren = processChildren(children);
 
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <MessageSquareCodeIcon className="docs-icon" size={20} />
-          CHAT & CALL
-          <span style={{ fontSize: '0.75rem', color: '#ffaa00', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 'normal', letterSpacing: '0.5px' }}>
-            <Lock size={14} /> REQUIRES LOGIN
-          </span>
-        </h2>
-        <div className="docs-content">
-          <p>
-            The <strong>Chat</strong> section is your dedicated portal for real-time team communication.
-          </p>
-          <ul className="docs-list">
-            <li><strong>Text Chat:</strong> A terminal-styled live chat interface to communicate instantly with other online users.</li>
-            <li><strong>Voice Calls:</strong> Built-in WebRTC capabilities allow you to initiate secure, peer-to-peer audio calls with other online users directly from the chat interface.</li>
-          </ul>
-        </div>
-      </section>
-
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <Database className="docs-icon" size={20} />
-          FETCH
-        </h2>
-        <div className="docs-content">
-          <p>
-            The <strong>Fetch</strong> tab is the centralized API Library.
-          </p>
-          <ul className="docs-list">
-            <li><strong>Free APIs:</strong> Contains a library of free, public APIs (like JSON Placeholder and a few others) for quick testing and exploration.</li>
-            <li><strong>Product APIs <Lock size={12} style={{color:'#ffaa00', display:'inline', verticalAlign:'middle', marginBottom:'2px', marginLeft: '2px'}} title="Requires Login" />:</strong> Logged-in users gain access to exclusive product APIs to directly interact with our backend services.</li>
-          </ul>
-        </div>
-      </section>
-
-      <section className="docs-section">
-        <h2 className="docs-section-title">
-          <ShieldCheck className="docs-icon" size={20} />
-          AUTHENTICATION
-        </h2>
-        <div className="docs-content">
-          <p>
-            Access to the platform is secured through a robust authentication gateway.
-          </p>
-          <ul className="docs-list">
-            <li><strong>Sign Up:</strong> New users must register using a unique Username, an Email address, complete a mandatory OTP verification challenge, and set a Password.</li>
-            <li><strong>Sign In:</strong> Returning users can securely log in using just their verified Email and Password.</li>
-          </ul>
-        </div>
-      </section>
-      
-      <div style={{textAlign: 'center', margin: '3rem 0 1rem', color: '#555', fontSize: '0.8rem', letterSpacing: '1px'}}>
-        END OF DOCUMENTATION
-      </div>
+                  if (alertType) {
+                     let icon = <LucideIcons.Info size={18} />;
+                     let alertClass = "docs-alert-important";
+                     
+                     if (alertType === 'tip') {
+                        icon = <LucideIcons.Lightbulb size={18} />;
+                        alertClass = "docs-alert-tip";
+                     } else if (alertType === 'warning' || alertType === 'caution') {
+                        icon = <LucideIcons.AlertTriangle size={18} />;
+                        alertClass = "docs-alert-warning";
+                     }
+                     
+                     return (
+                        <div className={`docs-alert ${alertClass}`}>
+                           <div className="docs-alert-icon">{icon}</div>
+                           <div className="docs-alert-content">{processedChildren}</div>
+                        </div>
+                     );
+                  }
+                  
+                  return <blockquote {...props}>{children}</blockquote>;
+                },
+                code({node, inline, className, children, ...props}) {
+                  return (
+                    <code className={`${className} docs-code-block`} {...props}>
+                      {children}
+                    </code>
+                  )
+                }
+              }}
+            >
+              {activeDoc.content}
+            </Markdown>
+          </div>
+        ) : (
+          <div className="docs-loading">Loading documentation...</div>
+        )}
+      </main>
     </div>
   );
 }

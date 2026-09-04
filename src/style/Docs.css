@@ -91,6 +91,11 @@
   height: 100%;
 }
 
+/* Hide mobile header on desktop */
+.docs-mobile-header {
+  display: none;
+}
+
 /* Markdown Rendering Styles */
 .markdown-body {
   max-width: 800px;
@@ -131,7 +136,8 @@
   font-weight: 600;
 }
 
-.markdown-body ul, .markdown-body ol {
+.markdown-body ul, 
+.markdown-body ol {
   padding-left: 1.5rem;
   margin-bottom: 1.5rem;
   color: var(--text-muted);
@@ -193,6 +199,7 @@ pre .docs-code-block {
 .docs-alert-content p {
   margin-bottom: 0;
 }
+
 .docs-alert-content p:not(:last-child) {
   margin-bottom: 0.8rem;
 }
@@ -219,4 +226,89 @@ pre .docs-code-block {
 }
 .docs-alert-important svg {
   color: var(--brand-color);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .docs-layout {
+    flex-direction: column;
+    position: relative;
+  }
+
+  .docs-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--card-bg, #1e1e1e);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .docs-mobile-current {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .docs-menu-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .docs-sidebar {
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem 1rem;
+    background: var(--bg-color);
+    position: absolute;
+    top: 57px;
+    left: 0;
+    z-index: 99;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .docs-sidebar.mobile-open {
+    display: flex;
+  }
+
+  .docs-nav-list {
+    flex-direction: column;
+    overflow-x: visible;
+    padding-bottom: 0;
+    gap: 0.5rem;
+  }
+
+  .docs-nav-btn {
+    white-space: normal;
+    padding: 12px;
+  }
+
+  .docs-main-content {
+    box-sizing: border-box;
+    padding: 1.5rem 1rem;
+  }
+
+  .markdown-body h1 {
+    font-size: 1.8rem;
+  }
+  
+  .markdown-body h2 {
+    font-size: 1.3rem;
+  }
 }

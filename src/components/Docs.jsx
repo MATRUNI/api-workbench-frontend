@@ -7,7 +7,6 @@ import { docsRegistry } from '../docs/index.js';
 import * as LucideIcons from 'lucide-react';
 import '../style/Docs.css';
 
-// A helper to safely render a dynamic icon from lucide-react
 const DynamicIcon = ({ name, size = 18 }) => {
   const IconComponent = LucideIcons[name];
   return IconComponent ? <IconComponent size={size} /> : <LucideIcons.FileText size={size} />;
@@ -19,6 +18,7 @@ function Docs() {
   const docId = searchParams.get('doc') || 'getting-started';
   
   const [activeDoc, setActiveDoc] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const doc = docsRegistry.find(d => d.id === docId);
@@ -31,12 +31,28 @@ function Docs() {
 
   const handleNavClick = (id) => {
     navigate(`/docs?doc=${id}`);
+    setIsMobileMenuOpen(false); // Close menu on mobile after selection
   };
 
   return (
     <div className="docs-layout">
+      {/* Mobile Top Bar Toggle */}
+      <div className="docs-mobile-header">
+        <div className="docs-mobile-current">
+          {activeDoc && <DynamicIcon name={activeDoc.icon} />}
+          <span>{activeDoc ? activeDoc.title : 'Select Documentation'}</span>
+        </div>
+        <button 
+          className="docs-menu-toggle"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {isMobileMenuOpen ? <LucideIcons.X size={20} /> : <LucideIcons.Menu size={20} />}
+        </button>
+      </div>
+
       {/* Sidebar Navigation */}
-      <aside className="docs-sidebar">
+      <aside className={`docs-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="docs-sidebar-header">
           <h2>SYSTEM DOCS</h2>
           <p>OPERATOR MANUAL</p>

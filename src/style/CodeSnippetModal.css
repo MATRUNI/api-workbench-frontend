@@ -1,0 +1,210 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(1, 4, 9, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.snippet-modal-surface {
+  background: var(--card-bg, #0a0a0a);
+  border: 1px solid var(--border-color, #1a1a1a);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.snippet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #1a1a1a);
+}
+
+.snippet-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--text-main, #fff);
+}
+
+.snippet-close-btn {
+  background: transparent;
+  border: 1px dashed var(--border-color, #2a2a2a);
+  color: var(--text-muted, #888);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.snippet-close-btn:hover {
+  color: #f85149;
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.snippet-close-btn span {
+  font-family: monospace;
+  font-size: 0.65rem;
+  font-weight: bold;
+}
+
+.snippet-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.language-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-color, #1a1a1a);
+  padding: 0 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.language-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.language-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-color, #333);
+  border-radius: 4px;
+}
+
+.lang-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #8b949e);
+  padding: 0.8rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.lang-tab:hover {
+  color: var(--text-main, #c9d1d9);
+}
+
+.lang-tab.active {
+  color: var(--primary-color, #58a6ff);
+  border-bottom-color: var(--primary-color, #58a6ff);
+}
+
+.snippet-toolbar {
+  padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #1a1a1a);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.code-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background-color: var(--terminal-input);
+  display: flex;
+  flex-direction: column;
+}
+
+.code-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.color-watermark {
+  object-fit: contain;
+  opacity: 0.15;
+}
+
+.code-container:hover .color-watermark {
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.monochrome-watermark {
+  background-color: var(--text-main, #ffffff);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  opacity: 0.08;
+}
+
+.code-container:hover .monochrome-watermark {
+  opacity: 0.18;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.code-block {
+  margin: 0;
+  position: relative;
+  background-color: transparent;
+  z-index: 1;
+  padding: 1.5rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.copy-btn.copied {
+  background: #238636;
+  border-color: #2ea043;
+  color: #fff;
+}

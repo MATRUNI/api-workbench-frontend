@@ -21,6 +21,30 @@
     box-shadow: 0 0 15px rgba(85, 174, 247, 0.6);
     transform: translateY(-1px);
 }
+
+.code-btn {
+    background: transparent;
+    border: 1px solid var(--primary-color, #58a6ff); 
+    color: var(--primary-color, #58a6ff);
+    padding: 3px 12px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    gap: 0.2rem;
+}
+.code-btn:hover {
+    background: var(--primary-color, #58a6ff);
+    color: white;
+    box-shadow: 0 0 15px rgba(88, 166, 255, 0.6);
+    transform: translateY(-1px);
+}
 .url-input-wrapper {
   position: relative;
   display: flex;

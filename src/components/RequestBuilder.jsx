@@ -4,11 +4,12 @@ import Body_panel from '../request-panel/Body_panel'
 import { RequestContext } from '../context/RequestContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
-import { Send, Share2, X } from "lucide-react"
+import { Send, Share2, X, Code } from "lucide-react"
 import KeyValueList from './utility_Components/KeyValueList'
 
 import "../style/RequestBuilder.css"
 import ConfigSharing from './ConfigSharing'
+import CodeSnippetModal from './CodeSnippetModal'
 import { UserContext } from '../context/UserContext'
 
 function RequestBuilder({ scrollToResponse }) {
@@ -16,6 +17,7 @@ function RequestBuilder({ scrollToResponse }) {
     const {user} = useContext(UserContext)
     const [activeTab,setActiveTab]=useState('body')
     const [modalActive,setModalActive] = useState(false);
+    const [codeModalActive, setCodeModalActive] = useState(false);
     const bodyRef = useRef(null);
     const isValidURL=(value)=>
     {
@@ -157,13 +159,44 @@ function RequestBuilder({ scrollToResponse }) {
               emptyMessage="No query parameters defined. Click add to begin."
           />
       )}
-      {user && <div>
-          <button type="button" className="config-btn" title='Share your configuration with others.' onClick={()=>setModalActive(true)}>
-              CONFIG <Share2 size={15} />
+      
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button 
+              type="button" 
+              className="code-btn" 
+              title="Generate Code Snippet" 
+              onClick={() => setCodeModalActive(true)}
+          >
+              CODE <Code size={15} />
           </button>
-      </div>}
+          
+          {user && (
+              <button 
+                  type="button" 
+                  className="config-btn" 
+                  title="Share your configuration with others." 
+                  onClick={() => setModalActive(true)}
+              >
+                  CONFIG <Share2 size={15} />
+              </button>
+          )}
+      </div>
+
       {modalActive &&
       <ConfigSharing isOpen={modalActive} onClose={()=>setModalActive(false)}/>
+      }
+      {codeModalActive && 
+      <CodeSnippetModal 
+          isOpen={codeModalActive} 
+          onClose={() => setCodeModalActive(false)} 
+          requestData={{
+              url,
+              method,
+              headers: request.headers,
+              query: request.query,
+              body: bodyRef.current?.getCurrentBody()
+          }}
+      />
       }
     </section>
   )

@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../style/NavBar.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToogle';
@@ -8,7 +9,6 @@ import { SocketContext } from '../context/SocketContext';
 import { ProxyContext } from '../context/ProxyContext';
 import ProxyDownloadModal from './ProxyDownloadModal';
 import { docsRegistry } from '../docs/index.js';
-import { motion } from 'framer-motion';
 import { appear } from '../animations/Motion';
 
 function NavBar() {
@@ -99,42 +99,64 @@ function NavBar() {
                 </div>
             </div>
             
-            {isSearchOpen && (
-                <div className="search-modal-overlay" onClick={() => setIsSearchOpen(false)}>
-                    <div className="search-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="search-input-wrapper">
-                            <Search size={20} className="modal-search-icon" />
-                            <input 
-                                type="text" 
-                                placeholder="Search documentation..." 
-                                autoFocus
-                                className="modal-input"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            <button className="close-modal-btn" onClick={() => setIsSearchOpen(false)}>
-                                <X size={20} />
+            <ThemeToggle location='nav'/>
+        </motion.nav>
+        
+        <AnimatePresence>
+        {isSearchOpen && (
+            <div className="modal-backdrop" onClick={() => setIsSearchOpen(false)}>
+                <motion.div 
+                    className="modal-surface search-modal-surface" 
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                    <div className="modal-interior-content">
+                        <div className="config-header-row">
+                            <div className="config-title-group" style={{ flex: 1 }}>
+                                <Search size={18} className="config-brand-icon" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Search documentation..." 
+                                    autoFocus
+                                    className="modal-input search-modal-input"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <button className="modal-close-corner-btn" onClick={() => setIsSearchOpen(false)} title="Close Panel (ESC)">
+                                <X size={16} />
+                                <span>ESC</span>
                             </button>
                         </div>
+                        
                         {searchQuery && (
-                            <div className="search-results-container">
+                            <div className="shared-inbox-feed search-results-container">
                                 {searchResults.length > 0 ? (
                                     searchResults.map(doc => (
-                                        <div key={doc.id} className="search-result-item" onClick={() => handleResultClick(doc.id)}>
-                                            <div className="result-title">{doc.title}</div>
-                                            <div className="result-desc">{doc.description}</div>
+                                        <div key={doc.id} className="shared-item-card clickable-card" onClick={() => handleResultClick(doc.id)}>
+                                            <div className="shared-item-header">
+                                                <span className="shared-sender"><strong>{doc.title}</strong></span>
+                                            </div>
+                                            <div className="shared-item-message result-desc">{doc.description}</div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="search-no-results">No results found for "{searchQuery}"</div>
+                                    <div className="config-empty-state">
+                                        <Terminal size={24} className="config-empty-icon" />
+                                        <p>No results found for "{searchQuery}"</p>
+                                    </div>
                                 )}
                             </div>
                         )}
                     </div>
-                </div>
-            )}
-            <ThemeToggle location='nav'/>
-        </motion.nav>
+                </motion.div>
+            </div>
+        )}
+        </AnimatePresence>
+
         <ProxyDownloadModal isOpen={isProxyModalOpen} onClose={() => setIsProxyModalOpen(false)} />
         </>
     );

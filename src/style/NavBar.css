@@ -242,6 +242,7 @@
         text-align: center;
         padding: 10px 2px;
         font-size: 0.72rem;
+        justify-content: center;
         font-family: monospace;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -429,112 +430,24 @@
 }
 
 /* MODAL */
-.search-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.85); 
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    z-index: 9999; 
-    display: flex;
-    justify-content: center;
-    padding-top: 20px;
-}
-
-.search-modal-content {
-    background: #111; 
-    width: 90%;
-    max-width: 500px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-}
-
-.search-input-wrapper {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
+.search-modal-surface {
     width: 100%;
+    max-width: 500px;
+    max-height: 85vh;
 }
 
-.modal-input {
+.search-modal-input {
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-main);
     font-size: 16px; 
-    width: 80%;
+    width: 100%;
     margin-left: 10px;
     outline: none;
-}
-
-.close-modal-btn {
-    background: transparent;
-    border: 2px solid transparent; 
-    border-radius: 8px; 
-    color: #888;
-    cursor: pointer;
-    position: absolute;
-    right: 20px;
-    padding: 0.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.close-modal-btn:hover {
-    border-color: red; 
-    color: red;
 }
 
 /* Search Results Styles */
 .search-results-container {
     max-height: 300px;
-    overflow-y: auto;
-    border-top: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-}
-
-.search-result-item {
-    padding: 12px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid #222;
-    transition: background 0.2s;
-}
-
-.search-result-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.search-result-item:last-child {
-    border-bottom: none;
-}
-
-.result-title {
-    color: #4ade80;
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 4px;
-}
-
-.result-desc {
-    color: #888;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.search-no-results {
-    padding: 16px;
-    color: #888;
-    text-align: center;
-    font-size: 0.9rem;
+    margin-top: 16px;
 }

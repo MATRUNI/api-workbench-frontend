@@ -1,7 +1,7 @@
 .floating-shared-badge {
   position: fixed;
-  bottom: 70px;
-  left: 24px;
+  bottom: 140px;
+  left: 16px;
   z-index: 998;
   display: flex;
   align-items: center;

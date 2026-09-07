@@ -55,7 +55,28 @@ function SharedInboxModal({ isOpen, onClose }) {
   }, [activeTab, sentShares]);
 
   if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("no-scroll")
+    } else {
+      document.body.classList.remove("no-scroll")
+    }
+    
+    const handleKeyDown = (e)=>{
+      if(e.key === "Escape") onClose()
+    }
 
+    if(isOpen)
+    {
+      window.addEventListener("keydown", handleKeyDown)
+    }
+
+    return () => {
+      document.body.classList.remove("no-scroll");
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen,onClose])
+  
   const handleApplyConfig = async (item) => {
     setIsLoadingConfig(true);
     const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/consume/${item.sharedDataId}`);

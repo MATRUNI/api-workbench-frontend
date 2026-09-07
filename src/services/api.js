@@ -14,6 +14,7 @@ export async function callAPI(url,method,request)
             ...header,
             ...(method !== "GET" && request.body ? { 'Content-Type': 'application/json' } : {})
         },
+        credentials: 'include',
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
     const {isMasked, finalUrl} = APIMask(url)

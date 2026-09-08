@@ -11,6 +11,7 @@ import "../style/RequestBuilder.css"
 import ConfigSharing from './ConfigSharing'
 import CodeSnippetModal from './CodeSnippetModal'
 import { UserContext } from '../context/UserContext'
+import { Panel } from 'react-resizable-panels'
 
 function RequestBuilder({ scrollToResponse }) {
     const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest}=useContext(RequestContext)
@@ -87,7 +88,7 @@ function RequestBuilder({ scrollToResponse }) {
       }
     }
   return (
-<section className="pane request-pane">
+<Panel className="pane request-pane">
       <form className="url-bar-group" onSubmit={handleSubmit}>
         <select 
           className={`method-dropdown method-${method}`}
@@ -198,7 +199,7 @@ function RequestBuilder({ scrollToResponse }) {
           }}
       />
       }
-    </section>
+    </Panel>
   )
 }
 

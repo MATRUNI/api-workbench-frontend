@@ -6,6 +6,7 @@ import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
 import KeyValueList from './utility_Components/KeyValueList';
 import ResponsePreview from './ResponsePreview';
 import '../style/responseViewer.css';
+import { Panel } from 'react-resizable-panels';
 
 const ResponseViewer = forwardRef((props, ref) => {
     const { response, isLoading, requestPhase, setResponse } = useContext(RequestContext);
@@ -100,7 +101,7 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     return (
-        <section ref={ref} className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}>
+        <Panel ref={ref} className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}>
             <div className="pane-header">
                 <div className="pane-header-left">
                     <span className="label">Response</span>
@@ -210,7 +211,7 @@ const ResponseViewer = forwardRef((props, ref) => {
                     </button>
                 </div>
             </div>
-        </section>
+        </Panel>
     );
 });
 

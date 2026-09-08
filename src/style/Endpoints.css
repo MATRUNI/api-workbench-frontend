@@ -1,12 +1,15 @@
 .workbench-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  width: 100%;
   min-height: 90dvh;
   height: auto;
   background-color: var(--bg-color);
   color: var(--text-main);
 }
-
+.separator{
+  display: flex;
+  align-items: center;
+}
 .pane {
   display: flex;
   flex-direction: column;
@@ -16,7 +19,6 @@
 }
 
 .request-pane {
-  border-right: 1px solid var(--border-color); 
   min-width: 0;
 }
 
@@ -42,7 +44,6 @@
   gap: 4px;
 }
 
-/* === STATUS BADGES === */
 .length-badge,
 .status-error,
 .status-success,
@@ -373,17 +374,15 @@
   font-size: 0.85rem;
 }
 
-/* === RESPONSIVE QUERY BREAKPOINTS === */
 @media (max-width: 1220px) {
   .workbench-container {
-    height: auto; 
-    min-height: 100vh;
-    grid-template-columns: 1fr;
-    display: flex;
+    min-height: 180vh;
     flex-direction: column;
     overflow-y: visible;
   }
-  
+  .separator{
+    justify-content: center;
+  }
   .request-pane {
     position: relative;
     border-right: none;
@@ -396,14 +395,15 @@
     background: transparent;
     border: none;
     gap: 10px;
-    height: auto; 
   }
 
   .url-input {
     padding: 0 1rem;
     background: var(--terminal-input);
   }
-
+  .editor-area {
+    height: 60%;
+  }
   .method-dropdown {
     text-align: center;
     text-align-last: center; 

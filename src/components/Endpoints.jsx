@@ -24,7 +24,7 @@ function Endpoints() {
     if (isMobile) {
       responseRef.current?.scrollIntoView({
         behavior: "smooth",
-        block:"center"
+        block:"start"
       });
     }
   };

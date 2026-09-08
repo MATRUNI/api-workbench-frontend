@@ -101,8 +101,8 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     return (
-        <Panel ref={ref} className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}>
-            <div className="pane-header">
+        <Panel className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}>
+            <div ref={ref} className="pane-header">
                 <div className="pane-header-left">
                     <span className="label">Response</span>
                     <span className="length-badge" title="Response size">

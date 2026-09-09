@@ -4,13 +4,9 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { docsRegistry } from '../docs/index.js';
-import * as LucideIcons from 'lucide-react';
+import { X, Menu, Info, Lightbulb, AlertCircle } from 'lucide-react';
+import { DynamicIcon } from './utility_Components/DynamicIcon';
 import '../style/Docs.css';
-
-const DynamicIcon = ({ name, size = 18 }) => {
-  const IconComponent = LucideIcons[name];
-  return IconComponent ? <IconComponent size={size} /> : <LucideIcons.FileText size={size} />;
-};
 
 function Docs() {
   const [searchParams] = useSearchParams();
@@ -31,7 +27,7 @@ function Docs() {
 
   const handleNavClick = (id) => {
     navigate(`/docs?doc=${id}`);
-    setIsMobileMenuOpen(false); // Close menu on mobile after selection
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -47,7 +43,7 @@ function Docs() {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle navigation menu"
         >
-          {isMobileMenuOpen ? <LucideIcons.X size={20} /> : <LucideIcons.Menu size={20} />}
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
@@ -104,14 +100,14 @@ function Docs() {
                   const processedChildren = processChildren(children);
 
                   if (alertType) {
-                     let icon = <LucideIcons.Info size={18} />;
+                     let icon = <Info size={18} />;
                      let alertClass = "docs-alert-important";
                      
                      if (alertType === 'tip') {
-                        icon = <LucideIcons.Lightbulb size={18} />;
+                        icon = <Lightbulb size={18} />;
                         alertClass = "docs-alert-tip";
                      } else if (alertType === 'warning' || alertType === 'caution') {
-                        icon = <LucideIcons.AlertTriangle size={18} />;
+                        icon = <AlertCircle size={18} />;
                         alertClass = "docs-alert-warning";
                      }
                      

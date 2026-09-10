@@ -14,13 +14,13 @@ export async function callAPI(url,method,request)
             ...header,
             ...(method !== "GET" && request.body ? { 'Content-Type': 'application/json' } : {})
         },
-        credentials: 'include',
+        ...(window.__is_proxy_running ? {credentials:"include"}:{}),
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
     const {isMasked, finalUrl} = APIMask(url)
     try{
         const startTime=Date.now()
-        let requestUrl = `${finalUrl}${queryString ? "?" + queryString : ""}`;
+        let requestUrl = `${finalUrl.split("?")[0]}${queryString ? "?" + queryString : ""}`;
         
         if (window.__is_proxy_running && !isMasked) {
             requestUrl = `http://127.0.0.1:${window.__proxy_port || 17777}/?url=${encodeURIComponent(requestUrl)}`;

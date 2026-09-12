@@ -1,9 +1,11 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { ProxyContext } from "./ProxyContext";
 
 export const RequestContext=createContext()
 
 export function RequestProvider({children})
 {
+    const { isProxyRunning } = useContext(ProxyContext)
     const contentTypeTemplates = {
       "application/json": "{\n  \"key\": \"value\",\n  \"data\": \"input your JSON here\"\n}",
 
@@ -33,8 +35,13 @@ export function RequestProvider({children})
     const [isLoading,setIsLoading]=useState(false);
     const [requestPhase, setRequestPhase] = useState("")
     const [method,setMethod]=useState("GET")
+    const [isProxyEnable,setIsProxyEnable] = useState(false)
+    useEffect(()=>{
+        if(isProxyRunning) return;
+        setIsProxyEnable(false)
+    },[isProxyRunning])
     return (
-        <RequestContext.Provider value={{contentTypeTemplates ,request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod}}>
+        <RequestContext.Provider value={{contentTypeTemplates ,request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod,isProxyEnable,setIsProxyEnable}}>
             {children}
         </RequestContext.Provider>
     )

@@ -141,8 +141,23 @@
 }
 
 /* === TABS === */
+.tabs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+}
+
+.tab-container[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+  -webkit-user-select: none;
+  cursor: not-allowed;
+}
 .tab-container {
   display: flex;
+  align-items: center;
   gap: 15px;
   border-bottom: 1px solid var(--border-color); 
 }

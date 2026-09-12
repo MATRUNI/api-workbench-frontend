@@ -9,23 +9,26 @@ import { ConfigApiProvider } from './context/ConfigureApiContext.jsx'
 import { SocketProvider } from './context/SocketContext.jsx'
 import { ShareProvider } from './context/ShareContext.jsx'
 import { ProxyProvider } from './context/ProxyContext.jsx'
+import { MobileProvider } from './context/MobileContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ProxyProvider>
-      <RequestProvider>
-        <LibraryProvider>
-          <UserProvider>
-            <SocketProvider>
-              <ConfigApiProvider>
-                <ShareProvider>
-                  <App />
-                </ShareProvider>
-              </ConfigApiProvider>
-            </SocketProvider>
-          </UserProvider>
-        </LibraryProvider>
-      </RequestProvider>
-    </ProxyProvider>
+    <MobileProvider>
+      <ProxyProvider>
+        <RequestProvider>
+          <LibraryProvider>
+            <UserProvider>
+              <SocketProvider>
+                <ConfigApiProvider>
+                  <ShareProvider>
+                    <App />
+                  </ShareProvider>
+                </ConfigApiProvider>
+              </SocketProvider>
+            </UserProvider>
+          </LibraryProvider>
+        </RequestProvider>
+      </ProxyProvider>
+    </MobileProvider>
   </StrictMode>
 )

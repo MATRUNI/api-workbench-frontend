@@ -2,7 +2,7 @@ import { ArrayToObject } from "./ArrayToObject"
 import {contentTypeHandlers} from '../services/contentTypeHandler'
 import APIMask from "../utils/APIMask";
 import { customFetch } from "./customFetch";
-export async function callAPI(url,method,request)
+export async function callAPI(url,method,request,isProxyEnable)
 {
     const header=ArrayToObject(request.headers);
     const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
@@ -14,7 +14,7 @@ export async function callAPI(url,method,request)
             ...header,
             ...(method !== "GET" && request.body ? { 'Content-Type': 'application/json' } : {})
         },
-        ...(window.__is_proxy_running ? {credentials:"include"}:{}),
+        ...(isProxyEnable ? {credentials:"include"}:{}),
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined
     }
     const {isMasked, finalUrl} = APIMask(url)
@@ -22,7 +22,7 @@ export async function callAPI(url,method,request)
         const startTime=Date.now()
         let requestUrl = `${finalUrl.split("?")[0]}${queryString ? "?" + queryString : ""}`;
         
-        if (window.__is_proxy_running && !isMasked) {
+        if (isProxyEnable && !isMasked) {
             requestUrl = `http://127.0.0.1:${window.__proxy_port || 17777}/?url=${encodeURIComponent(requestUrl)}`;
         }
 

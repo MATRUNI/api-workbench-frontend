@@ -14,7 +14,7 @@ import { UserContext } from '../context/UserContext'
 import { Panel } from 'react-resizable-panels'
 
 function RequestBuilder({ scrollToResponse }) {
-    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest}=useContext(RequestContext)
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest,isProxyEnable}=useContext(RequestContext)
     const {user} = useContext(UserContext)
     const [activeTab,setActiveTab]=useState('body')
     const [modalActive,setModalActive] = useState(false);
@@ -50,7 +50,7 @@ function RequestBuilder({ scrollToResponse }) {
       await new Promise(res => setTimeout(res, 250));
       try{
         setRequestPhase("connecting");
-        const response=await callAPI(url, method, {...request,body});
+        const response=await callAPI(url, method, {...request,body},isProxyEnable);
 
         setRequestPhase('processing')
         await new Promise(res => setTimeout(res, 350));

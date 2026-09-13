@@ -61,6 +61,21 @@ const Body_panel = forwardRef((props, ref) => {
       { value: 'text/plain', label: 'Text' },
     ];
 
+    useEffect(() => {
+        if (typeof request.body === 'object' && request.body !== null) {
+            setLocalString(JSON.stringify(request.body, null, 2));
+        } else {
+            setLocalString(typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2));
+        }
+    }, [request.body]);
+
+    // Sync contentType when request.contentType changes
+    useEffect(() => {
+        if (request.contentType) {
+            setContentType(request.contentType);
+        }
+    }, [request.contentType]);
+
     useImperativeHandle(ref, () => ({
       getCurrentBody() {
         return localString
@@ -91,6 +106,10 @@ const Body_panel = forwardRef((props, ref) => {
     const handleEditorChange = (newValue) => {
       setLocalString(newValue);
       validateInput(newValue, contentType);
+      setRequest(prev => ({
+        ...prev,
+        body: newValue
+      }));
     };
 
     const getLangKey = (type) => {

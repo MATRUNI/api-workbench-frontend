@@ -6,6 +6,158 @@
   background-color: var(--bg-color);
   color: var(--text-main);
 }
+/* === MODERN GLASSMORPHIC TABS BAR === */
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  background: color-mix(in srgb, var(--card-bg) 75%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 6px 12px;
+  gap: 6px;
+  overflow-x: auto;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+
+.tabs-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+.tabs-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+/* === GLASS TAB ITEM === */
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: color-mix(in srgb, var(--card-bg) 40%, transparent);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-user-select: none;
+  user-select: none;
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.25s ease;
+}
+
+.tab-item:hover {
+  background: color-mix(in srgb, var(--text-main) 6%, var(--card-bg));
+  color: var(--text-main);
+  border-color: color-mix(in srgb, var(--brand-color) 40%, var(--border-color));
+  transform: translateY(-1px);
+}
+
+.tab-item.active {
+  background: color-mix(in srgb, var(--terminal-input) 85%, var(--brand-color) 15%);
+  border-color: var(--brand-color);
+  color: var(--text-main);
+  box-shadow: 0 4px 20px -4px color-mix(in srgb, var(--brand-color) 30%, transparent);
+}
+
+.tab-item.active::before {
+  background: var(--brand-color);
+}
+
+/* === METHOD BADGES INSIDE TAB === */
+.tab-method-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.tab-method-GET { background-color: rgba(97, 175, 254, 0.2); color: #61affe; }
+.tab-method-POST { background-color: rgba(73, 204, 144, 0.2); color: var(--brand-green); }
+.tab-method-PUT { background-color: rgba(252, 161, 48, 0.2); color: #fca130; }
+.tab-method-DELETE { background-color: rgba(249, 62, 62, 0.2); color: #f93e3e; }
+.tab-method-PATCH { background-color: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+
+/* === TAB LABEL & PATH === */
+.tab-label-text {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+}
+
+/* === INTERACTION BUTTONS === */
+.tab-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.tab-item:hover .tab-close-btn,
+.tab-item.active .tab-close-btn {
+  opacity: 1;
+}
+
+.tab-close-btn:hover {
+  background: rgba(248, 81, 73, 0.2);
+  color: #f85149;
+  transform: scale(1.1);
+}
+
+.add-tab-btn {
+  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+  border: 1px dashed var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-right: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.add-tab-btn:hover {
+  background: color-mix(in srgb, var(--brand-color) 12%, var(--card-bg));
+  color: var(--brand-color);
+  border-color: var(--brand-color);
+  transform: translateY(-1px);
+}
 .separator{
   display: flex;
   align-items: center;

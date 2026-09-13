@@ -10,24 +10,27 @@ import { SocketProvider } from './context/SocketContext.jsx'
 import { ShareProvider } from './context/ShareContext.jsx'
 import { ProxyProvider } from './context/ProxyContext.jsx'
 import { MobileProvider } from './context/MobileContext.jsx'
+import { TabProvider } from './context/TabContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <MobileProvider>
       <ProxyProvider>
-        <RequestProvider>
-          <LibraryProvider>
-            <UserProvider>
-              <SocketProvider>
-                <ConfigApiProvider>
-                  <ShareProvider>
-                    <App />
-                  </ShareProvider>
-                </ConfigApiProvider>
-              </SocketProvider>
-            </UserProvider>
-          </LibraryProvider>
-        </RequestProvider>
+        <TabProvider>
+          <RequestProvider>
+            <LibraryProvider>
+              <UserProvider>
+                <SocketProvider>
+                  <ConfigApiProvider>
+                    <ShareProvider>
+                      <App />
+                    </ShareProvider>
+                  </ConfigApiProvider>
+                </SocketProvider>
+              </UserProvider>
+            </LibraryProvider>
+          </RequestProvider>
+        </TabProvider>
       </ProxyProvider>
     </MobileProvider>
   </StrictMode>

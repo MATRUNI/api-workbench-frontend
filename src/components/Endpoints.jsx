@@ -1,5 +1,6 @@
 import { useContext, useRef, useState } from "react";
 import { Group, Separator } from "react-resizable-panels";
+import { motion } from 'framer-motion';
 
 import "../style/Endpoints.css";
 import RequestBuilder from "./RequestBuilder";
@@ -8,6 +9,7 @@ import { GripHorizontal, GripVertical, X, Plus } from "lucide-react";
 import { MobileContext } from "../context/MobileContext";
 import { TabContext } from "../context/TabContext";
 import { RequestContext } from "../context/RequestContext";
+import { tabItemVariants, tabVariants } from "../animations/Motion";
 
 function Endpoints() {
   const { tabMap, setTabMap } = useContext(TabContext);
@@ -123,11 +125,15 @@ function Endpoints() {
 
   return (
     <>
-      <div className="tabs-wrapper">
+      <motion.div className={`tabs-wrapper`}
+      variants={tabVariants}
+      initial="hidden"
+      animate="visible"
+      >
       {tabs.map((tabId) => {
         const isActive = activeTab === tabId;
         const tabData = tabMap.get(tabId) || { method: "GET", url: "" };
-        
+      
         // Extract clean path or fallback to Request ID
         let displayPath = "";
         try {
@@ -136,12 +142,12 @@ function Endpoints() {
         } catch {
           displayPath = tabData.url || `Request ${tabId}`;
         }
-
         return (
-          <div
+          <motion.div
             key={tabId}
             className={`tab-item ${isActive ? "active" : ""}`}
             onClick={() => handleTabSwitch(tabId)}
+            variants={tabItemVariants}
           >
             <span className={`tab-method-pill tab-method-${tabData.method}`}>
               {tabData.method}
@@ -156,14 +162,13 @@ function Endpoints() {
             >
               <X size={13} />
             </button>
-          </div>
+          </motion.div>
         );
         })}
         <button className="add-tab-btn" onClick={handleAddTab} title="New Tab">
           <Plus size={16} />
         </button>
-      </div>
-
+      </motion.div>
       <Group orientation={isMobile ? "vertical" : "horizontal"} className="workbench-container">
         <RequestBuilder scrollToResponse={scrollToResponse} />
         <Separator className="separator">

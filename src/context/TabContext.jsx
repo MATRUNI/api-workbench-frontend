@@ -33,9 +33,9 @@ export function TabProvider({children})
         ]
       ])
     );
-    
+    const [activeTab, setActiveTab] = useState(initialTabId || null);
     return (
-        <TabContext.Provider value={{tabMap,setTabMap}}>
+        <TabContext.Provider value={{tabMap,setTabMap,activeTab,setActiveTab}}>
             {children}
         </TabContext.Provider>
     )

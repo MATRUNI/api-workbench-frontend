@@ -12,13 +12,12 @@ import { RequestContext } from "../context/RequestContext";
 import { tabItemVariants, tabVariants } from "../animations/Motion";
 
 function Endpoints() {
-  const { tabMap, setTabMap } = useContext(TabContext);
+  const { tabMap, setTabMap, activeTab,setActiveTab } = useContext(TabContext);
   const responseRef = useRef(null);
   const { isMobile } = useContext(MobileContext);
   const { request, setRequest, url, setURL, response, setResponse, method, setMethod } = useContext(RequestContext);
   
   const tabs = Array.from(tabMap.keys());
-  const [activeTab, setActiveTab] = useState(tabs[0] || null);
 
   // Function to add a new tab
   const handleAddTab = () => {

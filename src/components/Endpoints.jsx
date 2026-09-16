@@ -5,32 +5,37 @@ import { motion } from 'framer-motion';
 import "../style/Endpoints.css";
 import RequestBuilder from "./RequestBuilder";
 import ResponseViewer from "./ResponseViewer";
-import { GripHorizontal, GripVertical, X, Plus } from "lucide-react";
+import { GripHorizontal, GripVertical, X, Plus, Copy, ArrowRightToLine, Pencil } from "lucide-react";
 import { MobileContext } from "../context/MobileContext";
 import { TabContext } from "../context/TabContext";
 import { RequestContext } from "../context/RequestContext";
 import { tabItemVariants, tabVariants } from "../animations/Motion";
+import { ContextMenuContext } from "../context/ContextMenuProvider";
 
 function Endpoints() {
-  const { tabMap, setTabMap, activeTab,setActiveTab } = useContext(TabContext);
+  const { tabMap, setTabMap, activeTab, setActiveTab } = useContext(TabContext);
   const responseRef = useRef(null);
+  const [editingTabId, setEditingTabId] = useState(null);
+  const [tempAlias, setTempAlias] = useState("");
   const { isMobile } = useContext(MobileContext);
   const { request, setRequest, url, setURL, response, setResponse, method, setMethod } = useContext(RequestContext);
-  
+  const { openContextMenu } = useContext(ContextMenuContext);
   const tabs = Array.from(tabMap.keys());
 
   // Function to add a new tab
   const handleAddTab = () => {
-    const newTabId = Date.now(); // Unique ID to prevent key collisions
+    const newTabId = Date.now();
     
     setTabMap(prevMap => {
       const newMap = new Map(prevMap);
       if (activeTab !== null) {
-        newMap.set(activeTab, { url, method, request, response });
+        const currentAlias = prevMap.get(activeTab)?.alias || "";
+        newMap.set(activeTab, { url, method, request, response, alias: currentAlias });
       }
       newMap.set(newTabId, {
         url: 'http://localhost:3000',
         method: "GET",
+        alias: "",
         request: {
           body: "{\n  \"key\": \"value\",\n  \"data\": \"input your JSON here\"\n}",
           contentType: "application/json",
@@ -89,20 +94,158 @@ function Endpoints() {
     }
   };
 
-  const handleTabSwitch = (targetTabId) => {
-    if (targetTabId === activeTab || !tabMap.has(targetTabId)) return;
+  // Handle closing other tabs
+  function handleCloseOtherTabs(targetTabId) {
+    const targetTabData = targetTabId === activeTab 
+      ? { url, method, request, response, alias: tabMap.get(targetTabId)?.alias || "" } 
+      : tabMap.get(targetTabId);
 
-    // 1. Safely extract target tab data first
-    const targetTab = tabMap.get(targetTabId);
+    setTabMap(new Map([[targetTabId, targetTabData]]));
+    setActiveTab(targetTabId);
 
-    // 2. Update map to persist current tab state
+    if (targetTabId !== activeTab && targetTabData) {
+      setURL(targetTabData.url);
+      setMethod(targetTabData.method);
+      setRequest(targetTabData.request);
+      setResponse(targetTabData.response);
+    }
+  }
+
+  function handleCloseRightSideTabs(targetTabId) {
+    const tabIds = Array.from(tabMap.keys());
+    const targetIndex = tabIds.indexOf(targetTabId);
+    
+    if (targetIndex === -1) return;
+
+    const newMap = new Map();
+    for (let i = 0; i <= targetIndex; i++) {
+      const tabId = tabIds[i];
+      if (tabId === activeTab) {
+        const currentAlias = tabMap.get(activeTab)?.alias || "";
+        newMap.set(tabId, { url, method, request, response, alias: currentAlias });
+      } else if (tabMap.has(tabId)) {
+        newMap.set(tabId, tabMap.get(tabId));
+      }
+    }
+    
+    setTabMap(newMap);
+
+    const activeIndex = tabIds.indexOf(activeTab);
+    if (activeIndex > targetIndex) {
+      setActiveTab(targetTabId);
+      const targetData = tabMap.get(targetTabId);
+      if (targetData) {
+        setURL(targetData.url);
+        setMethod(targetData.method);
+        setRequest(targetData.request);
+        setResponse(targetData.response);
+      }
+    }
+  }
+  
+  function handleTabDuplication(targetTabId) {
+    const newTabId = Date.now();
+    const newTabMap = new Map(tabMap);
+    
+    if (activeTab !== null) {
+      const currentAlias = tabMap.get(activeTab)?.alias || "";
+      newTabMap.set(activeTab, { url, method, request, response, alias: currentAlias });
+    }
+
+    const sourceData = targetTabId === activeTab 
+      ? { url, method, request, response, alias: tabMap.get(targetTabId)?.alias || "" } 
+      : tabMap.get(targetTabId);
+
+    newTabMap.set(newTabId, sourceData);
+    setTabMap(newTabMap);
+    
+    setActiveTab(newTabId);
+    if (sourceData) {
+      setURL(sourceData.url);
+      setMethod(sourceData.method);
+      setRequest(sourceData.request);
+      setResponse(sourceData.response);
+    }
+  }
+
+  function saveRename(targetTabId) {
+    if (editingTabId === null) return;
+
     setTabMap(prevMap => {
       const newMap = new Map(prevMap);
-      newMap.set(activeTab, { url, method, request, response });
+      const existingData = targetTabId === activeTab 
+        ? { url, method, request, response, alias: tempAlias.trim() }
+        : newMap.get(targetTabId);
+      
+      if (existingData) {
+        newMap.set(targetTabId, { ...existingData, alias: tempAlias.trim() });
+      }
       return newMap;
     });
 
-    // 3. Load target tab data into context outside of the state updater
+    setEditingTabId(null);
+    setTempAlias("");
+  }
+
+  function handleRenameKeyDown(e, targetTabId) {
+    if (e.key === "Enter") {
+      saveRename(targetTabId);
+    } else if (e.key === "Escape") {
+      setEditingTabId(null);
+      setTempAlias("");
+    }
+  }
+
+  function handleRenameTab(targetTabId) {
+    const targetData = targetTabId === activeTab 
+      ? { alias: tabMap.get(targetTabId)?.alias || "" } 
+      : tabMap.get(targetTabId);
+
+    setEditingTabId(targetTabId);
+    setTempAlias(targetData?.alias || "");
+  }
+
+  // Handle right-click on a specific tab item
+  function handleTabContext(e, targetTabId) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    openContextMenu(e, [
+      {
+        label: "Duplicate tab",
+        icon: Copy,
+        onClick: () => handleTabDuplication(targetTabId)
+      },
+      {
+        label: "Close tabs to the right",
+        icon: ArrowRightToLine,
+        onClick: () => handleCloseRightSideTabs(targetTabId)
+      },
+      {
+        label: "Close other tabs",
+        icon: X,
+        onClick: () => handleCloseOtherTabs(targetTabId)
+      },
+      {
+        label: "Rename tab",
+        icon: Pencil,
+        onClick: () => handleRenameTab(targetTabId)
+      },
+    ]);
+  }
+
+  const handleTabSwitch = (targetTabId) => {
+    if (targetTabId === activeTab || !tabMap.has(targetTabId)) return;
+
+    const targetTab = tabMap.get(targetTabId);
+
+    setTabMap(prevMap => {
+      const newMap = new Map(prevMap);
+      const currentAlias = prevMap.get(activeTab)?.alias || "";
+      newMap.set(activeTab, { url, method, request, response, alias: currentAlias });
+      return newMap;
+    });
+
     if (targetTab) {
       setURL(targetTab.url);
       setMethod(targetTab.method);
@@ -124,45 +267,65 @@ function Endpoints() {
 
   return (
     <>
-      <motion.div className={`tabs-wrapper`}
-      variants={tabVariants}
-      initial="hidden"
-      animate="visible"
+      <motion.div 
+        className={`tabs-wrapper`}
+        variants={tabVariants}
+        initial="hidden"
+        animate="visible"
       >
-      {tabs.map((tabId) => {
-        const isActive = activeTab === tabId;
-        const tabData = tabMap.get(tabId) || { method: "GET", url: "" };
-      
-        // Extract clean path or fallback to Request ID
-        let displayPath = "";
-        try {
-          const urlObj = new URL(tabData.url);
-          displayPath = urlObj.pathname === "/" ? tabData.url : urlObj.pathname;
-        } catch {
-          displayPath = tabData.url || `Request ${tabId}`;
-        }
-        return (
-          <motion.div
-            key={tabId}
-            className={`tab-item ${isActive ? "active" : ""}`}
-            onClick={() => handleTabSwitch(tabId)}
-            variants={tabItemVariants}
-          >
-            <span className={`tab-method-pill tab-method-${tabData.method}`}>
-              {tabData.method}
-            </span>
-            <span className="tab-label-text" title={tabData.url}>
-              {displayPath}
-            </span>
-            <button
-              className="tab-close-btn"
-              onClick={(e) => handleCloseTab(e, tabId)}
-              title="Close Tab"
+        {tabs.map((tabId) => {
+          const isActive = activeTab === tabId;
+          const tabData = tabMap.get(tabId) || { method: "GET", url: "", alias: "" };
+
+          let displayPath = "";
+          if (tabData.alias && tabData.alias.trim() !== "") {
+            displayPath = tabData.alias; 
+          } else {
+            try {
+              const urlObj = new URL(tabData.url);
+              displayPath = urlObj.pathname === "/" ? tabData.url : urlObj.pathname;
+            } catch {
+              displayPath = tabData.url || `Request ${tabId}`;
+            }
+          }
+          return (
+            <motion.div
+              key={tabId}
+              className={`tab-item ${isActive ? "active" : ""}`}
+              onClick={() => handleTabSwitch(tabId)}
+              onContextMenu={(e) => handleTabContext(e, tabId)}
+              variants={tabItemVariants}
             >
-              <X size={13} />
-            </button>
-          </motion.div>
-        );
+              <span className={`tab-method-pill tab-method-${tabData.method}`}>
+                {tabData.method}
+              </span>
+
+              {editingTabId === tabId ? (
+                <input
+                  type="text"
+                  autoFocus
+                  className="tab-rename-input"
+                  value={tempAlias}
+                  onChange={(e) => setTempAlias(e.target.value)}
+                  onBlur={() => saveRename(tabId)}
+                  onKeyDown={(e) => handleRenameKeyDown(e, tabId)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              ) : (
+                <span className="tab-label-text" title={tabData.url}>
+                  {displayPath}
+                </span>
+              )}
+
+              <button
+                className="tab-close-btn"
+                onClick={(e) => handleCloseTab(e, tabId)}
+                title="Close Tab"
+              >
+                <X size={13} />
+              </button>
+            </motion.div>
+          );
         })}
         <button className="add-tab-btn" onClick={handleAddTab} title="New Tab">
           <Plus size={16} />

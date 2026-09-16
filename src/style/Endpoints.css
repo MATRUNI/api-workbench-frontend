@@ -597,3 +597,18 @@
     padding: 12px 0;
   }
 }
+/* === TAB RENAME INPUT === */
+.tab-rename-input {
+  background: color-mix(in srgb, var(--terminal-input) 90%, transparent);
+  border: 1px solid var(--brand-color);
+  border-radius: 4px;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  padding: 1px 6px;
+  outline: none;
+  width: 100px;
+  max-width: 120px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-color) 20%, transparent);
+  box-sizing: border-box;
+}

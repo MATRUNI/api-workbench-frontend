@@ -13,6 +13,7 @@ export function TabProvider({children})
           {
             url: "http://localhost:3000",
             method: "GET",
+            alias:"",
             request: {
               body: {
                 key: "value",

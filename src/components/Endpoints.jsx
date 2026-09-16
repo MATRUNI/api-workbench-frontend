@@ -22,6 +22,9 @@ function Endpoints() {
   const { openContextMenu } = useContext(ContextMenuContext);
   const tabs = Array.from(tabMap.keys());
 
+  // Ref to hold the long-press timeout ID for mobile devices
+  const longPressTimerRef = useRef(null);
+
   // Function to add a new tab
   const handleAddTab = () => {
     const newTabId = Date.now();
@@ -205,7 +208,7 @@ function Endpoints() {
     setTempAlias(targetData?.alias || "");
   }
 
-  // Handle right-click on a specific tab item
+  // Handle right-click or long-press context menu on a specific tab item
   function handleTabContext(e, targetTabId) {
     e.preventDefault();
     e.stopPropagation();
@@ -217,22 +220,51 @@ function Endpoints() {
         onClick: () => handleTabDuplication(targetTabId)
       },
       {
-        label: "Close tabs to the right",
-        icon: ArrowRightToLine,
-        onClick: () => handleCloseRightSideTabs(targetTabId)
+        label: "Rename tab",
+        icon: Pencil,
+        onClick: () => handleRenameTab(targetTabId)
       },
+      { type: "separator" },
       {
         label: "Close other tabs",
         icon: X,
         onClick: () => handleCloseOtherTabs(targetTabId)
       },
       {
-        label: "Rename tab",
-        icon: Pencil,
-        onClick: () => handleRenameTab(targetTabId)
+        label: "Close tabs to the right",
+        icon: ArrowRightToLine,
+        onClick: () => handleCloseRightSideTabs(targetTabId)
       },
     ]);
   }
+
+  const handleTouchStart = (e, tabId) => {
+    longPressTimerRef.current = setTimeout(() => {
+      const touch = e.touches[0];
+      const syntheticEvent = {
+        preventDefault: () => e.preventDefault(),
+        stopPropagation: () => e.stopPropagation(),
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        currentTarget: e.currentTarget,
+      };
+      handleTabContext(syntheticEvent, tabId);
+    }, 500);
+  };
+
+  const handleTouchMove = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
 
   const handleTabSwitch = (targetTabId) => {
     if (targetTabId === activeTab || !tabMap.has(targetTabId)) return;
@@ -294,6 +326,10 @@ function Endpoints() {
               className={`tab-item ${isActive ? "active" : ""}`}
               onClick={() => handleTabSwitch(tabId)}
               onContextMenu={(e) => handleTabContext(e, tabId)}
+              onTouchStart={(e) => handleTouchStart(e, tabId)}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
               variants={tabItemVariants}
             >
               <span className={`tab-method-pill tab-method-${tabData.method}`}>

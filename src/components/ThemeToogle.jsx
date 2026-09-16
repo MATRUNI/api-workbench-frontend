@@ -1,45 +1,47 @@
-import React, { useState, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SunDim, MoonStar } from "lucide-react"
 
 function ThemeToggle({ location = 'nav' }) {
   const [isLight, setIsLight] = useState(() => {
-    let storedTheme = localStorage.getItem('api_os_theme');
-    return storedTheme === 'light';
+    return document.documentElement.classList.contains('light-theme');
   });
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      let storedTheme = localStorage.getItem('api_os_theme');
-      setIsLight(storedTheme === 'light');
+    const handleThemeChange = () => {
+      const currentIsLight = document.documentElement.classList.contains('light-theme');
+      setIsLight(currentIsLight);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('theme-changed', handleStorageChange);
+    window.addEventListener('storage', handleThemeChange);
+    window.addEventListener('theme-changed', handleThemeChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('theme-changed', handleStorageChange);
+      window.removeEventListener('storage', handleThemeChange);
+      window.removeEventListener('theme-changed', handleThemeChange);
     };
   }, []);
 
-  useLayoutEffect(() => {
-    if (isLight) {
+  const toggleTheme = () => {
+    const nextIsLight = !isLight;
+    
+    // Update DOM & localStorage immediately
+    if (nextIsLight) {
       document.documentElement.classList.add('light-theme');
       localStorage.setItem('api_os_theme', 'light');
     } else {
       document.documentElement.classList.remove('light-theme');
       localStorage.setItem('api_os_theme', 'dark');
     }
-  }, [isLight]);
+
+    setIsLight(nextIsLight);
+    window.dispatchEvent(new Event('theme-changed'));
+  };
 
   return (
     <button 
       className="btn theme-toggle-btn" 
       data-theme={location === 'nav' ? "notvisible" : "visible"}
-      onClick={() => {
-        setIsLight(!isLight);
-        window.dispatchEvent(new Event('theme-changed'));
-      }}
+      onClick={toggleTheme}
       title={!isLight ? `Light Theme` : "Dark Theme"}
     >
       {!isLight ? <SunDim /> : <MoonStar />}

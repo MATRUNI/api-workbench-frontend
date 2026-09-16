@@ -41,7 +41,7 @@ function HomeContent() {
             document.documentElement.classList.remove('light-theme')
             localStorage.setItem('api_os_theme', 'dark')
           }
-          window.dispatchEvent(new Event('storage'))
+          window.dispatchEvent(new Event('theme-changed'))
         },
       },
       {

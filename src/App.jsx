@@ -21,6 +21,7 @@ import FloatingSharedIndicator from './components/FloatingSharedIndicator'
 import SharedInboxModal from './components/SharedInboxModal'
 import { Outlet } from 'react-router-dom';
 import { ShareContext } from './context/ShareContext'
+import Onboarding from './components/Onboarding'
 const router=new createBrowserRouter([
   {
     element:<AppLayout />,
@@ -62,6 +63,10 @@ const router=new createBrowserRouter([
         {
           path:'/chat',
           element:<CommMatrixShell/>
+        },
+        {
+          path:'/onboarding',
+          element:<Onboarding/>
         }
       ]
     },

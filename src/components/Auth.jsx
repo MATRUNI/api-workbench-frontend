@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import '../style/auth.css';
-import AuthCall, { LoginCall, me } from '../services/AuthCall';
-import { useNavigate } from 'react-router-dom';
+import AuthCall, { LoginCall, me, googleExchange } from '../services/AuthCall';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import { sendOTP, verifyOTP } from '../services/otp';
 import AuthPipelineLoader from './AuthPipelineLoader';
@@ -13,6 +13,7 @@ function Auth() {
   const [animKey, setAnimKey] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Custom Flow Validation Drivers
   const [isEmailValidFormat, setIsEmailValidFormat] = useState(false);
@@ -39,9 +40,55 @@ function Auth() {
     }
   }, [formData.email]);
 
-  useEffect(()=>{
-    setUser(null);
-  },[]);
+  useEffect(() => {
+    const oauthToken = searchParams.get('oauth_token');
+    const oauthError = searchParams.get('error');
+
+    if (oauthError) {
+      setErrors({ system: 'GOOGLE_AUTH_FAILED' });
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    if (!oauthToken) {
+      setUser(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const completeGoogleLogin = async () => {
+      setIsLoading(true);
+      setErrors({});
+      try {
+        const data = await googleExchange(oauthToken);
+        if (cancelled) return;
+        setSearchParams({}, { replace: true });
+        if (data.needsOnboarding) {
+          navigate('/onboarding', { replace: true });
+          return;
+        }
+        if (data.user) {
+          setUser(data.user);
+          navigate('/', { replace: true });
+          return;
+        }
+        setErrors({ system: 'GOOGLE_AUTH_FAILED' });
+      } catch {
+        if (!cancelled) {
+          setSearchParams({}, { replace: true });
+          setErrors({ system: 'GOOGLE_AUTH_FAILED' });
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+
+    completeGoogleLogin();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

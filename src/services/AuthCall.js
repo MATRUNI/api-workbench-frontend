@@ -25,6 +25,26 @@ export async function LoginCall({email,password})
     return data;
 }
 
+export async function googleExchange(token) {
+    const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api/auth/google/exchange`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": import.meta.env.VITE_BACKEND_KEY,
+            },
+            credentials: "include",
+            body: JSON.stringify({ token }),
+        }
+    );
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        throw new Error(data.error || "GOOGLE_EXCHANGE_FAILED");
+    }
+    return data;
+}
+
 export async function me() {
     try {
         const res = await customFetch(import.meta.env.VITE_BACKEND_URL + '/api/users/me', {

@@ -1,10 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
 import './ContextMenu.css';
 
 export const ContextMenu = ({ isOpen, position, onClose, items = [] }) => {
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setActiveSubmenu(null);
+      return;
+    }
 
     const handleOutsideClick = (e) => {
       if (e.target.closest('.context-menu-container')) return;
@@ -14,6 +20,7 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [] }) => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
+
     const timer = setTimeout(() => {
       window.addEventListener('click', handleOutsideClick);
       window.addEventListener('contextmenu', handleOutsideClick);
@@ -42,10 +49,8 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [] }) => {
       <div
         className="context-menu-container"
         style={{
-          position: 'fixed',
           top: `${constrainedY}px`,
           left: `${constrainedX}px`,
-          zIndex: 99999,
         }}
       >
         <motion.div
@@ -61,22 +66,66 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [] }) => {
             }
 
             const IconComponent = item.icon;
+            const hasSubmenu = item.submenu && item.submenu.length > 0;
+            const isSubmenuOpen = activeSubmenu === index;
 
             return (
-              <button
+              <div
                 key={item.label || index}
-                className={`context-menu-item ${item.danger ? 'danger' : ''} ${item.disabled ? 'disabled' : ''}`}
-                disabled={item.disabled}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (item.onClick) item.onClick();
-                  onClose();
-                }}
+                className="context-menu-item-wrapper"
+                onMouseEnter={() => hasSubmenu && setActiveSubmenu(index)}
+                onMouseLeave={() => hasSubmenu && setActiveSubmenu(null)}
               >
-                {IconComponent && <IconComponent className="context-menu-icon" size={14} />}
-                <span className="context-menu-label">{item.label}</span>
-                {item.shortcut && <span className="context-menu-shortcut">{item.shortcut}</span>}
-              </button>
+                <button
+                  className={`context-menu-item ${item.danger ? 'danger' : ''} ${item.disabled ? 'disabled' : ''}`}
+                  disabled={item.disabled}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (hasSubmenu) return;
+                    if (item.onClick) item.onClick();
+                    onClose();
+                  }}
+                >
+                  {IconComponent && <IconComponent className="context-menu-icon" size={14} />}
+                  <span className="context-menu-label">{item.label}</span>
+                  {item.shortcut && <span className="context-menu-shortcut">{item.shortcut}</span>}
+                  {hasSubmenu && <ChevronRight size={14} className="context-menu-submenu-arrow" />}
+                </button>
+
+                {/* Submenu rendering */}
+                {hasSubmenu && isSubmenuOpen && (
+                  <motion.div
+                    className="context-menu-surface submenu-surface"
+                    initial={{ opacity: 0, scale: 0.95, x: -4 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, x: -4 }}
+                    transition={{ duration: 0.1, ease: 'easeOut' }}
+                  >
+                    {item.submenu.map((subItem, subIndex) => {
+                      if (subItem.type === 'separator') {
+                        return <div key={`sub-sep-${subIndex}`} className="context-menu-separator" />;
+                      }
+                      const SubIcon = subItem.icon;
+                      return (
+                        <button
+                          key={subItem.label || subIndex}
+                          className={`context-menu-item ${subItem.danger ? 'danger' : ''} ${subItem.disabled ? 'disabled' : ''}`}
+                          disabled={subItem.disabled}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (subItem.onClick) subItem.onClick();
+                            onClose();
+                          }}
+                        >
+                          {SubIcon && <SubIcon className="context-menu-icon" size={14} />}
+                          <span className="context-menu-label">{subItem.label}</span>
+                          {subItem.shortcut && <span className="context-menu-shortcut">{subItem.shortcut}</span>}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </div>
             );
           })}
         </motion.div>

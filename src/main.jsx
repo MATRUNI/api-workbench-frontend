@@ -16,8 +16,8 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <MobileProvider>
       <ProxyProvider>
-        <TabProvider>
-          <RequestProvider>
+        <RequestProvider>
+          <TabProvider>
             <LibraryProvider>
               <UserProvider>
                 <SocketProvider>
@@ -29,8 +29,8 @@ createRoot(document.getElementById('root')).render(
                 </SocketProvider>
               </UserProvider>
             </LibraryProvider>
-          </RequestProvider>
-        </TabProvider>
+          </TabProvider>
+        </RequestProvider>
       </ProxyProvider>
     </MobileProvider>
   </StrictMode>

@@ -23,29 +23,22 @@ function ConfigSharing({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  if (!isOpen) return null
-
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("no-scroll")
-    } else {
-      document.body.classList.remove("no-scroll")
-    }
-    
-    const handleKeyDown = (e)=>{
-      if(e.key === "Escape") onClose()
-    }
+    if (!isOpen) return;
 
-    if(isOpen)
-    {
-      window.addEventListener("keydown", handleKeyDown)
-    }
+    document.body.classList.add("no-scroll");
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.classList.remove("no-scroll");
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen,onClose])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   function handleAddUser(user) {
     setSelectedUsers((currentUsers) => {
@@ -129,8 +122,9 @@ function ConfigSharing({ isOpen, onClose }) {
   }
 
   useEffect(() => {
+    if (!isOpen) return;
     if (!searchQuery.trim() || searchQuery.trim().length < 3) {
-      return
+      return;
     }
 
     async function searchUsers() {
@@ -164,7 +158,9 @@ function ConfigSharing({ isOpen, onClose }) {
     return () => {
       clearTimeout(debounceTimer)
     }
-  }, [searchQuery])
+  }, [searchQuery, isOpen]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

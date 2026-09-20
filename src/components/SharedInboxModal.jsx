@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useMemo } from 'react';
 import { ShareContext } from '../context/ShareContext';
 import { RequestContext } from '../context/RequestContext'; 
 import { X, Share2, ArrowRight, Terminal, Inbox, Send, Users, Loader } from 'lucide-react';
@@ -20,62 +20,65 @@ function SharedInboxModal({ isOpen, onClose }) {
 
   const navigate = useNavigate();
 
-  const normalizedSentIds = Array.isArray(sentShares) 
-    ? sentShares 
-    : sentShares 
-      ? [sentShares] 
-      : [];
+  const normalizedSentIds = useMemo(() => {
+    return Array.isArray(sentShares) 
+      ? sentShares 
+      : sentShares 
+        ? [sentShares] 
+        : [];
+  }, [sentShares]);
 
   useEffect(() => {
-    if (activeTab === "shared" && normalizedSentIds.length > 0) {
-      const fetchSentDetails = async () => {
-        setIsLoadingSent(true);
-        try {
-          const detailsMap = {};
-          await Promise.all(
-            normalizedSentIds.map(async (id, index) => {
-              const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/recipients/${id}`);
-              const usernames = await res.json(); 
-              detailsMap[index] = Array.isArray(usernames) ? usernames : [];
-            })
-          );
+    if (!isOpen || activeTab !== "shared" || normalizedSentIds.length === 0) return;
+
+    let isSubscribed = true;
+    const fetchSentDetails = async () => {
+      setIsLoadingSent(true);
+      try {
+        const detailsMap = {};
+        await Promise.all(
+          normalizedSentIds.map(async (id, index) => {
+            const res = await customFetch(`${import.meta.env.VITE_BACKEND_URL}/api/share/recipients/${id}`);
+            const usernames = await res.json(); 
+            detailsMap[index] = Array.isArray(usernames) ? usernames : [];
+          })
+        );
+        if (isSubscribed) {
           setSentShareDetails(detailsMap);
-        } catch (error) {
-          console.error("Failed to fetch sent share details", error);
-        } finally {
+        }
+      } catch (error) {
+        console.error("Failed to fetch sent share details", error);
+      } finally {
+        if (isSubscribed) {
           setIsLoadingSent(false);
         }
-      };
+      }
+    };
 
-      fetchSentDetails();
-    } else {
-      setSentShareDetails({});
-      setExpandedIndex(null);
-    }
-  }, [activeTab, sentShares]);
+    fetchSentDetails();
+    return () => {
+      isSubscribed = false;
+    };
+  }, [isOpen, activeTab, normalizedSentIds]);
 
-  if (!isOpen) return null;
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add("no-scroll")
-    } else {
-      document.body.classList.remove("no-scroll")
-    }
-    
-    const handleKeyDown = (e)=>{
-      if(e.key === "Escape") onClose()
-    }
+    if (!isOpen) return;
 
-    if(isOpen)
-    {
-      window.addEventListener("keydown", handleKeyDown)
-    }
+    document.body.classList.add("no-scroll");
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.classList.remove("no-scroll");
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen,onClose])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
   
   const handleApplyConfig = async (item) => {
     setIsLoadingConfig(true);
@@ -127,7 +130,10 @@ function SharedInboxModal({ isOpen, onClose }) {
             <button
               type="button"
               className={`shared-tab-btn ${activeTab === "received" ? "active" : ""}`}
-              onClick={() => setActiveTab("received")}
+              onClick={() => {
+                setActiveTab("received");
+                setExpandedIndex(null);
+              }}
             >
               <Inbox size={15} />
               <span>Received</span>
@@ -153,8 +159,8 @@ function SharedInboxModal({ isOpen, onClose }) {
                   <p>No new received configurations.</p>
                 </div>
               ) : (
-                unreadShares.map((item) => (
-                  <div key={item.sharedDataId || Math.random()} className="shared-item-card">
+                unreadShares.map((item, index) => (
+                  <div key={item.sharedDataId || index} className="shared-item-card">
                     <div className="shared-item-header">
                       <span className="shared-sender">From: <strong>{item.from}</strong></span>
                       <button className="shared-item-delete" onClick={() => clearUnreadShare(item.sharedDataId)}>

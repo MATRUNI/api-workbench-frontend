@@ -26,9 +26,6 @@ function ChatComponent() {
     }
   }, [user, navigate]);
 
-  if (!user) {
-    return null; 
-  }
 
   // Application & Metrics States
   const [messages, setMessages] = useState([]);
@@ -71,6 +68,7 @@ function ChatComponent() {
 
   // Socket Event Listeners Pipeline (Connection management handled by SocketContext)
   useEffect(() => {
+    if (!socket || !user) return;
     pushAudit('INIT Channel network routing context...', 'sys');
 
     function onMessageReceived(value) {
@@ -167,6 +165,10 @@ function ChatComponent() {
     pushAudit(`SEND package frame successfully broadcasted.`);
     setInputValue('');
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="chat-workbench">

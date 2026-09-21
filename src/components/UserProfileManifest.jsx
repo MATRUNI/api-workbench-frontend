@@ -3,11 +3,9 @@ import { UserContext } from '../context/UserContext';
 import { getUserProfile } from '../services/AuthCall';
 import { useNavigate } from 'react-router-dom';
 import '../style/UserProfileManifest.css';
-import ThemeToggle from './ThemeToogle';
 import Overview from './profile/Overview';
 import MatrixStats from './profile/MatrixStats';
-import SystemFooter from './Footer';
-import { House, LayoutDashboard, BarChart3, User } from 'lucide-react';
+import { LayoutDashboard, BarChart3, User } from 'lucide-react';
 
 export default function UserDashboard() {
     const { user, handleLogout } = useContext(UserContext);
@@ -33,7 +31,7 @@ export default function UserDashboard() {
             }
         }
         fetchDashboardData();   
-    }, []);
+    }, [navigate]);
 
     if (loading) {
         return (
@@ -52,47 +50,46 @@ export default function UserDashboard() {
 
     return (
         <div className="dashboard-shell">
-            <header id="utility-nav">
-                <div className="nav-group" onClick={()=> navigate('/')}>
-                    <span id="logo"><House size={14}/> HOME</span>
-                    <div className='pulse-dot'></div>
-                </div>
-                <div className="nav-group main-links">
-                    <button className={`btn ${activeTab === 'overview' ? 'active' : ''}`} 
-                    onClick={() => {setActiveTab('overview');setIsOverview(true)}}
-                    ><LayoutDashboard size={15}/>
-                        OVERVIEW
-                    </button>
-                    <button className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} 
-                    onClick={() => {setActiveTab('analytics');setIsOverview(false)}}
+            <div className="profile-subnav-container">
+                <div className="profile-subnav-tabs">
+                    <button 
+                        className={`btn ${activeTab === 'overview' ? 'active' : ''}`} 
+                        onClick={() => { setActiveTab('overview'); setIsOverview(true); }}
                     >
-                        <BarChart3 size={15}/>
-                        METRICS
+                        <LayoutDashboard size={15} />
+                        <span>OVERVIEW</span>
                     </button>
-                    <ThemeToggle location='profile'/>
+                    <button 
+                        className={`btn ${activeTab === 'analytics' ? 'active' : ''}`} 
+                        onClick={() => { setActiveTab('analytics'); setIsOverview(false); }}
+                    >
+                        <BarChart3 size={15} />
+                        <span>METRICS</span>
+                    </button>
                 </div>
-                <div className="nav-group" id="profile-panel">
-                    <div id="profile">
-                        <div className="avatar"><User /></div>
-                        <span>{user?.username || 'OPERATOR'}</span>
-                    </div>
-                    <button className="logout-btn" onClick={() => handleLogout()}>⏻ LOGOUT</button>
+                <div className="profile-subnav-actions">
+                    <span className="profile-operator-badge">
+                        <User size={13} />
+                        <span>{user?.username || profile?.username || 'OPERATOR'}</span>
+                    </span>
+                    <button className="logout-btn" onClick={() => handleLogout()} title="Sign out of operator session">
+                        ⏻ LOGOUT
+                    </button>
                 </div>
-            </header>
-           { isOverview
-           ?
-           <Overview
-            username={profile.username} 
-            email={profile.email}
-            isVerified={profile.isVerified} 
-            createdAt={profile.createdAt}
-            />
-            :
-            <MatrixStats 
-            stats={profile.stats}
-            />
-            }
-            <SystemFooter />
+            </div>
+
+            {isOverview ? (
+                <Overview
+                    username={profile?.username} 
+                    email={profile?.email}
+                    isVerified={profile?.isVerified} 
+                    createdAt={profile?.createdAt}
+                />
+            ) : (
+                <MatrixStats 
+                    stats={profile?.stats}
+                />
+            )}
         </div>
     );
 }

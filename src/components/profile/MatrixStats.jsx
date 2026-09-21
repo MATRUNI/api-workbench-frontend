@@ -1,33 +1,91 @@
-import React from 'react';
+import React, { useMemo, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import '../../style/MatrixStats.css';
-import { ShieldAlert, Cpu, HardDrive, Zap, Terminal } from 'lucide-react';
+import { ShieldAlert, Cpu, HardDrive, Zap, Terminal, Copy, ExternalLink } from 'lucide-react';
+import { ContextMenuContext } from '../../context/ContextMenuContext';
+import { prismMotion, gridVariants, cardVariants } from '../../animations/Motion';
 
 export default function MatrixStats({ stats }) {
-  const data = stats || {
-    total: 0, success: 0,
-    rate_limited: 0, client_errors: 0, server_errors: 0,
-    bytes_transferred: 0, total_compute_time_ms: 0
-  };
-  
+  const navigate = useNavigate();
+  const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
+
+  // Compute real telemetry from stats prop or fallback to live local history
+  const { data, historyWaveform } = useMemo(() => {
+    let localHistory = [];
+    try {
+      localHistory = JSON.parse(localStorage.getItem('api_os_history')) || [];
+    } catch {
+      localHistory = [];
+    }
+
+    const hasBackendStats = stats && typeof stats.total === 'number' && stats.total > 0;
+
+    let computedData;
+    if (hasBackendStats) {
+      computedData = { ...stats };
+    } else if (localHistory.length > 0) {
+      const total = localHistory.length;
+      let success = 0;
+      let client_errors = 0;
+      let server_errors = 0;
+      let rate_limited = 0;
+      let bytes_transferred = 0;
+      let total_compute_time_ms = 0;
+
+      localHistory.forEach(log => {
+        const s = parseInt(log.response?.status, 10) || 200;
+        if (s >= 200 && s < 400) success++;
+        else if (s === 429) rate_limited++;
+        else if (s >= 400 && s < 500) client_errors++;
+        else if (s >= 500) server_errors++;
+
+        bytes_transferred += (log.response?.length || log.size || 512);
+        total_compute_time_ms += (log.time || log.response?.time || 45);
+      });
+
+      computedData = {
+        total,
+        success,
+        rate_limited,
+        client_errors,
+        server_errors,
+        bytes_transferred,
+        total_compute_time_ms
+      };
+    } else {
+      computedData = {
+        total: 0,
+        success: 0,
+        rate_limited: 0,
+        client_errors: 0,
+        server_errors: 0,
+        bytes_transferred: 0,
+        total_compute_time_ms: 0
+      };
+    }
+
+    // Extract recent latencies (last 5 requests) for organic real-world oscilloscope waveform
+    const recentLatencies = localHistory.slice(0, 5).map(l => l.time || l.response?.time || 35);
+    while (recentLatencies.length < 5) {
+      recentLatencies.push(30);
+    }
+
+    return { data: computedData, historyWaveform: recentLatencies.reverse() };
+  }, [stats]);
+
   const total = data.total || 1;
-  const integrityRatio = (data.success / total) || 0;
-  const failedCalls = Math.max(0, data.total - data.success);
+  const integrityRatio = data.total > 0 ? (data.success / data.total) : 1.0;
+  const failedCalls = Math.max(0, (data.total || 0) - (data.success || 0));
 
-  // Sparkline points generator for SVG
-  const successRate = data.success / total;
-  const failRate = failedCalls / total;
-  const warnRate = (data.rate_limited || 0) / total;
-  const clientErrRate = (data.client_errors || 0) / total;
-  const serverErrRate = (data.server_errors || 0) / total;
-
-  // Generate 5 coordinate nodes for an organic cyberpunk monitor waveform
-  const sparkPoints = [
-    { x: 0, y: 30 - (successRate * 25) },
-    { x: 45, y: 30 - (failRate * 15) },
-    { x: 90, y: 30 - (warnRate * 20) },
-    { x: 135, y: 30 - (clientErrRate * 25) },
-    { x: 180, y: 30 - (serverErrRate * 20) },
-  ];
+  // Generate 5 coordinate nodes for the oscilloscope waveform
+  const maxLatency = Math.max(...historyWaveform, 80);
+  const sparkPoints = historyWaveform.map((lat, idx) => {
+    const x = idx * 45; // 0, 45, 90, 135, 180
+    const normalized = Math.min(1, Math.max(0, lat / maxLatency));
+    const y = Math.round(30 - (normalized * 22));
+    return { x, y, latency: lat };
+  });
 
   const polylinePoints = sparkPoints.map(p => `${p.x},${p.y}`).join(' ');
 
@@ -37,11 +95,53 @@ export default function MatrixStats({ stats }) {
     return (b / Math.pow(1024, i)).toFixed(1) + ' ' + ['B', 'KB', 'MB', 'GB'][i];
   };
 
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    openContextMenu(e, [
+      { type: "header", label: "Telemetry Actions" },
+      {
+        label: "Copy Metrics JSON",
+        icon: Copy,
+        onClick: () => copyToClipboard(JSON.stringify(data, null, 2), "Copied telemetry metrics as JSON!")
+      },
+      {
+        label: "Copy Integrity Score",
+        icon: Copy,
+        onClick: () => copyToClipboard(integrityRatio.toFixed(2), "Copied integrity index!")
+      },
+      {
+        label: "Copy Volume Transferred",
+        icon: Copy,
+        onClick: () => copyToClipboard(formatBytes(data.bytes_transferred), "Copied transfer volume!")
+      },
+      { type: "separator" },
+      {
+        label: "Open Workbench",
+        icon: ExternalLink,
+        onClick: () => navigate('/endpoints')
+      },
+      {
+        label: "Open Console History",
+        icon: Terminal,
+        onClick: () => navigate('/console')
+      }
+    ]);
+  };
+
   return (
-    <div className="typo-matrix-canvas challenge-reveal">
-      
+    <motion.div 
+      className="typo-matrix-canvas"
+      initial="hidden"
+      animate="visible"
+      {...prismMotion}
+      onContextMenu={handleContextMenu}
+    >
       {/* Hero Block with Real-Time Telemetry Sparkline & Grid Monitor */}
-      <div className="typo-hero-block api-card">
+      <motion.div 
+        className="typo-hero-block api-card"
+        whileHover={{ scale: 1.005 }}
+        transition={{ duration: 0.2 }}
+      >
         <div className="matrix-hero-monitor-header">
           <div className="hero-index-number">
             <span className="hero-index-value">
@@ -67,7 +167,15 @@ export default function MatrixStats({ stats }) {
                   points={polylinePoints} 
                 />
                 {sparkPoints.map((pt, idx) => (
-                  <circle key={idx} cx={pt.x} cy={pt.y} r="2" className="osc-node-dot" />
+                  <circle 
+                    key={idx} 
+                    cx={pt.x} 
+                    cy={pt.y} 
+                    r="2.5" 
+                    className="osc-node-dot"
+                  >
+                    <title>{`${pt.latency}ms latency`}</title>
+                  </circle>
                 ))}
               </svg>
             </div>
@@ -79,11 +187,15 @@ export default function MatrixStats({ stats }) {
           Out of these requests, <span className="text-highlight-success" title="Success Calls">{data.success || 0}</span> resolved without exception flags, 
           while <span className="text-highlight-failed" title="Failed Calls">{failedCalls}</span> registered as system runtime casualties.
         </div>
-      </div>
+      </motion.div>
 
       {/* Data Ledger Cards */}
-      <div className="typo-data-ledger api-grid">
-        <div className="ledger-item-node api-card">
+      <motion.div className="typo-data-ledger api-grid" variants={gridVariants}>
+        <motion.div 
+          className="ledger-item-node api-card"
+          variants={cardVariants}
+          whileHover={{ y: -3 }}
+        >
           <div className="card-meta">
             <span className="card-badge"><HardDrive size={12} className="card-icon" /> QUANTITATIVE_VOLUME</span>
             <div className="pulse-dot"></div>
@@ -91,9 +203,13 @@ export default function MatrixStats({ stats }) {
           <div className="ledger-huge-stat">
             {formatBytes(data.bytes_transferred)}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="ledger-item-node api-card">
+        <motion.div 
+          className="ledger-item-node api-card"
+          variants={cardVariants}
+          whileHover={{ y: -3 }}
+        >
           <div className="card-meta">
             <span className="card-badge"><Cpu size={12} className="card-icon" /> COMPUTE_LATENCY</span>
             <div className="pulse-dot"></div>
@@ -101,9 +217,13 @@ export default function MatrixStats({ stats }) {
           <div className="ledger-huge-stat text-brand-accent">
             {data.total_compute_time_ms || 0}<span className="ms-marker">ms</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="ledger-item-node api-card">
+        <motion.div 
+          className="ledger-item-node api-card"
+          variants={cardVariants}
+          whileHover={{ y: -3 }}
+        >
           <div className="card-meta">
             <span className="card-badge"><Zap size={12} className="card-icon" /> AVERAGE_CYCLE</span>
             <div className="pulse-dot"></div>
@@ -111,16 +231,21 @@ export default function MatrixStats({ stats }) {
           <div className="ledger-huge-stat">
             {data.total > 0 ? (data.total_compute_time_ms / data.total).toFixed(1) : 0}ms
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* Routing Exceptions Manifest with Compact Terminal Metric Ledger Graph */}
-      <div className="typo-exception-footer api-card">
+      {/* Routing Exceptions Manifest with Animated Segment Bars */}
+      <motion.div 
+        className="typo-exception-footer api-card"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
         <div className="exception-footer-heading">
           <ShieldAlert size={16} /> ROUTING_EXCEPTIONS_MANIFEST
         </div>
         
-        {/* Compact Terminal Matrix Grid Graph */}
+        {/* Compact Terminal Matrix Grid Graph with Motion-animated Bars */}
         <div className="matrix-telemetry-matrix">
           <div className="telemetry-node-row">
             <div className="telemetry-label-col">
@@ -129,7 +254,12 @@ export default function MatrixStats({ stats }) {
             </div>
             <div className="telemetry-bar-col">
               <div className="matrix-segment-track">
-                <div className="matrix-segment-fill fill-success" style={{ width: `${Math.min(100, (data.success / total) * 100)}%` }}></div>
+                <motion.div 
+                  className="matrix-segment-fill fill-success" 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, (data.success / total) * 100)}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                />
               </div>
             </div>
           </div>
@@ -141,7 +271,12 @@ export default function MatrixStats({ stats }) {
             </div>
             <div className="telemetry-bar-col">
               <div className="matrix-segment-track">
-                <div className="matrix-segment-fill fill-failed" style={{ width: `${Math.min(100, (failedCalls / total) * 100)}%` }}></div>
+                <motion.div 
+                  className="matrix-segment-fill fill-failed" 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, (failedCalls / total) * 100)}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                />
               </div>
             </div>
           </div>
@@ -153,7 +288,12 @@ export default function MatrixStats({ stats }) {
             </div>
             <div className="telemetry-bar-col">
               <div className="matrix-segment-track">
-                <div className="matrix-segment-fill fill-warn" style={{ width: `${Math.min(100, (data.rate_limited / total) * 100)}%` }}></div>
+                <motion.div 
+                  className="matrix-segment-fill fill-warn" 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(100, (data.rate_limited / total) * 100)}%` }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+                />
               </div>
             </div>
           </div>
@@ -173,8 +313,7 @@ export default function MatrixStats({ stats }) {
             <span className={`val ${data.server_errors > 0 ? 'active-error' : ''}`}>{data.server_errors}</span>
           </div>
         </div>
-      </div>
-
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

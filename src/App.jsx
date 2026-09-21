@@ -67,12 +67,12 @@ const router=new createBrowserRouter([
         {
           path:'/onboarding',
           element:<Onboarding/>
+        },
+        {
+          path:'/profile',
+          element:<UserProfileManifest/>
         }
       ]
-    },
-    {
-      path:'/profile',
-      element:<UserProfileManifest/>
     }
   ]}
 ])

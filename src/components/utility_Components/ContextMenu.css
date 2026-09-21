@@ -36,13 +36,15 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.context-menu-item:hover:not(.disabled) {
-  background-color: rgba(168, 85, 247, 0.1);
+.context-menu-item:hover:not(.disabled),
+.context-menu-item.active:not(.disabled) {
+  background-color: rgba(168, 85, 247, 0.12);
   color: var(--brand-color);
 }
 
-.context-menu-item.danger:hover:not(.disabled) {
-  background-color: rgba(248, 81, 73, 0.1);
+.context-menu-item.danger:hover:not(.disabled),
+.context-menu-item.danger.active:not(.disabled) {
+  background-color: rgba(248, 81, 73, 0.12);
   color: #f85149;
 }
 
@@ -51,12 +53,41 @@
   cursor: not-allowed;
 }
 
+.context-menu-header {
+  padding: 6px 10px 3px 10px;
+  font-family: 'Geist', 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.75;
+  user-select: none;
+}
+
 .context-menu-icon {
   color: var(--text-muted);
   flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
-.context-menu-item:hover:not(.disabled) .context-menu-icon {
+.context-menu-check-icon {
+  color: var(--brand-color);
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.context-menu-check-spacer {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.context-menu-item:hover:not(.disabled) .context-menu-icon,
+.context-menu-item.active:not(.disabled) .context-menu-icon {
   color: inherit;
 }
 
@@ -92,13 +123,49 @@
 
 .submenu-surface {
   position: absolute;
-  top: 0;
-  left: 100%;
   min-width: 180px;
+}
+
+.submenu-surface.open-right {
+  left: calc(100% + 4px);
+  right: auto;
+}
+
+.submenu-surface.open-left {
+  right: calc(100% + 4px);
+  left: auto;
+}
+
+.submenu-surface.open-down {
+  top: -4px;
+  bottom: auto;
+}
+
+.submenu-surface.open-up {
+  top: auto;
+  bottom: -4px;
+}
+
+/* Invisible bridge so cursor doesn't drop hover when crossing 4px gap */
+.submenu-surface::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+}
+
+.submenu-surface.open-right::before {
+  left: -12px;
+}
+
+.submenu-surface.open-left::before {
+  right: -12px;
 }
 .console-floating-pill {
     position: fixed;
     bottom: 24px;
+    left: 50%;
     z-index: 99999;
     display: flex;
     align-items: center;
@@ -115,8 +182,52 @@
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
+    pointer-events: none;
 }
 
 .pill-check-icon {
     color: var(--brand-green); 
+}
+
+/* Floating button to open workspace menu by click or keyboard */
+.workspace-context-trigger-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 9999px;
+  font-family: 'Geist', 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.workspace-context-trigger-btn:hover,
+.workspace-context-trigger-btn:focus-visible {
+  border-color: var(--brand-color);
+  color: var(--brand-color);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3), 0 4px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.workspace-context-trigger-btn .btn-kbd {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-muted);
 }

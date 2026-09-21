@@ -11,6 +11,7 @@ import { ShareProvider } from './context/ShareContext.jsx'
 import { ProxyProvider } from './context/ProxyContext.jsx'
 import { MobileProvider } from './context/MobileContext.jsx'
 import { TabProvider } from './context/TabContext.jsx'
+import { ContextMenuProvider } from './context/ContextMenuProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -23,7 +24,9 @@ createRoot(document.getElementById('root')).render(
                 <SocketProvider>
                   <ConfigApiProvider>
                     <ShareProvider>
-                      <App />
+                      <ContextMenuProvider>
+                        <App />
+                      </ContextMenuProvider>
                     </ShareProvider>
                   </ConfigApiProvider>
                 </SocketProvider>

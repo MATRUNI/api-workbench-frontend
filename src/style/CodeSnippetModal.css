@@ -142,6 +142,31 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+.code-watermark-vector {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.code-watermark-vector svg {
+  width: 200px !important;
+  height: 200px !important;
+}
+
+.code-container:hover .code-watermark-vector {
+  opacity: 0.12;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
 .color-watermark {
   object-fit: contain;
   opacity: 0.15;

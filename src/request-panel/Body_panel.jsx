@@ -1,6 +1,8 @@
 import { memo, useContext, useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react'
 import { RequestContext } from '../context/RequestContext';
 import { FileBraces, FileCode, FileText, CheckCircle, AlertTriangle, Sparkles, CodeXml } from "lucide-react"
+import { VscJson } from 'react-icons/vsc';
+import { SiHtml5 } from 'react-icons/si';
 import { CustomDropdown } from '../components/utility_Components/CustomDropdown';
 import CodeMirrorEditor from '../components/utility_Components/CodeMirrorEditor';
 
@@ -71,10 +73,10 @@ const Body_panel = forwardRef((props, ref) => {
       })
     },[])
     const typeOptions = [
-      { value: 'application/json', label: 'JSON' },
-      { value: 'text/html', label: 'HTML' },
-      { value: 'application/xml', label: 'XML' },
-      { value: 'text/plain', label: 'Text' },
+      { value: 'application/json', label: 'JSON', icon: <VscJson size={14} style={{ color: '#f59e0b' }} /> },
+      { value: 'text/html', label: 'HTML', icon: <SiHtml5 size={14} style={{ color: '#e34f26' }} /> },
+      { value: 'application/xml', label: 'XML', icon: <CodeXml size={14} style={{ color: '#38bdf8' }} /> },
+      { value: 'text/plain', label: 'Text', icon: <FileText size={14} style={{ color: '#94a3b8' }} /> },
     ];
 
     // Synchronize when request changes externally (e.g. tab switch or history load)
@@ -268,11 +270,11 @@ const Body_panel = forwardRef((props, ref) => {
 
     const renderTypeIcon = () => {
       switch (contentType) {
-        case 'application/json': return <FileBraces size={15}/>;
-        case 'text/html': return <FileCode size={15}/>;
-        case 'application/xml': return <CodeXml size={15}/>;
+        case 'application/json': return <VscJson size={15} style={{ color: '#f59e0b' }} />;
+        case 'text/html': return <SiHtml5 size={15} style={{ color: '#e34f26' }} />;
+        case 'application/xml': return <CodeXml size={15} style={{ color: '#38bdf8' }} />;
         case 'text/plain':
-        default: return <FileText size={15}/>;
+        default: return <FileText size={15} style={{ color: '#94a3b8' }} />;
       }
     };
 

@@ -1,9 +1,54 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Code2, Copy, Check } from 'lucide-react';
+import { 
+  SiJavascript, 
+  SiTypescript, 
+  SiPython, 
+  SiGo, 
+  SiDotnet, 
+  SiPhp, 
+  SiRust, 
+  SiRuby, 
+  SiKotlin, 
+  SiSwift, 
+  SiDart, 
+  SiCplusplus, 
+  SiCurl,
+  SiAxios
+} from 'react-icons/si';
+import { FaJava } from 'react-icons/fa6';
+import { VscGlobe, VscCode, VscTerminal } from 'react-icons/vsc';
 import { CustomDropdown } from './utility_Components/CustomDropdown';
 import { LANGUAGES, generateCodeSnippet } from '../utils/codeGenerators';
 import '../style/CodeSnippetModal.css';
+
+const getClientIcon = (id) => {
+  if (id === 'axios') return <SiAxios size={14} style={{ color: '#5a29e4' }} />;
+  if (id === 'curl' || id === 'libcurl') return <SiCurl size={14} style={{ color: '#38bdf8' }} />;
+  if (id === 'httpx') return <VscTerminal size={14} style={{ color: '#10b981' }} />;
+  if (['fetch', 'requests', 'http', 'httpclient', 'net-http', 'reqwest', 'resty', 'guzzle', 'faraday', 'dio', 'urlsession', 'alamofire', 'okhttp', 'ktor'].includes(id)) {
+    return <VscGlobe size={14} style={{ color: '#61affe' }} />;
+  }
+  return <VscCode size={14} style={{ color: '#94a3b8' }} />;
+};
+
+const LANGUAGE_ICONS = {
+  curl: <SiCurl style={{ color: '#38bdf8' }} size={14} />,
+  javascript: <SiJavascript style={{ color: '#f7df1e' }} size={14} />,
+  typescript: <SiTypescript style={{ color: '#3178c6' }} size={14} />,
+  python: <SiPython style={{ color: '#3776ab' }} size={14} />,
+  go: <SiGo style={{ color: '#00add8' }} size={14} />,
+  java: <FaJava style={{ color: '#e76f00' }} size={14} />,
+  csharp: <SiDotnet style={{ color: '#512bd4' }} size={14} />,
+  php: <SiPhp style={{ color: '#777bb4' }} size={14} />,
+  rust: <SiRust style={{ color: '#dea584' }} size={14} />,
+  ruby: <SiRuby style={{ color: '#cc342d' }} size={14} />,
+  kotlin: <SiKotlin style={{ color: '#7f52ff' }} size={14} />,
+  swift: <SiSwift style={{ color: '#f05138' }} size={14} />,
+  dart: <SiDart style={{ color: '#0175c2' }} size={14} />,
+  cpp: <SiCplusplus style={{ color: '#00599c' }} size={14} />
+};
 
 export default function CodeSnippetModal({ isOpen, onClose, requestData }) {
   const [activeLanguage, setActiveLanguage] = useState('curl');
@@ -100,14 +145,22 @@ export default function CodeSnippetModal({ isOpen, onClose, requestData }) {
               <CustomDropdown 
                 value={activeLanguage}
                 onChange={handleLanguageChange}
-                options={LANGUAGES.map(lang => ({ value: lang.id, label: lang.name }))}
+                options={LANGUAGES.map(lang => ({ 
+                  value: lang.id, 
+                  label: lang.name,
+                  icon: LANGUAGE_ICONS[lang.id]
+                }))}
               />
 
               {currentClients.length > 0 && (
                 <CustomDropdown 
                   value={activeClient}
                   onChange={handleClientChange}
-                  options={currentClients.map(client => ({ value: client.id, label: client.name }))}
+                  options={currentClients.map(client => ({ 
+                    value: client.id, 
+                    label: client.name,
+                    icon: getClientIcon(client.id)
+                  }))}
                 />
               )}
 
@@ -121,7 +174,11 @@ export default function CodeSnippetModal({ isOpen, onClose, requestData }) {
             </div>
             
             <div className="code-container">
-              {currentLanguage?.logo && (
+              {LANGUAGE_ICONS[activeLanguage] ? (
+                <div className="code-watermark-vector">
+                  {LANGUAGE_ICONS[activeLanguage]}
+                </div>
+              ) : currentLanguage?.logo && (
                 currentLanguage.monochrome ? (
                   <div 
                     className="code-watermark monochrome-watermark" 

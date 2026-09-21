@@ -1,24 +1,63 @@
 import { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ExternalLink, Terminal, Globe, Languages, Monitor, House } from 'lucide-react';
+import { ExternalLink, Globe, Languages, House } from 'lucide-react';
+import { 
+  TbBrandChrome, 
+  TbBrandFirefox, 
+  TbBrandSafari, 
+  TbBrandEdge, 
+  TbBrandOpera, 
+  TbBrandVivaldi,
+  TbBrowser,
+  TbBrandWindows, 
+  TbBrandApple, 
+  TbBrandAndroid, 
+  TbBrandUbuntu, 
+  TbPrompt,
+  TbDeviceDesktop,
+  TbBrandGithub
+} from 'react-icons/tb';
 import '../style/Footer.css';
 import { SocketContext } from '../context/SocketContext';
 import { fadeFooter, fadeFromLeft, fadeFromRight } from '../animations/Motion';
 import { motion } from 'framer-motion';
 
-const GithubIcon = ({ size = 16, style = {}, ...props }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="currentColor" 
-    style={{ flexShrink: 0, ...style }}
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-  </svg>
-);
+const getBrowserIcon = (browser) => {
+  switch (browser) {
+    case 'CHROME':
+      return <TbBrandChrome size={14} title="Google Chrome" />;
+    case 'FIREFOX':
+      return <TbBrandFirefox size={14} title="Mozilla Firefox" />;
+    case 'SAFARI':
+      return <TbBrandSafari size={14} title="Apple Safari" />;
+    case 'EDGE':
+      return <TbBrandEdge size={14} title="Microsoft Edge" />;
+    case 'OPERA':
+      return <TbBrandOpera size={14} title="Opera" />;
+    case 'VIVALDI':
+      return <TbBrandVivaldi size={14} title="Vivaldi" />;
+    default:
+      return <TbBrowser size={14} title="Web Browser" />;
+  }
+};
+
+const getOsIcon = (os) => {
+  switch (os) {
+    case 'WINDOWS':
+      return <TbBrandWindows size={14} title="Microsoft Windows" />;
+    case 'MACOS':
+    case 'IOS':
+      return <TbBrandApple size={14} title="Apple macOS / iOS" />;
+    case 'ANDROID':
+      return <TbBrandAndroid size={14} title="Android" />;
+    case 'UBUNTU':
+      return <TbBrandUbuntu size={14} title="Ubuntu Linux" />;
+    case 'LINUX':
+      return <TbPrompt size={14} title="Linux Terminal" />;
+    default:
+      return <TbDeviceDesktop size={14} title="Workstation OS" />;
+  }
+};
 
 export default function SystemFooter() {
   const location = useLocation();
@@ -57,6 +96,15 @@ export default function SystemFooter() {
         browser = 'SAFARI';
       }
 
+      // Check for Brave
+      if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+        navigator.brave.isBrave().then(isBrave => {
+          if (isBrave) {
+            setEnvInfo(prev => ({ ...prev, browser: 'BRAVE' }));
+          }
+        }).catch(() => {});
+      }
+
       let os = 'UNKNOWN OS';
 
       const platform = navigator.platform || navigator.userAgentData?.platform || '';
@@ -72,6 +120,9 @@ export default function SystemFooter() {
       }
       else if (/mac/i.test(platform) || /mac/i.test(ua)) {
         os = 'MACOS';
+      }
+      else if (/ubuntu/i.test(ua)) {
+        os = 'UBUNTU';
       }
       else if (/linux/i.test(platform) || /linux/i.test(ua)) {
         os = 'LINUX';
@@ -138,17 +189,25 @@ export default function SystemFooter() {
 
       <motion.div className="prism-middle-section" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
         <div className="prism-env-pill">
-          <Terminal size={14}/>
-          <span>{envInfo.browser}</span>
+          <span className="prism-env-item">
+            {getBrowserIcon(envInfo.browser)}
+            <span>{envInfo.browser}</span>
+          </span>
           <span className="prism-env-separator">·</span>
-          <Monitor size={14}/>
-          <span>{envInfo.os}</span>
+          <span className="prism-env-item">
+            {getOsIcon(envInfo.os)}
+            <span>{envInfo.os}</span>
+          </span>
           <span className="prism-env-separator">·</span>
-          <Globe size={14}/>
-          <span>{envInfo.timezone}</span>
+          <span className="prism-env-item">
+            <Globe size={13} />
+            <span>{envInfo.timezone}</span>
+          </span>
           <span className="prism-env-language-separator">·</span>
-          <Languages size={14} className='prism-env-language'/>
-          <span className='prism-env-language-separator'>{envInfo.language}</span>
+          <span className="prism-env-item">
+            <Languages size={13} className='prism-env-language' />
+            <span className='prism-env-language-separator'>{envInfo.language}</span>
+          </span>
         </div>
       </motion.div>
 
@@ -168,7 +227,7 @@ export default function SystemFooter() {
         >
           <span className="prism-btn-bg" aria-hidden="true" />
           <span className="prism-content-span">
-            <GithubIcon size={16} />
+            <TbBrandGithub size={16} />
             <span>Engineered by <strong>@MATRUNI</strong></span>
             <ExternalLink size={13} className="prism-external-icon" />
           </span>

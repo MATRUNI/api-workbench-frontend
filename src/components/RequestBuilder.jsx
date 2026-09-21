@@ -34,15 +34,24 @@ import { Panel } from 'react-resizable-panels'
 import { ContextMenuContext } from '../context/ContextMenuContext'
 import { generateCodeSnippet } from '../utils/codeGenerators'
 import { CustomDropdown } from './utility_Components/CustomDropdown'
+import { 
+  VscArrowDown, 
+  VscArrowUp, 
+  VscSync, 
+  VscEdit, 
+  VscTrash, 
+  VscEye, 
+  VscSettings 
+} from 'react-icons/vsc';
 
 const methodOptions = [
-  { value: 'GET', label: 'GET', className: 'method-opt-GET' },
-  { value: 'POST', label: 'POST', className: 'method-opt-POST' },
-  { value: 'PUT', label: 'PUT', className: 'method-opt-PUT' },
-  { value: 'PATCH', label: 'PATCH', className: 'method-opt-PATCH' },
-  { value: 'DELETE', label: 'DELETE', className: 'method-opt-DELETE' },
-  { value: 'HEAD', label: 'HEAD', className: 'method-opt-HEAD' },
-  { value: 'OPTIONS', label: 'OPTIONS', className: 'method-opt-OPTIONS' }
+  { value: 'GET', label: 'GET', className: 'method-opt-GET', icon: <VscArrowDown size={14} style={{ color: '#61affe' }} /> },
+  { value: 'POST', label: 'POST', className: 'method-opt-POST', icon: <VscArrowUp size={14} style={{ color: '#49cc90' }} /> },
+  { value: 'PUT', label: 'PUT', className: 'method-opt-PUT', icon: <VscSync size={14} style={{ color: '#fca130' }} /> },
+  { value: 'PATCH', label: 'PATCH', className: 'method-opt-PATCH', icon: <VscEdit size={14} style={{ color: '#9b59b6' }} /> },
+  { value: 'DELETE', label: 'DELETE', className: 'method-opt-DELETE', icon: <VscTrash size={14} style={{ color: '#f93e3e' }} /> },
+  { value: 'HEAD', label: 'HEAD', className: 'method-opt-HEAD', icon: <VscEye size={14} style={{ color: '#ec4899' }} /> },
+  { value: 'OPTIONS', label: 'OPTIONS', className: 'method-opt-OPTIONS', icon: <VscSettings size={14} style={{ color: '#0331ff' }} /> }
 ];
 
 function RequestBuilder({ scrollToResponse }) {

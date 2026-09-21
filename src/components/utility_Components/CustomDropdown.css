@@ -44,18 +44,28 @@
   font-size: 12px;
 }
 
-.dropdown-label
-{
+.dropdown-label {
   display: flex;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 8px;
 }
 
 .custom-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 10px;
   border-radius: 4px;
   cursor: pointer;
   color: var(--text-main);
   transition: background 0.15s ease;
+}
+
+.dropdown-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .custom-dropdown-item:hover {

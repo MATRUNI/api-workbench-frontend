@@ -115,6 +115,12 @@
   font-weight: 500;
 }
 
+.prism-env-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .prism-env-separator {
   color: var(--brand-color, #a855f7);
   font-weight: bold;

@@ -60,8 +60,8 @@ export function CustomDropdown({ value, onChange, options = [], icon, className 
         title={title || "Scroll or click to change"}
       >
         <span className="dropdown-label">
-          {icon}
-          {selectedOption?.label || value}
+          {selectedOption?.icon || icon}
+          <span>{selectedOption?.label || value}</span>
         </span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronDown size={14} />
@@ -86,7 +86,8 @@ export function CustomDropdown({ value, onChange, options = [], icon, className 
                   setIsOpen(false);
                 }}
               >
-                {option.label}
+                {option.icon && <span className="dropdown-item-icon">{option.icon}</span>}
+                <span>{option.label}</span>
               </motion.li>
             ))}
           </motion.ul>

@@ -11,8 +11,8 @@ export async function callAPI(url,method,request,isProxyEnable)
     const options={
         method,
         headers:{
-            ...header,
-            ...(method !== "GET" && request.body ? { 'Content-Type': 'application/json' } : {})
+            ...(method !== "GET" && request.body ? { 'Content-Type': request.contentType || 'application/json' } : {}),
+            ...header
         },
         ...(isProxyEnable ? {credentials:"include"}:{}),
         body:  method !== "GET" && request.body ? typeof request.body === "string"? request.body: JSON.stringify(request.body): undefined

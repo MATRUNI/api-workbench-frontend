@@ -9,6 +9,12 @@ const DEFAULT_ALIAS = "";
 const DEFAULT_REQUEST = {
   body: "{\n  \"key\": \"value\",\n  \"data\": \"input your JSON here\"\n}",
   contentType: "application/json",
+  bodyDrafts: {
+    "application/json": "{\n  \"key\": \"value\",\n  \"data\": \"input your JSON here\"\n}",
+    "text/html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <title>API Payload</title>\n</head>\n<body>\n  <h1>Input your HTML markup here</h1>\n</body>\n</html>",
+    "application/xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<request>\n  <key>value</key>\n  <data>input your XML template here</data>\n</request>",
+    "text/plain": "Input your raw plain text data here.\nLine breaks and spaces are preserved exactly as typed."
+  },
   headers: [],
   query: []
 };
@@ -54,7 +60,16 @@ export function TabProvider({children})
       
       const tabRequest = {
         ...DEFAULT_REQUEST,
-        ...(initialData.request || {})
+        ...(initialData.request || {}),
+        bodyDrafts: {
+          ...DEFAULT_REQUEST.bodyDrafts,
+          ...(initialData.request?.bodyDrafts || {}),
+          ...(initialData.request?.body ? {
+            [initialData.request.contentType || "application/json"]: typeof initialData.request.body === "string" 
+              ? initialData.request.body 
+              : JSON.stringify(initialData.request.body, null, 2)
+          } : {})
+        }
       };
       
       const tabResponse = {

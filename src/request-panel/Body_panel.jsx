@@ -1,4 +1,4 @@
-import { memo, useContext, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
+import { memo, useContext, useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react'
 import { RequestContext } from '../context/RequestContext';
 import { FileBraces, FileCode, FileText, CheckCircle, AlertTriangle, Sparkles, CodeXml } from "lucide-react"
 import { CustomDropdown } from '../components/utility_Components/CustomDropdown';
@@ -37,15 +37,31 @@ function formatXml(xml) {
 
 const Body_panel = forwardRef((props, ref) => {
 
-    const { request, setRequest, contentTypeTemplates } = useContext(RequestContext)
+    const { request, setRequest, contentTypeTemplates } = useContext(RequestContext);
     const [error, setError] = useState(null);
-    const [contentType, setContentType] = useState(request.contentType)
+    const [contentType, setContentType] = useState(request.contentType || 'application/json');
+    const isLocalChangeRef = useRef(false);
+
+    // Independent draft store for all supported body types
+    const [drafts, setDrafts] = useState(() => {
+      const initialBody = typeof request.body === 'object' && request.body !== null
+        ? JSON.stringify(request.body, null, 2)
+        : (typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2));
+
+      return {
+        ...contentTypeTemplates,
+        ...(request.bodyDrafts || {}),
+        [request.contentType || 'application/json']: initialBody
+      };
+    });
+
     const [localString, setLocalString] = useState(() => {
       if (typeof request.body === 'object' && request.body !== null) {
         return JSON.stringify(request.body, null, 2);
       }
       return typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2);
-    })
+    });
+
     const [dynamicCompletions, setDynamicCompletions] = useState([]);
     useEffect(()=>{
       readJSONList().then(entreis=>{
@@ -61,36 +77,79 @@ const Body_panel = forwardRef((props, ref) => {
       { value: 'text/plain', label: 'Text' },
     ];
 
+    // Synchronize when request changes externally (e.g. tab switch or history load)
     useEffect(() => {
-        if (typeof request.body === 'object' && request.body !== null) {
-            setLocalString(JSON.stringify(request.body, null, 2));
-        } else {
-            setLocalString(typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2));
-        }
-    }, [request.body]);
+      if (isLocalChangeRef.current) {
+        isLocalChangeRef.current = false;
+        return;
+      }
 
-    // Sync contentType when request.contentType changes
-    useEffect(() => {
-        if (request.contentType) {
-            setContentType(request.contentType);
-        }
-    }, [request.contentType]);
+      const incomingType = request.contentType || 'application/json';
+      let incomingBody = '';
+      if (typeof request.body === 'object' && request.body !== null) {
+        incomingBody = JSON.stringify(request.body, null, 2);
+      } else {
+        incomingBody = typeof request.body === 'string' ? request.body : JSON.stringify({}, null, 2);
+      }
+
+      setContentType(incomingType);
+      setLocalString(incomingBody);
+      setDrafts(prev => ({
+        ...contentTypeTemplates,
+        ...prev,
+        ...(request.bodyDrafts || {}),
+        [incomingType]: incomingBody
+      }));
+      validateInput(incomingBody, incomingType);
+    }, [request.contentType, request.body, request.bodyDrafts]);
 
     const changeContentType = (selected) => {
+      if (selected === contentType) return;
+
+      // 1. Snapshot current editor buffer into outgoing type's draft
+      const updatedDrafts = {
+        ...drafts,
+        [contentType]: localString
+      };
+
+      // 2. Fetch or initialize the draft for the newly selected type
+      let nextDraft = updatedDrafts[selected];
+      if (nextDraft === undefined || nextDraft === null) {
+        nextDraft = contentTypeTemplates[selected] || "";
+        if (selected === 'application/json') {
+          try {
+            const parsed = typeof nextDraft === 'string' ? JSON.parse(nextDraft) : nextDraft;
+            nextDraft = JSON.stringify(parsed, null, 2);
+          } catch {
+            nextDraft = String(nextDraft);
+          }
+        }
+        updatedDrafts[selected] = nextDraft;
+      }
+
+      // 3. Update local state
+      setDrafts(updatedDrafts);
       setContentType(selected);
-      let template = contentTypeTemplates[selected] || "";
-      setRequest(pre => ({ ...pre, contentType: selected, body: template }));
-      
+      setLocalString(nextDraft);
+      validateInput(nextDraft, selected);
+
+      // 4. Update request context state without losing drafts
+      let finalBody = nextDraft;
       if (selected === 'application/json') {
         try {
-          const parsed = typeof template === 'string' ? JSON.parse(template) : template;
-          template = JSON.stringify(parsed, null, 2);
+          finalBody = JSON.parse(nextDraft);
         } catch {
-          template = String(template);
+          finalBody = nextDraft;
         }
       }
 
-      setLocalString(template);
+      isLocalChangeRef.current = true;
+      setRequest(prev => ({
+        ...prev,
+        contentType: selected,
+        body: finalBody,
+        bodyDrafts: updatedDrafts
+      }));
       setError(null);
     };
 
@@ -129,10 +188,20 @@ const Body_panel = forwardRef((props, ref) => {
 
     const handleEditorChange = (newValue) => {
       setLocalString(newValue);
+      setDrafts(prev => ({
+        ...prev,
+        [contentType]: newValue
+      }));
       validateInput(newValue, contentType);
+
+      isLocalChangeRef.current = true;
       setRequest(prev => ({
         ...prev,
-        body: newValue
+        body: newValue,
+        bodyDrafts: {
+          ...(prev.bodyDrafts || {}),
+          [contentType]: newValue
+        }
       }));
     };
 
@@ -173,11 +242,20 @@ const Body_panel = forwardRef((props, ref) => {
             finalBody = formatted;
         }
 
+        isLocalChangeRef.current = true;
+        setLocalString(formatted);
+        setDrafts(prev => ({
+          ...prev,
+          [contentType]: formatted
+        }));
         setRequest(prev => ({
           ...prev,
-          body: finalBody
-        }))
-        setLocalString(formatted)
+          body: finalBody,
+          bodyDrafts: {
+            ...(prev.bodyDrafts || {}),
+            [contentType]: formatted
+          }
+        }));
         setError(null);
       } catch (err) {
         setError("SyncError: " + err.message)

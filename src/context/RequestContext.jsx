@@ -21,6 +21,9 @@ export function RequestProvider({children})
               "data": "input your JSON here"
             },
         contentType: "application/json",
+        bodyDrafts: {
+          ...contentTypeTemplates
+        },
         headers:[],
         query:[]
     });

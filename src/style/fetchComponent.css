@@ -48,7 +48,7 @@
 
 .api-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 1.5rem;
 }
 
@@ -61,6 +61,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
   transition:
     border-color 0.3s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1),
@@ -196,16 +197,19 @@
   font-family: monospace;
   font-size: 0.8rem;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 20px;
   overflow: hidden;
   border: 1px solid var(--border-color);
+  min-width: 0;
 }
 
 .endpoint-preview code {
   color: var(--brand-green); 
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .endpoint-preview span {
@@ -213,6 +217,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 .configure-btn {
@@ -228,13 +234,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
-.endpoint-preview {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
 
 .docs-icon-btn {
     display: flex;
@@ -312,4 +311,43 @@
   border-bottom-left-radius: 8px;
   box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.3);
   z-index: 5;
+}
+
+/* Responsive Grid Breakpoints */
+@media (min-width: 860px) and (max-width: 1220px) {
+  .fetch-container {
+    padding: 32px 24px;
+  }
+
+  .api-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 859px) {
+  .fetch-container {
+    padding: 24px 16px;
+  }
+
+  .fetch-header h1 {
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+  }
+
+  .api-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .fetch-container {
+    padding: 20px 12px;
+  }
+
+  .api-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }

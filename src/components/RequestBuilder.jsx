@@ -1,10 +1,29 @@
-import { useContext, useState, useRef } from 'react'
+import { useContext, useState, useRef, useEffect } from 'react'
 import Tabs from '../request-panel/Tabs'
 import Body_panel from '../request-panel/Body_panel'
 import { RequestContext } from '../context/RequestContext'
+import { ProxyContext } from '../context/ProxyContext'
 import { callAPI } from '../services/api'
 import { saveToHistory } from '../services/history'
-import { Send, Share2, X, Code } from "lucide-react"
+import { 
+  Send, 
+  Share2, 
+  X, 
+  Code, 
+  Copy, 
+  Link2, 
+  Terminal, 
+  ArrowRightLeft, 
+  FileCode, 
+  KeyRound, 
+  SlidersHorizontal, 
+  RotateCcw,
+  Sparkles,
+  CodeXml,
+  Plus,
+  ShieldCheck,
+  Trash2
+} from "lucide-react"
 import KeyValueList from './utility_Components/KeyValueList'
 
 import "../style/RequestBuilder.css"
@@ -12,14 +31,39 @@ import ConfigSharing from './ConfigSharing'
 import CodeSnippetModal from './CodeSnippetModal'
 import { UserContext } from '../context/UserContext'
 import { Panel } from 'react-resizable-panels'
+import { ContextMenuContext } from '../context/ContextMenuContext'
+import { generateCodeSnippet } from '../utils/codeGenerators'
+import { CustomDropdown } from './utility_Components/CustomDropdown'
+
+const methodOptions = [
+  { value: 'GET', label: 'GET', className: 'method-opt-GET' },
+  { value: 'POST', label: 'POST', className: 'method-opt-POST' },
+  { value: 'PUT', label: 'PUT', className: 'method-opt-PUT' },
+  { value: 'PATCH', label: 'PATCH', className: 'method-opt-PATCH' },
+  { value: 'DELETE', label: 'DELETE', className: 'method-opt-DELETE' },
+  { value: 'HEAD', label: 'HEAD', className: 'method-opt-HEAD' },
+  { value: 'OPTIONS', label: 'OPTIONS', className: 'method-opt-OPTIONS' }
+];
 
 function RequestBuilder({ scrollToResponse }) {
-    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest,isProxyEnable}=useContext(RequestContext)
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest,isProxyEnable,setIsProxyEnable}=useContext(RequestContext)
+    const { isProxyRunning } = useContext(ProxyContext)
     const {user} = useContext(UserContext)
+    const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
     const [activeTab,setActiveTab]=useState('body')
     const [modalActive,setModalActive] = useState(false);
     const [codeModalActive, setCodeModalActive] = useState(false);
     const bodyRef = useRef(null);
+
+    const isBodyDisabled = method === 'GET' || method === 'HEAD';
+
+    // Automatically switch away from Body tab when GET or HEAD is selected
+    useEffect(() => {
+      if (isBodyDisabled && activeTab === 'body') {
+        setActiveTab('headers');
+      }
+    }, [isBodyDisabled, activeTab]);
+
     const isValidURL=(value)=>
     {
       try{
@@ -36,13 +80,13 @@ function RequestBuilder({ scrollToResponse }) {
     };
     const handleSubmit=async(e)=>
     {
-      e.preventDefault();
+      if (e && e.preventDefault) e.preventDefault();
       if(!isValidURL(url))
       {
         alert("Invalid URL");
         return;
       }
-      const body = bodyRef.current?.getCurrentBody()
+      const body = isBodyDisabled ? "" : bodyRef.current?.getCurrentBody()
       setRequest(pre=>({...pre,body}))
       setIsLoading(true);
       scrollToResponse();
@@ -87,19 +131,299 @@ function RequestBuilder({ scrollToResponse }) {
         setRequestPhase('');
       }
     }
+
+    const handleContextMenu = (e) => {
+      if (e?.preventDefault) e.preventDefault();
+      if (e?.stopPropagation) e.stopPropagation();
+
+      const selectedText = window.getSelection()?.toString().trim() || "";
+      const methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+      const currentBody = bodyRef.current?.getCurrentBody() || (typeof request.body === "string" ? request.body : JSON.stringify(request.body || {}));
+
+      const menuItems = [];
+
+      if (selectedText) {
+        menuItems.push(
+          { type: "header", label: "Selection" },
+          {
+            label: `Copy "${selectedText.length > 18 ? selectedText.slice(0, 18) + '…' : selectedText}"`,
+            icon: Copy,
+            shortcut: "Ctrl+C",
+            onClick: () => copyToClipboard(selectedText, "Copied selection!")
+          },
+          { type: "separator" }
+        );
+      }
+
+      menuItems.push(
+        { type: "header", label: "Request Execution" },
+        {
+          label: "Send Request",
+          icon: Send,
+          shortcut: "Ctrl+Enter",
+          onClick: () => handleSubmit(e)
+        },
+        {
+          label: "Copy URL",
+          icon: Link2,
+          disabled: !url,
+          onClick: () => copyToClipboard(url, "Copied request URL!")
+        },
+        {
+          label: "Copy Full URL (with Query)",
+          icon: Link2,
+          disabled: !url,
+          onClick: () => {
+            const validQueries = (request.query || []).filter(q => q.key && q.key.trim());
+            let full = url;
+            if (validQueries.length && url) {
+              try {
+                const urlObj = new URL(url);
+                validQueries.forEach(q => urlObj.searchParams.append(q.key, q.value ?? ""));
+                full = urlObj.toString();
+              } catch {
+                const qs = validQueries.map(q => `${encodeURIComponent(q.key)}=${encodeURIComponent(q.value ?? "")}`).join("&");
+                full = url.includes("?") ? `${url}&${qs}` : `${url}?${qs}`;
+              }
+            }
+            copyToClipboard(full, "Copied full URL with parameters!");
+          }
+        },
+        {
+          label: "Clear URL",
+          icon: X,
+          danger: true,
+          disabled: !url,
+          onClick: handleClearUrl
+        },
+        { type: "separator" },
+        { type: "header", label: "HTTP Method" },
+        {
+          label: `Method: ${method}`,
+          icon: ArrowRightLeft,
+          submenu: methods.map(m => ({
+            label: m,
+            type: "checkbox",
+            checked: method === m,
+            onClick: () => {
+              setMethod(m);
+              if ((m === "GET" || m === "HEAD") && activeTab === "body") {
+                setActiveTab("headers");
+              }
+            }
+          }))
+        },
+        { type: "separator" },
+        { type: "header", label: "Request Tabs" },
+        {
+          label: isBodyDisabled ? "Body (Unavailable for GET)" : "Body",
+          icon: FileCode,
+          type: "checkbox",
+          disabled: isBodyDisabled,
+          checked: activeTab === "body",
+          onClick: () => {
+            if (!isBodyDisabled) setActiveTab("body");
+          }
+        },
+        {
+          label: `Headers (${request.headers?.length || 0})`,
+          icon: KeyRound,
+          type: "checkbox",
+          checked: activeTab === "headers",
+          onClick: () => setActiveTab("headers")
+        },
+        {
+          label: `Query Params (${request.query?.length || 0})`,
+          icon: SlidersHorizontal,
+          type: "checkbox",
+          checked: activeTab === "query-params",
+          onClick: () => setActiveTab("query-params")
+        }
+      );
+
+      // Context-aware actions for active tab
+      if (activeTab === "body" && !isBodyDisabled) {
+        menuItems.push(
+          { type: "separator" },
+          { type: "header", label: "Body Options" },
+          {
+            label: "Prettify / Format Body",
+            icon: Sparkles,
+            shortcut: "Alt+Shift+F",
+            onClick: () => bodyRef.current?.formatBody()
+          },
+          {
+            label: `Content-Type: ${request.contentType || 'application/json'}`,
+            icon: CodeXml,
+            submenu: [
+              {
+                label: "JSON (application/json)",
+                type: "checkbox",
+                checked: (request.contentType || 'application/json') === 'application/json',
+                onClick: () => bodyRef.current?.setContentType('application/json')
+              },
+              {
+                label: "HTML (text/html)",
+                type: "checkbox",
+                checked: request.contentType === 'text/html',
+                onClick: () => bodyRef.current?.setContentType('text/html')
+              },
+              {
+                label: "XML (application/xml)",
+                type: "checkbox",
+                checked: request.contentType === 'application/xml',
+                onClick: () => bodyRef.current?.setContentType('application/xml')
+              },
+              {
+                label: "Text (text/plain)",
+                type: "checkbox",
+                checked: request.contentType === 'text/plain',
+                onClick: () => bodyRef.current?.setContentType('text/plain')
+              },
+            ]
+          }
+        );
+      } else if (activeTab === "headers") {
+        menuItems.push(
+          { type: "separator" },
+          { type: "header", label: "Headers Actions" },
+          {
+            label: "Add Header",
+            icon: Plus,
+            onClick: () => {
+              setRequest(prev => ({
+                ...prev,
+                headers: [...(prev.headers || []), { key: "", value: "" }]
+              }));
+            }
+          },
+          {
+            label: "Clear All Headers",
+            icon: Trash2,
+            danger: true,
+            disabled: !request.headers || request.headers.length === 0,
+            onClick: () => {
+              setRequest(prev => ({ ...prev, headers: [] }));
+            }
+          }
+        );
+      } else if (activeTab === "query-params") {
+        menuItems.push(
+          { type: "separator" },
+          { type: "header", label: "Query Actions" },
+          {
+            label: "Add Query Parameter",
+            icon: Plus,
+            onClick: () => {
+              setRequest(prev => ({
+                ...prev,
+                query: [...(prev.query || []), { key: "", value: "" }]
+              }));
+            }
+          },
+          {
+            label: "Clear All Query Params",
+            icon: Trash2,
+            danger: true,
+            disabled: !request.query || request.query.length === 0,
+            onClick: () => {
+              setRequest(prev => ({ ...prev, query: [] }));
+            }
+          }
+        );
+      }
+
+      menuItems.push(
+        { type: "separator" },
+        { type: "header", label: "Tools & Network" },
+        {
+          label: "Copy as cURL",
+          icon: Terminal,
+          onClick: () => {
+            const reqData = {
+              url,
+              method,
+              headers: request.headers || [],
+              query: request.query || [],
+              body: isBodyDisabled ? "" : currentBody,
+              contentType: request.contentType || "application/json"
+            };
+            const curlSnippet = generateCodeSnippet("curl", "curl", reqData);
+            copyToClipboard(curlSnippet, "Copied as cURL!");
+          }
+        },
+        {
+          label: "Generate Code Snippet",
+          icon: Code,
+          onClick: () => setCodeModalActive(true)
+        },
+        {
+          type: "checkbox",
+          label: `Backend Proxy (${isProxyEnable ? 'Enabled' : 'Disabled'})`,
+          icon: ShieldCheck,
+          disabled: !isProxyRunning,
+          checked: isProxyEnable,
+          onClick: () => setIsProxyEnable(prev => !prev)
+        }
+      );
+
+      if (user) {
+        menuItems.push({
+          label: "Share Configuration",
+          icon: Share2,
+          onClick: () => setModalActive(true)
+        });
+      }
+
+      menuItems.push(
+        { type: "separator" },
+        {
+          label: "Reset Request",
+          icon: RotateCcw,
+          danger: true,
+          onClick: () => {
+            setURL("http://localhost:3000");
+            setMethod("GET");
+            setRequest({
+              body: "{\n  \"key\": \"value\",\n  \"data\": \"input your JSON here\"\n}",
+              contentType: "application/json",
+              headers: [],
+              query: []
+            });
+          }
+        }
+      );
+
+      openContextMenu(e, menuItems);
+    };
+
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleSubmit(e);
+      }
+    };
+
   return (
-<Panel className="pane request-pane">
+<Panel 
+  className="pane request-pane"
+  onContextMenu={handleContextMenu}
+  onKeyDown={handleKeyDown}
+>
       <form className="url-bar-group" onSubmit={handleSubmit}>
-        <select 
-          className={`method-dropdown method-${method}`}
+        <CustomDropdown 
+          className={`method-selector method-${method}`}
           value={method} 
-          onChange={(e) => setMethod(e.target.value)}>
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="PATCH">PATCH</option>
-          <option value="DELETE">DELETE</option>
-        </select>
+          options={methodOptions}
+          title="Scroll or click to switch HTTP method"
+          onChange={(e) => {
+            const nextMethod = e.target.value;
+            setMethod(nextMethod);
+            if ((nextMethod === 'GET' || nextMethod === 'HEAD') && activeTab === 'body') {
+              setActiveTab('headers');
+            }
+          }}
+        />
         <div className="url-input-wrapper">
             <input 
                 type="text" 

@@ -99,6 +99,13 @@
 .tab-method-PUT { background-color: rgba(252, 161, 48, 0.2); color: #fca130; }
 .tab-method-DELETE { background-color: rgba(249, 62, 62, 0.2); color: #f93e3e; }
 .tab-method-PATCH { background-color: rgba(155, 89, 182, 0.2); color: #9b59b6; }
+.tab-method-HEAD { background-color: rgba(236, 72, 153, 0.2); color: #ec4899; }
+.tab-method-OPTIONS { background-color: rgba(3, 49, 255, 0.2); color: #0331ff; }
+
+.tab-item:focus-visible {
+  outline: 2px solid var(--brand-color);
+  outline-offset: 1px;
+}
 
 /* === TAB LABEL & PATH === */
 .tab-label-text {
@@ -243,7 +250,125 @@
   background: var(--terminal-input); 
   border: 1px solid var(--border-color); 
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 20;
+}
+
+.method-selector {
+  flex-shrink: 0;
+}
+
+.method-selector .custom-dropdown-trigger {
+  height: 100%;
+  border: none !important;
+  border-right: 1px solid var(--border-color) !important;
+  border-radius: 5px 0 0 5px !important;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  min-width: 108px;
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.method-selector .custom-dropdown-trigger:hover {
+  border: none !important;
+  border-right: 1px solid var(--border-color) !important;
+  outline: none !important;
+}
+
+.method-selector.method-GET .custom-dropdown-trigger { background-color: rgba(97, 175, 254, 0.15) !important; color: #61affe !important; }
+.method-selector.method-GET .custom-dropdown-trigger:hover { background-color: rgba(97, 175, 254, 0.25) !important; color: #61affe !important; }
+
+.method-selector.method-POST .custom-dropdown-trigger { background-color: rgba(73, 204, 144, 0.15) !important; color: var(--brand-green) !important; }
+.method-selector.method-POST .custom-dropdown-trigger:hover { background-color: rgba(73, 204, 144, 0.25) !important; color: var(--brand-green) !important; }
+
+.method-selector.method-PUT .custom-dropdown-trigger { background-color: rgba(252, 161, 48, 0.15) !important; color: #fca130 !important; }
+.method-selector.method-PUT .custom-dropdown-trigger:hover { background-color: rgba(252, 161, 48, 0.25) !important; color: #fca130 !important; }
+
+.method-selector.method-DELETE .custom-dropdown-trigger { background-color: rgba(249, 62, 62, 0.15) !important; color: #f93e3e !important; }
+.method-selector.method-DELETE .custom-dropdown-trigger:hover { background-color: rgba(249, 62, 62, 0.25) !important; color: #f93e3e !important; }
+
+.method-selector.method-PATCH .custom-dropdown-trigger { background-color: rgba(155, 89, 182, 0.15) !important; color: #9b59b6 !important; }
+.method-selector.method-PATCH .custom-dropdown-trigger:hover { background-color: rgba(155, 89, 182, 0.25) !important; color: #9b59b6 !important; }
+
+.method-selector.method-HEAD .custom-dropdown-trigger { background-color: rgba(236, 72, 153, 0.15) !important; color: #ec4899 !important; }
+.method-selector.method-HEAD .custom-dropdown-trigger:hover { background-color: rgba(236, 72, 153, 0.25) !important; color: #ec4899 !important; }
+
+.method-selector.method-OPTIONS .custom-dropdown-trigger { background-color: rgba(3, 49, 255, 0.15) !important; color: #0331ff !important; }
+.method-selector.method-OPTIONS .custom-dropdown-trigger:hover { background-color: rgba(3, 49, 255, 0.25) !important; color: #0331ff !important; }
+
+.method-selector .custom-dropdown-menu {
+  width: 130px;
+  margin-top: 6px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  padding: 4px;
+}
+
+.method-selector .custom-dropdown-item {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.method-selector .custom-dropdown-item.method-opt-GET { color: #61affe !important; }
+.method-selector .custom-dropdown-item.method-opt-GET:hover,
+.method-selector .custom-dropdown-item.method-opt-GET.active {
+  background-color: rgba(97, 175, 254, 0.2) !important;
+  color: #61affe !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-POST { color: var(--brand-green) !important; }
+.method-selector .custom-dropdown-item.method-opt-POST:hover,
+.method-selector .custom-dropdown-item.method-opt-POST.active {
+  background-color: rgba(73, 204, 144, 0.2) !important;
+  color: var(--brand-green) !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-PUT { color: #fca130 !important; }
+.method-selector .custom-dropdown-item.method-opt-PUT:hover,
+.method-selector .custom-dropdown-item.method-opt-PUT.active {
+  background-color: rgba(252, 161, 48, 0.2) !important;
+  color: #fca130 !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-DELETE { color: #f93e3e !important; }
+.method-selector .custom-dropdown-item.method-opt-DELETE:hover,
+.method-selector .custom-dropdown-item.method-opt-DELETE.active {
+  background-color: rgba(249, 62, 62, 0.2) !important;
+  color: #f93e3e !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-PATCH { color: #9b59b6 !important; }
+.method-selector .custom-dropdown-item.method-opt-PATCH:hover,
+.method-selector .custom-dropdown-item.method-opt-PATCH.active {
+  background-color: rgba(155, 89, 182, 0.2) !important;
+  color: #9b59b6 !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-HEAD { color: #ec4899 !important; }
+.method-selector .custom-dropdown-item.method-opt-HEAD:hover,
+.method-selector .custom-dropdown-item.method-opt-HEAD.active {
+  background-color: rgba(236, 72, 153, 0.2) !important;
+  color: #ec4899 !important;
+}
+
+.method-selector .custom-dropdown-item.method-opt-OPTIONS { color: #0331ff !important; }
+.method-selector .custom-dropdown-item.method-opt-OPTIONS:hover,
+.method-selector .custom-dropdown-item.method-opt-OPTIONS.active {
+  background-color: rgba(3, 49, 255, 0.2) !important;
+  color: #0331ff !important;
 }
 
 .method-dropdown {
@@ -259,6 +384,8 @@
 .method-PUT { background-color: rgba(252, 161, 48, 0.15); color: #fca130; }
 .method-DELETE { background-color: rgba(249, 62, 62, 0.15); color: #f93e3e; }
 .method-PATCH { background-color: rgba(155, 89, 182, 0.15); color: #9b59b6; }
+.method-HEAD { background-color: rgba(236, 72, 153, 0.15); color: #ec4899; }
+.method-OPTIONS { background-color: rgba(3, 49, 255, 0.15); color: #0331ff; }
 
 .method-dropdown option {
   background-color: var(--card-bg); 
@@ -330,6 +457,14 @@
 .tab.active {
   color: var(--brand-color); 
   border-bottom: 2px solid var(--brand-color);
+}
+
+.tab.disabled,
+.tab:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-bottom: none;
 }
 
 /* === EDITOR & TEXTAREAS === */

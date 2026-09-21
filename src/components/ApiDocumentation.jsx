@@ -1,12 +1,27 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../style/ApiDocumentation.css';
 import { RequestContext } from '../context/RequestContext';
+import { TabContext } from '../context/TabContext';
+import { ContextMenuContext } from '../context/ContextMenuContext';
+import { 
+  Play, 
+  PlusSquare, 
+  Copy, 
+  Terminal, 
+  Link, 
+  RotateCcw, 
+  Sparkles, 
+  X, 
+  Code, 
+  FileText 
+} from 'lucide-react';
+import { generateCodeSnippet } from '../utils/codeGenerators';
 
 export default function ApiDocumentation({ apiConfig, onClose }) {
   const { id } = useParams();
   const navigate = useNavigate();
-const {
+  const {
     title = "API Reference Console",
     baseUrl = "https://api.example.com",
     endpoints = []
@@ -21,10 +36,12 @@ const {
   const [bodyPayload, setBodyPayload] = useState("");
   const [isLoading] = useState(false);
   const { setURL, setMethod } = useContext(RequestContext);
+  const { handleAddTab } = useContext(TabContext) || {};
+  const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
 
   const currentEp = endpoints.find(e => e.id === activeTab);
 
-  const handleTabChange = (ep) => {
+  const handleTabChange = useCallback((ep) => {
     setActiveTab(ep.id);
 
     // 1. Extract and map Path Variables (e.g., /:id)
@@ -60,7 +77,7 @@ const {
     } else {
       setSimulatedResponse(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (endpoints.length > 0) {
@@ -69,7 +86,7 @@ const {
         handleTabChange(target);
       }
     }
-  }, [id, endpoints]);
+  }, [id, endpoints, handleTabChange]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -94,10 +111,10 @@ const {
   };
 
   // Dynamically compiles: baseUrl + replaced/path/:variables + ?computed=query&strings
-  const computeComputedUrl = () => {
-    if (!currentEp) return "";
+  const computeComputedUrl = useCallback((ep = currentEp) => {
+    if (!ep) return "";
     
-    let generatedPath = currentEp.path;
+    let generatedPath = ep.path;
     Object.keys(pathParams).forEach(key => {
       generatedPath = generatedPath.replace(`:${key}`, pathParams[key] || `:${key}`);
     });
@@ -111,16 +128,235 @@ const {
     const queryString = activeQueries ? `?${activeQueries}` : '';
     
     return `${baseUrl}${generatedPath}${queryString}`;
-  };
+  }, [currentEp, pathParams, queryParams, baseUrl]);
 
-  const executeApiCall = () => {
+  const executeApiCall = useCallback(() => {
+    if (!currentEp) return;
     setURL(computeComputedUrl());
     setMethod(currentEp.method);
     navigate('/endpoints');
-  };
+  }, [currentEp, computeComputedUrl, setURL, setMethod, navigate]);
+
+  const handleOpenInNewTab = useCallback((ep = currentEp) => {
+    if (!ep) return;
+    const computedUrl = computeComputedUrl(ep);
+    if (handleAddTab) {
+      handleAddTab({
+        url: computedUrl,
+        method: ep.method,
+        alias: ep.path,
+        request: {
+          body: bodyPayload || (ep.body ? JSON.stringify(ep.body, null, 2) : ""),
+          contentType: "application/json",
+          headers: [],
+          query: []
+        }
+      });
+    } else {
+      setURL(computedUrl);
+      setMethod(ep.method);
+    }
+    navigate('/endpoints');
+  }, [currentEp, computeComputedUrl, handleAddTab, bodyPayload, setURL, setMethod, navigate]);
+
+  const handleResetParameters = useCallback(() => {
+    if (!currentEp) return;
+    handleTabChange(currentEp);
+    copyToClipboard("", "Reset parameters to defaults!");
+  }, [currentEp, handleTabChange, copyToClipboard]);
+
+  const handlePrettifyBody = useCallback(() => {
+    if (!bodyPayload) return;
+    try {
+      const parsed = JSON.parse(bodyPayload);
+      setBodyPayload(JSON.stringify(parsed, null, 2));
+      copyToClipboard("", "Prettified JSON payload!");
+    } catch {
+      copyToClipboard("", "Invalid JSON payload");
+    }
+  }, [bodyPayload, copyToClipboard]);
+
+  const handleEndpointItemContextMenu = useCallback((e, ep) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const fullUrl = `${baseUrl}${ep.path}`;
+    const curlSnippet = generateCodeSnippet("curl", "curl", {
+      url: fullUrl,
+      method: ep.method || "GET",
+      headers: ep.body ? [{ key: "Content-Type", value: "application/json" }] : [],
+      query: [],
+      body: ep.body ? JSON.stringify(ep.body) : ""
+    });
+
+    openContextMenu(e, [
+      { type: "header", label: `${ep.method} ${ep.path}` },
+      {
+        label: "Select Endpoint",
+        icon: FileText,
+        onClick: () => handleTabChange(ep)
+      },
+      {
+        label: "Configure in Workbench",
+        icon: Play,
+        shortcut: "Enter",
+        onClick: () => {
+          setURL(fullUrl);
+          setMethod(ep.method);
+          navigate('/endpoints');
+        }
+      },
+      {
+        label: "Open in New Workbench Tab",
+        icon: PlusSquare,
+        shortcut: "Alt+N",
+        onClick: () => {
+          if (handleAddTab) {
+            handleAddTab({
+              url: fullUrl,
+              method: ep.method,
+              alias: ep.path,
+              request: {
+                body: ep.body ? JSON.stringify(ep.body, null, 2) : "",
+                contentType: "application/json"
+              }
+            });
+          } else {
+            setURL(fullUrl);
+            setMethod(ep.method);
+          }
+          navigate('/endpoints');
+        }
+      },
+      { type: "separator" },
+      { type: "header", label: "Quick Copy" },
+      {
+        label: "Copy Endpoint Path",
+        icon: Link,
+        onClick: () => copyToClipboard(ep.path, "Copied endpoint path!")
+      },
+      {
+        label: "Copy Full URL",
+        icon: Copy,
+        onClick: () => copyToClipboard(fullUrl, "Copied full URL!")
+      },
+      {
+        label: "Copy as cURL",
+        icon: Terminal,
+        onClick: () => copyToClipboard(curlSnippet, "Copied as cURL!")
+      }
+    ]);
+  }, [baseUrl, openContextMenu, handleAddTab, handleTabChange, setURL, setMethod, navigate, copyToClipboard]);
+
+  const handleContentContextMenu = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const selectedText = window.getSelection()?.toString()?.trim() || "";
+    const computedUrl = computeComputedUrl();
+    const curlSnippet = currentEp ? generateCodeSnippet("curl", "curl", {
+      url: computedUrl,
+      method: currentEp.method || "GET",
+      headers: currentEp.body ? [{ key: "Content-Type", value: "application/json" }] : [],
+      query: [],
+      body: bodyPayload || ""
+    }) : "";
+
+    const items = [];
+
+    if (selectedText) {
+      items.push({
+        label: `Copy "${selectedText.length > 20 ? selectedText.slice(0, 20) + '...' : selectedText}"`,
+        icon: Copy,
+        shortcut: "Ctrl+C",
+        onClick: () => copyToClipboard(selectedText, "Copied selection!")
+      });
+      items.push({ type: "separator" });
+    }
+
+    if (currentEp) {
+      items.push({ type: "header", label: `${currentEp.method} ${currentEp.path}` });
+      items.push({
+        label: "Configure in Workbench",
+        icon: Play,
+        shortcut: "Enter",
+        onClick: executeApiCall
+      });
+      items.push({
+        label: "Open in New Workbench Tab",
+        icon: PlusSquare,
+        shortcut: "Alt+N",
+        onClick: () => handleOpenInNewTab(currentEp)
+      });
+      items.push({ type: "separator" });
+      items.push({ type: "header", label: "Export & Copy" });
+      items.push({
+        label: "Copy Request URL",
+        icon: Link,
+        onClick: () => copyToClipboard(computedUrl, "Copied request URL!")
+      });
+      items.push({
+        label: "Copy as cURL",
+        icon: Terminal,
+        onClick: () => copyToClipboard(curlSnippet, "Copied as cURL!")
+      });
+      if (bodyPayload) {
+        items.push({
+          label: "Copy JSON Payload",
+          icon: Code,
+          onClick: () => copyToClipboard(bodyPayload, "Copied JSON payload!")
+        });
+      }
+      if (simulatedResponse) {
+        items.push({
+          label: "Copy Server Response",
+          icon: Copy,
+          onClick: () => copyToClipboard(JSON.stringify(simulatedResponse, null, 2), "Copied response JSON!")
+        });
+      }
+      items.push({ type: "separator" });
+      items.push({ type: "header", label: "Sandbox Actions" });
+      items.push({
+        label: "Reset Parameters & Payload",
+        icon: RotateCcw,
+        onClick: handleResetParameters
+      });
+      if (bodyPayload) {
+        items.push({
+          label: "Prettify JSON Payload",
+          icon: Sparkles,
+          shortcut: "Alt+Shift+F",
+          onClick: handlePrettifyBody
+        });
+      }
+      items.push({ type: "separator" });
+    }
+
+    items.push({
+      label: "Close Documentation",
+      icon: X,
+      shortcut: "Esc",
+      onClick: () => (onClose ? onClose() : navigate('/fetch'))
+    });
+
+    openContextMenu(e, items);
+  }, [
+    currentEp,
+    computeComputedUrl,
+    bodyPayload,
+    simulatedResponse,
+    executeApiCall,
+    handleOpenInNewTab,
+    handleResetParameters,
+    handlePrettifyBody,
+    onClose,
+    navigate,
+    openContextMenu,
+    copyToClipboard
+  ]);
 
   return (
-    <div className="api-container">
+    <div className="api-container" onContextMenu={handleContentContextMenu}>
       <div className="api-sidebar">
         <h2 className="api-brand-title">{title}</h2>
         <p className="api-base-url">Base URL: <code>{baseUrl}</code></p>
@@ -130,6 +366,7 @@ const {
               key={ep.id} 
               className={`api-nav-item ${activeTab === ep.id ? 'active' : ''}`}
               onClick={() => handleTabChange(ep)}
+              onContextMenu={(e) => handleEndpointItemContextMenu(e, ep)}
             >
               <span className={`api-badge ${ep.method}`}>{ep.method}</span>
               <span className="api-nav-path">{ep.path}</span>

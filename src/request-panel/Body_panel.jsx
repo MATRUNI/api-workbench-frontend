@@ -76,9 +76,33 @@ const Body_panel = forwardRef((props, ref) => {
         }
     }, [request.contentType]);
 
+    const changeContentType = (selected) => {
+      setContentType(selected);
+      let template = contentTypeTemplates[selected] || "";
+      setRequest(pre => ({ ...pre, contentType: selected, body: template }));
+      
+      if (selected === 'application/json') {
+        try {
+          const parsed = typeof template === 'string' ? JSON.parse(template) : template;
+          template = JSON.stringify(parsed, null, 2);
+        } catch {
+          template = String(template);
+        }
+      }
+
+      setLocalString(template);
+      setError(null);
+    };
+
     useImperativeHandle(ref, () => ({
       getCurrentBody() {
-        return localString
+        return localString;
+      },
+      formatBody() {
+        handleSync();
+      },
+      setContentType(type) {
+        changeContentType(type);
       }
     }));
 
@@ -161,22 +185,7 @@ const Body_panel = forwardRef((props, ref) => {
     }
 
     function handleTypeChange(e) {
-      let selected = e.target.value;
-      setContentType(selected)
-      let template = contentTypeTemplates[selected] || "";
-      setRequest(pre=>({...pre,contentType:selected,body:template}))
-      
-      if (selected === 'application/json') {
-        try {
-          const parsed = typeof template === 'string' ? JSON.parse(template) : template;
-          template = JSON.stringify(parsed, null, 2);
-        } catch {
-          template = String(template);
-        }
-      }
-
-      setLocalString(template);
-      setError(null)
+      changeContentType(e.target.value);
     }
 
     const renderTypeIcon = () => {

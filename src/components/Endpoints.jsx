@@ -5,12 +5,13 @@ import { motion } from 'framer-motion';
 import "../style/Endpoints.css";
 import RequestBuilder from "./RequestBuilder";
 import ResponseViewer from "./ResponseViewer";
-import { GripHorizontal, GripVertical, X, Plus, Copy, ArrowRightToLine, Pencil } from "lucide-react";
+import { GripHorizontal, GripVertical, X, Plus, Copy, ArrowRightToLine, ArrowLeftToLine, Pencil, Link2, Terminal, ArrowRightLeft, Layers } from "lucide-react";
 import { MobileContext } from "../context/MobileContext";
 import { TabContext } from "../context/TabContext";
 import { RequestContext } from "../context/RequestContext";
 import { tabItemVariants, tabVariants } from "../animations/Motion";
-import { ContextMenuContext } from "../context/ContextMenuProvider";
+import { ContextMenuContext } from "../context/ContextMenuContext";
+import { generateCodeSnippet } from "../utils/codeGenerators";
 
 function Endpoints() {
   const { tabMap, setTabMap, activeTab, setActiveTab } = useContext(TabContext);
@@ -19,7 +20,7 @@ function Endpoints() {
   const [tempAlias, setTempAlias] = useState("");
   const { isMobile } = useContext(MobileContext);
   const { request, setRequest, url, setURL, response, setResponse, method, setMethod } = useContext(RequestContext);
-  const { openContextMenu } = useContext(ContextMenuContext);
+  const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
   const tabs = Array.from(tabMap.keys());
 
   // Ref to hold the long-press timeout ID for mobile devices
@@ -76,7 +77,7 @@ function Endpoints() {
 
   // Function to close a tab
   const handleCloseTab = (e, tabId) => {
-    e.stopPropagation(); 
+    if (e && e.stopPropagation) e.stopPropagation(); 
     if (tabMap.size <= 1) return; 
 
     const newMap = new Map(tabMap);
@@ -145,6 +146,56 @@ function Endpoints() {
       }
     }
   }
+
+  // Handle closing tabs to the left of the target tab
+  function handleCloseLeftSideTabs(targetTabId) {
+    const tabIds = Array.from(tabMap.keys());
+    const targetIndex = tabIds.indexOf(targetTabId);
+    
+    if (targetIndex <= 0) return;
+
+    const newMap = new Map();
+    for (let i = targetIndex; i < tabIds.length; i++) {
+      const tabId = tabIds[i];
+      if (tabId === activeTab) {
+        const currentAlias = tabMap.get(activeTab)?.alias || "";
+        newMap.set(tabId, { url, method, request, response, alias: currentAlias });
+      } else if (tabMap.has(tabId)) {
+        newMap.set(tabId, tabMap.get(tabId));
+      }
+    }
+    
+    setTabMap(newMap);
+
+    const activeIndex = tabIds.indexOf(activeTab);
+    if (activeIndex < targetIndex) {
+      setActiveTab(targetTabId);
+      const targetData = tabMap.get(targetTabId);
+      if (targetData) {
+        setURL(targetData.url);
+        setMethod(targetData.method);
+        setRequest(targetData.request);
+        setResponse(targetData.response);
+      }
+    }
+  }
+
+  // Handle switching HTTP method for a tab directly
+  function handleSetTabMethod(targetTabId, newMethod) {
+    setTabMap(prevMap => {
+      const newMap = new Map(prevMap);
+      const existing = newMap.get(targetTabId);
+      if (existing) {
+        if (targetTabId === activeTab) {
+          newMap.set(targetTabId, { url, method: newMethod, request, response, alias: existing.alias || "" });
+          setMethod(newMethod);
+        } else {
+          newMap.set(targetTabId, { ...existing, method: newMethod });
+        }
+      }
+      return newMap;
+    });
+  }
   
   function handleTabDuplication(targetTabId) {
     const newTabId = Date.now();
@@ -210,30 +261,135 @@ function Endpoints() {
 
   // Handle right-click or long-press context menu on a specific tab item
   function handleTabContext(e, targetTabId) {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+
+    const tabIds = Array.from(tabMap.keys());
+    const targetIndex = tabIds.indexOf(targetTabId);
+    const isOnlyTab = tabMap.size <= 1;
+    const isFirstTab = targetIndex <= 0;
+    const isLastTab = targetIndex >= tabIds.length - 1;
+
+    const currentTabData = targetTabId === activeTab 
+      ? { url, method, request, response, alias: tabMap.get(targetTabId)?.alias || "" } 
+      : (tabMap.get(targetTabId) || { method: "GET", url: "", alias: "" });
+
+    const currentMethod = currentTabData.method || "GET";
+    const targetUrl = currentTabData.url || "";
+    const methods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
     openContextMenu(e, [
+      { type: "header", label: "Tab Actions" },
       {
-        label: "Duplicate tab",
+        label: "Duplicate Tab",
         icon: Copy,
+        shortcut: "Alt+D",
         onClick: () => handleTabDuplication(targetTabId)
       },
       {
-        label: "Rename tab",
+        label: "Rename Tab",
         icon: Pencil,
+        shortcut: "F2",
         onClick: () => handleRenameTab(targetTabId)
       },
-      { type: "separator" },
       {
-        label: "Close other tabs",
+        label: "Copy URL",
+        icon: Link2,
+        onClick: () => {
+          if (targetUrl) {
+            copyToClipboard(targetUrl, "Copied tab URL!");
+          }
+        }
+      },
+      {
+        label: "Copy as cURL",
+        icon: Terminal,
+        onClick: () => {
+          const reqData = {
+            url: currentTabData.url || "",
+            method: currentTabData.method || "GET",
+            headers: currentTabData.request?.headers || [],
+            query: currentTabData.request?.query || [],
+            body: currentTabData.request?.body || "",
+            contentType: currentTabData.request?.contentType || "application/json",
+          };
+          const curlSnippet = generateCodeSnippet("curl", "curl", reqData);
+          copyToClipboard(curlSnippet, "Copied as cURL!");
+        }
+      },
+      { type: "separator" },
+      { type: "header", label: "HTTP Method" },
+      {
+        label: `Method: ${currentMethod}`,
+        icon: ArrowRightLeft,
+        submenu: methods.map(m => ({
+          label: m,
+          type: "checkbox",
+          checked: currentMethod === m,
+          onClick: () => handleSetTabMethod(targetTabId, m)
+        }))
+      },
+      { type: "separator" },
+      { type: "header", label: "Close Tabs" },
+      {
+        label: "Close Tab",
         icon: X,
+        danger: true,
+        disabled: isOnlyTab,
+        shortcut: "Alt+W",
+        onClick: () => handleCloseTab(e, targetTabId)
+      },
+      {
+        label: "Close Other Tabs",
+        icon: Layers,
+        danger: true,
+        disabled: isOnlyTab,
         onClick: () => handleCloseOtherTabs(targetTabId)
       },
       {
-        label: "Close tabs to the right",
+        label: "Close Tabs to the Right",
         icon: ArrowRightToLine,
+        danger: true,
+        disabled: isLastTab,
         onClick: () => handleCloseRightSideTabs(targetTabId)
+      },
+      {
+        label: "Close Tabs to the Left",
+        icon: ArrowLeftToLine,
+        danger: true,
+        disabled: isFirstTab,
+        onClick: () => handleCloseLeftSideTabs(targetTabId)
+      },
+    ]);
+  }
+
+  // Handle right-click on the tab bar background
+  function handleTabBarContext(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (e && e.stopPropagation) e.stopPropagation();
+
+    const isOnlyTab = tabMap.size <= 1;
+
+    openContextMenu(e, [
+      { type: "header", label: "Workbench Tabs" },
+      {
+        label: "New Tab",
+        icon: Plus,
+        shortcut: "Alt+N",
+        onClick: handleAddTab
+      },
+      {
+        label: "Duplicate Active Tab",
+        icon: Copy,
+        onClick: () => handleTabDuplication(activeTab)
+      },
+      { type: "separator" },
+      {
+        label: "Close Other Tabs",
+        icon: Layers,
+        danger: true,
+        disabled: isOnlyTab,
+        onClick: () => handleCloseOtherTabs(activeTab)
       },
     ]);
   }
@@ -304,6 +460,10 @@ function Endpoints() {
         variants={tabVariants}
         initial="hidden"
         animate="visible"
+        onContextMenu={(e) => {
+          if (e.target.closest('.tab-item') || e.target.closest('.add-tab-btn')) return;
+          handleTabBarContext(e);
+        }}
       >
         {tabs.map((tabId) => {
           const isActive = activeTab === tabId;
@@ -323,9 +483,34 @@ function Endpoints() {
           return (
             <motion.div
               key={tabId}
+              role="tab"
+              tabIndex={0}
+              aria-selected={isActive}
               className={`tab-item ${isActive ? "active" : ""}`}
               onClick={() => handleTabSwitch(tabId)}
               onContextMenu={(e) => handleTabContext(e, tabId)}
+              onKeyDown={(e) => {
+                if (editingTabId === tabId) return;
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleTabSwitch(tabId);
+                } else if (e.key === "F2") {
+                  e.preventDefault();
+                  handleRenameTab(tabId);
+                } else if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleTabContext(e, tabId);
+                } else if (e.altKey && (e.key.toLowerCase() === "w" || e.code === "KeyW")) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCloseTab(e, tabId);
+                } else if (e.altKey && (e.key.toLowerCase() === "d" || e.code === "KeyD")) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleTabDuplication(tabId);
+                }
+              }}
               onTouchStart={(e) => handleTouchStart(e, tabId)}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}

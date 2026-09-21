@@ -1,15 +1,31 @@
 import { forwardRef, useContext, useState } from 'react';
 import { RequestContext } from '../context/RequestContext';
-import { Copy, Check, Trash2, Download, Maximize2, FileCode, FileText, KeyRound, Eye } from "lucide-react";
+import { 
+  Copy, 
+  Check, 
+  Trash2, 
+  Download, 
+  Maximize2, 
+  Minimize2, 
+  FileCode, 
+  FileText, 
+  KeyRound, 
+  Eye, 
+  CheckCircle2, 
+  Clock, 
+  HardDrive 
+} from "lucide-react";
 import VoidLoader from './VoidLoader';
 import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
 import KeyValueList from './utility_Components/KeyValueList';
 import ResponsePreview from './ResponsePreview';
 import '../style/responseViewer.css';
 import { Panel } from 'react-resizable-panels';
+import { ContextMenuContext } from '../context/ContextMenuContext';
 
 const ResponseViewer = forwardRef((props, ref) => {
     const { response, isLoading, requestPhase, setResponse } = useContext(RequestContext);
+    const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
     const [copied, setCopied] = useState(false);
     const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'raw' | 'preview'
     const [isExpanded, setIsExpanded] = useState(false);
@@ -79,9 +95,9 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     const handleCopy = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         try {
-            await navigator.clipboard.writeText(getFormattedData());
+            await copyToClipboard(getFormattedData(), "Copied formatted response!");
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
@@ -100,8 +116,134 @@ const ResponseViewer = forwardRef((props, ref) => {
         URL.revokeObjectURL(url);
     };
 
+    const handleContextMenu = (e) => {
+        if (e?.preventDefault) e.preventDefault();
+        if (e?.stopPropagation) e.stopPropagation();
+
+        const selectedText = window.getSelection()?.toString().trim() || "";
+        const formattedData = getFormattedData();
+        const hasData = Boolean(response.data || (response.rawData && response.rawData.length > 0));
+
+        const menuItems = [];
+
+        if (selectedText) {
+            menuItems.push(
+                { type: "header", label: "Selection" },
+                {
+                    label: `Copy "${selectedText.length > 18 ? selectedText.slice(0, 18) + '…' : selectedText}"`,
+                    icon: Copy,
+                    shortcut: "Ctrl+C",
+                    onClick: () => copyToClipboard(selectedText, "Copied selection!")
+                },
+                { type: "separator" }
+            );
+        }
+
+        menuItems.push(
+            { type: "header", label: "Response Actions" },
+            {
+                label: "Copy Response",
+                icon: Copy,
+                shortcut: "Ctrl+C",
+                disabled: !hasData,
+                onClick: () => copyToClipboard(formattedData, "Copied formatted response!")
+            },
+            {
+                label: "Copy Raw Response",
+                icon: FileText,
+                disabled: !hasData,
+                onClick: () => {
+                    const rawContent = typeof response.rawData === "string" ? response.rawData : formattedData;
+                    copyToClipboard(rawContent, "Copied raw response!");
+                }
+            },
+            {
+                label: "Save / Download",
+                icon: Download,
+                shortcut: "Ctrl+S",
+                disabled: !hasData,
+                onClick: handleDownload
+            },
+            {
+                label: "Clear Response",
+                icon: Trash2,
+                danger: true,
+                disabled: !hasData,
+                onClick: () => setResponse({ status: 200 })
+            },
+            { type: "separator" },
+            { type: "header", label: "Response Views" },
+            {
+                label: "Body",
+                icon: FileCode,
+                type: "checkbox",
+                checked: activeTab === "body",
+                onClick: () => setActiveTab("body")
+            },
+            {
+                label: "Headers",
+                icon: KeyRound,
+                type: "checkbox",
+                checked: activeTab === "headers",
+                onClick: () => setActiveTab("headers")
+            },
+            {
+                label: "Raw",
+                icon: FileText,
+                type: "checkbox",
+                checked: activeTab === "raw",
+                onClick: () => setActiveTab("raw")
+            }
+        );
+
+        if (hasPreview) {
+            menuItems.push({
+                label: "Preview",
+                icon: Eye,
+                type: "checkbox",
+                checked: activeTab === "preview",
+                onClick: () => setActiveTab("preview")
+            });
+        }
+
+        menuItems.push(
+            {
+                label: isExpanded ? "Collapse View" : "Expand View",
+                icon: isExpanded ? Minimize2 : Maximize2,
+                onClick: () => setIsExpanded(prev => !prev)
+            }
+        );
+
+        if (response.status) {
+            menuItems.push(
+                { type: "separator" },
+                { type: "header", label: "Response Info" },
+                {
+                    label: `Status: ${response.status} (${getStatusText(response.status)})`,
+                    icon: CheckCircle2,
+                    onClick: () => copyToClipboard(`${response.status} ${getStatusText(response.status)}`, "Copied status code!")
+                },
+                {
+                    label: `Latency: ${response.time || 0} ms`,
+                    icon: Clock,
+                    onClick: () => copyToClipboard(`${response.time || 0} ms`, "Copied response latency!")
+                },
+                {
+                    label: `Size: ${response.length || formattedData.length} bytes`,
+                    icon: HardDrive,
+                    onClick: () => copyToClipboard(`${response.length || formattedData.length} bytes`, "Copied response size!")
+                }
+            );
+        }
+
+        openContextMenu(e, menuItems);
+    };
+
     return (
-        <Panel className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}>
+        <Panel 
+            className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}
+            onContextMenu={handleContextMenu}
+        >
             <div ref={ref} className="pane-header">
                 <div className="pane-header-left">
                     <span className="label">Response</span>

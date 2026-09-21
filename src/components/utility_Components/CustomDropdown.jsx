@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import './CustomDropdown.css';
 
-export function CustomDropdown({ value, onChange, options, icon }) {
+export function CustomDropdown({ value, onChange, options = [], icon, className = '', title }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
@@ -19,7 +19,7 @@ export function CustomDropdown({ value, onChange, options, icon }) {
   }, []);
 
   const currentIndex = options.findIndex(opt => opt.value === value);
-  const selectedOption = options[currentIndex !== -1 ? currentIndex : 0];
+  const selectedOption = (currentIndex !== -1 ? options[currentIndex] : options[0]) || { value, label: value };
 
   
   useEffect(() => {
@@ -50,18 +50,18 @@ export function CustomDropdown({ value, onChange, options, icon }) {
   }, [currentIndex, options, onChange]);
 
   return (
-    <div className="custom-dropdown-container" ref={dropdownRef}>
+    <div className={`custom-dropdown-container ${className}`} ref={dropdownRef}>
       <motion.button
         ref={triggerRef}
         type="button"
         className="custom-dropdown-trigger"
         onClick={() => setIsOpen(!isOpen)}
         whileTap={{ scale: 0.98 }}
-        title="Scroll to change format"
+        title={title || "Scroll or click to change"}
       >
         <span className="dropdown-label">
           {icon}
-          {selectedOption.label}
+          {selectedOption?.label || value}
         </span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
           <ChevronDown size={14} />
@@ -80,7 +80,7 @@ export function CustomDropdown({ value, onChange, options, icon }) {
             {options.map((option) => (
               <motion.li
                 key={option.value}
-                className={`custom-dropdown-item ${value === option.value ? 'active' : ''}`}
+                className={`custom-dropdown-item ${option.className || ''} ${value === option.value ? 'active' : ''}`}
                 onClick={() => {
                   onChange({ target: { value: option.value } });
                   setIsOpen(false);

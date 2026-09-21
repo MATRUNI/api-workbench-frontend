@@ -7,13 +7,19 @@ import { RequestContext } from "../context/RequestContext"
 function Tabs({activeTab,setActiveTab}) {
   const {isMobile} = useContext(MobileContext)
   const { isProxyRunning } = useContext(ProxyContext)
-  const { isProxyEnable,setIsProxyEnable } = useContext(RequestContext)
+  const { isProxyEnable,setIsProxyEnable, method } = useContext(RequestContext)
+
+  const isBodyDisabled = method === "GET" || method === "HEAD";
+
   return (
     <div className="tabs-header">
       <div className="tab-container">
         <button
-          className={`tab ${activeTab === 'body' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('body') }}
+          type="button"
+          className={`tab ${activeTab === 'body' ? 'active' : ''} ${isBodyDisabled ? 'disabled' : ''}`}
+          disabled={isBodyDisabled}
+          title={isBodyDisabled ? `${method} requests do not accept a request body` : "Request Body"}
+          onClick={() => { if (!isBodyDisabled) setActiveTab('body'); }}
         >
           <FileCode size={14} />
           Body

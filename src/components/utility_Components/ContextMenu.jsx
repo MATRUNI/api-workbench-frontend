@@ -36,6 +36,7 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
+        e.stopPropagation();
         if (activeSubmenu !== null) {
           setActiveSubmenu(null);
           setActiveSubmenuIndex(-1);
@@ -122,17 +123,17 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
     };
 
     const timer = setTimeout(() => {
-      window.addEventListener('click', handleOutsideClick);
-      window.addEventListener('contextmenu', handleOutsideClick);
-      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('click', handleOutsideClick, true);
+      window.addEventListener('contextmenu', handleOutsideClick, true);
+      window.addEventListener('keydown', handleKeyDown, true);
       window.addEventListener('scroll', onClose, true);
-    }, 80);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('click', handleOutsideClick);
-      window.removeEventListener('contextmenu', handleOutsideClick);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('click', handleOutsideClick, true);
+      window.removeEventListener('contextmenu', handleOutsideClick, true);
+      window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('scroll', onClose, true);
     };
   }, [isOpen, onClose, activeIndex, activeSubmenu, activeSubmenuIndex, items, onShowPill]);

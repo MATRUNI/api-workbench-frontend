@@ -53,8 +53,15 @@ export default function ApiDocumentationModal() {
   if (!targetApi) return null;
 
   return (
-    <div className="modal-backdrop" onClick={handleClose}>
-      <div className="modal-surface" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="modal-backdrop" 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
+      <div className="modal-surface">
         <div className="modal-interior-content">
           <button 
             className="modal-close-corner-btn" 

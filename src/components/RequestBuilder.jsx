@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect } from 'react'
 import Tabs from '../request-panel/Tabs'
 import Body_panel from '../request-panel/Body_panel'
+import AuthPanel from '../request-panel/AuthPanel'
 import { RequestContext } from '../context/RequestContext'
 import { ProxyContext } from '../context/ProxyContext'
 import { callAPI } from '../services/api'
@@ -358,7 +359,8 @@ function RequestBuilder({ scrollToResponse }) {
               headers: request.headers || [],
               query: request.query || [],
               body: isBodyDisabled ? "" : currentBody,
-              contentType: request.contentType || "application/json"
+              contentType: request.contentType || "application/json",
+              auth: request.auth
             };
             const curlSnippet = generateCodeSnippet("curl", "curl", reqData);
             copyToClipboard(curlSnippet, "Copied as cURL!");
@@ -463,6 +465,8 @@ function RequestBuilder({ scrollToResponse }) {
 
       {activeTab === "body" && <Body_panel ref={bodyRef}/>}
 
+      {activeTab === "auth" && <AuthPanel />}
+
       {activeTab === "headers" && (
           <KeyValueList
               items={request.headers}
@@ -531,7 +535,8 @@ function RequestBuilder({ scrollToResponse }) {
               method,
               headers: request.headers,
               query: request.query,
-              body: bodyRef.current?.getCurrentBody()
+              body: bodyRef.current?.getCurrentBody(),
+              auth: request.auth
           }}
       />
       }

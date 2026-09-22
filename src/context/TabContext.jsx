@@ -16,7 +16,13 @@ const DEFAULT_REQUEST = {
     "text/plain": "Input your raw plain text data here.\nLine breaks and spaces are preserved exactly as typed."
   },
   headers: [],
-  query: []
+  query: [],
+  auth: {
+    type: "none",
+    token: "",
+    username: "",
+    password: ""
+  }
 };
 const DEFAULT_RESPONSE = {
   status: 200,

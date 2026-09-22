@@ -2,9 +2,12 @@ import { ArrayToObject } from "./ArrayToObject"
 import {contentTypeHandlers} from '../services/contentTypeHandler'
 import APIMask from "../utils/APIMask";
 import { customFetch } from "./customFetch";
+import { prepareRequest } from "../utils/requestUtils";
+
 export async function callAPI(url,method,request,isProxyEnable)
 {
     const header=ArrayToObject(request.headers);
+    const authHeaders = prepareRequest(request.auth);
     const queryString = new URLSearchParams({...Object.fromEntries(new URL(url).searchParams),
       ...ArrayToObject(request.query || {})
     }).toString();
@@ -12,6 +15,7 @@ export async function callAPI(url,method,request,isProxyEnable)
         method,
         headers:{
             ...(method !== "GET" && request.body ? { 'Content-Type': request.contentType || 'application/json' } : {}),
+            ...authHeaders,
             ...header
         },
         ...(isProxyEnable ? {credentials:"include"}:{}),

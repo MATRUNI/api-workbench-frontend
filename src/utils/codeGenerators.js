@@ -1,3 +1,5 @@
+import { prepareRequest } from './requestUtils.js';
+
 export const LANGUAGES = [
   {
     id: 'javascript',
@@ -144,6 +146,7 @@ export function processRequestData(requestData = {}) {
     query = [],
     body = '',
     contentType = 'application/json',
+    auth = null,
   } = requestData;
 
   const validQueries = (Array.isArray(query) ? query : []).filter(
@@ -158,6 +161,15 @@ export function processRequestData(requestData = {}) {
   const hasMethodBody = hasBody(method, body);
   const hasContentTypeHeader = validHeaders.some(h => h.key.toLowerCase() === 'content-type');
   let finalHeaders = [...validHeaders];
+
+  // Automatically inject Authorization header if auth is configured and not explicitly defined
+  const hasAuthHeader = validHeaders.some(h => h.key.toLowerCase() === 'authorization');
+  if (!hasAuthHeader && auth) {
+    const authHeaders = prepareRequest(auth);
+    if (authHeaders.Authorization) {
+      finalHeaders.unshift({ key: 'Authorization', value: authHeaders.Authorization });
+    }
+  }
 
   if (hasMethodBody && contentType && !hasContentTypeHeader) {
     finalHeaders.push({ key: 'Content-Type', value: contentType });

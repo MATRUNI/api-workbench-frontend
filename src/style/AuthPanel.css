@@ -1,0 +1,461 @@
+.auth-panel-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  min-height: 380px;
+  margin-top: 10px;
+  box-sizing: border-box;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Header bar */
+.auth-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.auth-type-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Fira Code', monospace;
+}
+
+/* Auth type icons */
+.auth-type-icon.none {
+  color: var(--text-muted);
+}
+
+.auth-type-icon.bearer {
+  color: var(--brand-color);
+}
+
+.auth-type-icon.basic {
+  color: #38bdf8;
+}
+
+html.light-theme .auth-type-icon.basic {
+  color: #0284c7;
+}
+
+.auth-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #f87171;
+  color: #fca5a5;
+}
+
+/* Content Area */
+.auth-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+/* Empty State */
+.auth-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  background: color-mix(in srgb, var(--text-main) 2%, transparent);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-muted);
+  gap: 8px;
+}
+
+.auth-empty-icon {
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.auth-empty-state h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.auth-empty-state p {
+  font-size: 0.8rem;
+  margin: 0;
+  max-width: 340px;
+  color: var(--text-muted);
+}
+
+.auth-quick-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.auth-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: color-mix(in srgb, var(--text-main) 4%, transparent);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-quick-btn:hover {
+  border-color: var(--brand-color);
+  color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 10%, transparent);
+}
+
+/* Form Card */
+.auth-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: color-mix(in srgb, var(--text-main) 2%, transparent);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.auth-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.auth-accent-icon.bearer {
+  color: var(--brand-color);
+}
+
+.auth-accent-icon.basic {
+  color: #38bdf8;
+}
+
+html.light-theme .auth-accent-icon.basic {
+  color: #0284c7;
+}
+
+.auth-helper-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.auth-helper-text code {
+  background: color-mix(in srgb, var(--text-main) 6%, transparent);
+  border: 1px solid var(--border-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--brand-color);
+}
+
+/* Inputs */
+.auth-grid-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.auth-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-family: 'Fira Code', monospace;
+}
+
+.auth-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.auth-text-input {
+  width: 100%;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 9px 36px 9px 12px;
+  color: var(--text-main);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.82rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.auth-text-input:focus {
+  border-color: var(--brand-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-color) 25%, transparent);
+}
+
+.auth-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.auth-eye-btn:hover {
+  color: var(--text-main);
+}
+
+/* Live Header Preview Card */
+.auth-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: color-mix(in srgb, var(--terminal-input) 85%, var(--card-bg));
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: auto;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.auth-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-preview-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.preview-sparkle {
+  color: #fbbf24;
+}
+
+.auth-copy-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: color-mix(in srgb, var(--text-main) 5%, transparent);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-copy-header-btn:hover {
+  color: var(--brand-color);
+  border-color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 10%, transparent);
+}
+
+.auth-preview-code {
+  background: #05070a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.8rem;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.auth-preview-code .header-key {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.auth-preview-code .header-val {
+  color: var(--brand-color);
+  word-break: break-all;
+}
+
+.preview-placeholder {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.auth-footer-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Badge on Auth Tab */
+.auth-tab-badge {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--brand-color);
+  box-shadow: 0 0 6px var(--brand-color);
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   Light Theme Explicit Polish
+   ========================================================================== */
+html.light-theme .auth-panel-container {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+html.light-theme .auth-preview-card {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .auth-preview-code {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  color: var(--text-main);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+html.light-theme .auth-preview-code .header-key {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+html.light-theme .auth-preview-code .header-val {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+html.light-theme .auth-preview-title {
+  color: #52525b;
+}
+
+html.light-theme .preview-placeholder {
+  color: #a1a1aa;
+}
+
+html.light-theme .auth-footer-notice {
+  color: #71717a;
+}
+
+html.light-theme .auth-empty-state {
+  background: #fafafa;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .auth-form-card {
+  background: #fafafa;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .auth-quick-btn {
+  background: #ffffff;
+  border-color: #e4e4e7;
+  color: #09090b;
+}
+
+html.light-theme .auth-quick-btn:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+html.light-theme .auth-text-input {
+  background: #ffffff;
+  border-color: #e4e4e7;
+  color: #09090b;
+}
+
+html.light-theme .auth-copy-header-btn {
+  background: #ffffff;
+  border-color: #e4e4e7;
+  color: #52525b;
+}
+
+html.light-theme .auth-copy-header-btn:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+@media (max-width: 600px) {
+  .auth-panel-container {
+    padding: 12px;
+  }
+  .auth-grid-fields {
+    grid-template-columns: 1fr;
+  }
+}

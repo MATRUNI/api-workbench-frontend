@@ -25,7 +25,13 @@ export function RequestProvider({children})
           ...contentTypeTemplates
         },
         headers:[],
-        query:[]
+        query:[],
+        auth: {
+          type: "none",
+          token: "",
+          username: "",
+          password: ""
+        }
     });
     const [response,setResponse]=useState({
               "status": 200,

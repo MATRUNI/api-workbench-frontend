@@ -1,4 +1,4 @@
-import { FileCode, KeyRound, ListFilter } from "lucide-react"
+import { FileCode, KeyRound, ListFilter, ShieldCheck } from "lucide-react"
 import AnimatedToggle from "../components/utility_Components/Toggle"
 import { useContext } from "react"
 import { MobileContext } from "../context/MobileContext"
@@ -7,9 +7,14 @@ import { RequestContext } from "../context/RequestContext"
 function Tabs({activeTab,setActiveTab}) {
   const {isMobile} = useContext(MobileContext)
   const { isProxyRunning } = useContext(ProxyContext)
-  const { isProxyEnable,setIsProxyEnable, method } = useContext(RequestContext)
+  const { isProxyEnable,setIsProxyEnable, method, request } = useContext(RequestContext)
 
   const isBodyDisabled = method === "GET" || method === "HEAD";
+  const isAuthActive = Boolean(
+    request?.auth?.type && 
+    request.auth.type !== 'none' && 
+    (request.auth.token || request.auth.username)
+  );
 
   return (
     <div className="tabs-header">
@@ -25,6 +30,16 @@ function Tabs({activeTab,setActiveTab}) {
           Body
         </button>
         <button
+          type="button"
+          className={`tab ${activeTab === 'auth' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('auth') }}
+        >
+          <ShieldCheck size={14} />
+          Auth
+          {isAuthActive && <span className="auth-tab-badge" title={`Active: ${request.auth.type}`} />}
+        </button>
+        <button
+          type="button"
           className={`tab ${activeTab === 'headers' ? 'active' : ''}`}
           onClick={() => { setActiveTab('headers') }}
         >
@@ -32,6 +47,7 @@ function Tabs({activeTab,setActiveTab}) {
           Headers
         </button>
         <button
+          type="button"
           className={`tab ${activeTab === 'query-params' ? 'active' : ''}`}
           onClick={() => { setActiveTab('query-params') }}
         >

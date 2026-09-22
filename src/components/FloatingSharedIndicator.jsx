@@ -1,12 +1,22 @@
 import { useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Share2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import "../style/FloatingSharedIndicator.css";
 import { ShareContext } from '../context/ShareContext';
+import { MobileContext } from '../context/MobileContext';
 
 function FloatingSharedIndicator({ onOpenInbox }) {
   const { unreadShares, sentShares } = useContext(ShareContext);
+  const { isMobile } = useContext(MobileContext);
+  const location = useLocation();
+
+  const isChatOnMobile = isMobile && location.pathname === '/chat';
+
+  if (isChatOnMobile) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

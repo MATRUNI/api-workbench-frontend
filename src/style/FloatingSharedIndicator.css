@@ -62,10 +62,19 @@
   opacity: 0.8;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 1220px) {
   .floating-shared-badge {
     left: 16px;
-    bottom: var(--workspace-btn-bottom, 16px);
+    bottom: var(--workspace-btn-bottom, 80px);
     padding: 7px 12px;
+  }
+}
+
+/* In Chat on mobile/small screens, position triggers above the bottom chat input bar */
+@media (max-width: 768px) {
+  body:has(.chat-workbench) .floating-shared-badge,
+  body:has(.comm-shell-wrapper) .floating-shared-badge {
+    bottom: 80px !important;
+    left: 16px !important;
   }
 }

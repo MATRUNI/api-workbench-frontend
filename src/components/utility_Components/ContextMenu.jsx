@@ -251,7 +251,10 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill,
                   disabled={item.disabled}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (hasSubmenu) return;
+                    if (hasSubmenu) {
+                      setActiveSubmenu((prev) => (prev === index ? null : index));
+                      return;
+                    }
                     if (item.copiedMessage && onShowPill) {
                       onShowPill(item.copiedMessage);
                     }

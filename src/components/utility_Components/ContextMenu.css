@@ -26,7 +26,7 @@
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   max-height: calc(100dvh - var(--workspace-btn-bottom, 24px) - 64px);
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .context-menu-item {
@@ -135,6 +135,7 @@
 .submenu-surface {
   position: absolute;
   min-width: 180px;
+  z-index: 10001;
 }
 
 .submenu-surface.open-right {
@@ -244,15 +245,63 @@
   color: var(--text-muted);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .submenu-surface {
+    position: static !important;
+    min-width: 100% !important;
+    margin: 4px 0 !important;
+    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    transform: none !important;
+  }
+
+  .submenu-surface.open-right,
+  .submenu-surface.open-left {
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .submenu-surface.open-down,
+  .submenu-surface.open-up {
+    top: auto !important;
+    bottom: auto !important;
+  }
+
+  .submenu-surface::before {
+    display: none !important;
+  }
+}
+
+/* On all mobile and tablet screens where .main-links forms a bottom dock or in Chat */
+@media (max-width: 1220px) {
   .workspace-context-trigger-btn {
     right: 16px;
-    bottom: var(--workspace-btn-bottom, 16px);
+    bottom: var(--workspace-btn-bottom, 80px);
     padding: 7px 12px;
   }
 
   .context-menu-container.bottom-right-anchor {
     right: 16px;
-    bottom: calc(var(--workspace-btn-bottom, 16px) + 44px);
+    bottom: calc(var(--workspace-btn-bottom, 80px) + 44px);
+  }
+}
+
+@media (max-width: 768px) {
+  .workspace-context-trigger-btn .btn-kbd {
+    display: none;
+  }
+
+  body:has(.chat-workbench) .workspace-context-trigger-btn,
+  body:has(.comm-shell-wrapper) .workspace-context-trigger-btn {
+    bottom: 80px !important;
+    right: 16px !important;
+  }
+
+  body:has(.chat-workbench) .context-menu-container.bottom-right-anchor,
+  body:has(.comm-shell-wrapper) .context-menu-container.bottom-right-anchor {
+    bottom: 126px !important;
+    right: 16px !important;
   }
 }

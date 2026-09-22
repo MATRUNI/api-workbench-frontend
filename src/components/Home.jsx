@@ -20,6 +20,7 @@ import {
   Search,
   Link2,
   Menu,
+  MessageSquare,
 } from 'lucide-react'
 
 function HomeContent() {
@@ -36,14 +37,16 @@ function HomeContent() {
       if (rafId) cancelAnimationFrame(rafId)
       rafId = requestAnimationFrame(() => {
         const footer = document.querySelector('.prism-footer-shell')
-        let offset = 24
+        const isMobileScreen = window.innerWidth <= 1220
+        const baseOffset = isMobileScreen ? 80 : 24
+        let offset = baseOffset
         const windowHeight = window.innerHeight
 
         if (footer) {
           const rect = footer.getBoundingClientRect()
           if (rect.top < windowHeight && rect.bottom > 0) {
             const visibleFooterHeight = Math.max(0, windowHeight - rect.top)
-            offset = 24 + visibleFooterHeight
+            offset = baseOffset + visibleFooterHeight
           }
         }
 
@@ -125,6 +128,11 @@ function HomeContent() {
             label: 'Network Console',
             icon: Terminal,
             onClick: () => navigate('/console'),
+          },
+          {
+            label: 'Communication Matrix',
+            icon: MessageSquare,
+            onClick: () => navigate('/chat'),
           },
           { type: 'separator' },
           { type: 'header', label: 'Resources' },

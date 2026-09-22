@@ -4,6 +4,15 @@
   -webkit-user-select: none;
 }
 
+.context-menu-container.bottom-right-anchor {
+  position: fixed;
+  right: 24px;
+  bottom: calc(var(--workspace-btn-bottom, 24px) + 46px);
+  top: auto !important;
+  left: auto !important;
+  z-index: 9999;
+}
+
 .context-menu-surface {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -16,6 +25,8 @@
   gap: 2px;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
+  max-height: calc(100dvh - var(--workspace-btn-bottom, 24px) - 64px);
+  overflow-y: auto;
 }
 
 .context-menu-item {
@@ -192,7 +203,7 @@
 /* Floating button to open workspace menu by click or keyboard */
 .workspace-context-trigger-btn {
   position: fixed;
-  bottom: 24px;
+  bottom: var(--workspace-btn-bottom, 24px);
   right: 24px;
   z-index: 9990;
   display: flex;
@@ -210,12 +221,13 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
   outline: none;
 }
 
 .workspace-context-trigger-btn:hover,
-.workspace-context-trigger-btn:focus-visible {
+.workspace-context-trigger-btn:focus-visible,
+.workspace-context-trigger-btn.active {
   border-color: var(--brand-color);
   color: var(--brand-color);
   box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3), 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -230,4 +242,17 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .workspace-context-trigger-btn {
+    right: 16px;
+    bottom: var(--workspace-btn-bottom, 16px);
+    padding: 7px 12px;
+  }
+
+  .context-menu-container.bottom-right-anchor {
+    right: 16px;
+    bottom: calc(var(--workspace-btn-bottom, 16px) + 44px);
+  }
 }

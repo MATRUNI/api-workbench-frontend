@@ -335,18 +335,15 @@ const ResponseViewer = forwardRef((props, ref) => {
             </div>
 
             <div className='copy-container'>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button type="button" className="copy-btn" disabled={!response.data} onClick={handleCopy}>
                         {copied ? <><Check size={14} /> COPIED</> : <><Copy size={14} /> COPY</>}
                     </button>
                     <button type="button" className="copy-btn" disabled={!response.data} onClick={handleDownload} title="Download response">
                         <Download size={14} /> SAVE
                     </button>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <button type="button" className="copy-btn" onClick={() => setIsExpanded(!isExpanded)} title="Expand view">
-                        <Maximize2 size={14} />
+                    <button type="button" className="copy-btn" onClick={() => setIsExpanded(!isExpanded)} title={isExpanded ? "Collapse view" : "Expand view"}>
+                        {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
                     <button type="button" className='copy-btn clear-btn' disabled={!response.data} onClick={() => setResponse({ status: 200 })}>
                         <Trash2 size={14} /> CLEAR

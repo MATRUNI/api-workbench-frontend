@@ -12,6 +12,7 @@ export const ContextMenuProvider = ({ children }) => {
     x: 0,
     y: 0,
     items: [],
+    anchor: null,
   });
 
   const [floatingPill, setFloatingPill] = useState(null);
@@ -25,7 +26,7 @@ export const ContextMenuProvider = ({ children }) => {
     }, 2000);
   }, []);
 
-  const openContextMenu = useCallback((eventOrItems, itemsOrUndefined) => {
+  const openContextMenu = useCallback((eventOrItems, itemsOrUndefined, options = {}) => {
     let event = null;
     let items = [];
 
@@ -39,11 +40,15 @@ export const ContextMenuProvider = ({ children }) => {
     if (event?.preventDefault) event.preventDefault();
     if (event?.stopPropagation) event.stopPropagation();
 
+    const isBottomRight = options?.anchor === 'bottom-right' ||
+      event?.currentTarget?.id === 'workspace-context-btn' ||
+      event?.target?.closest?.('#workspace-context-btn');
+
     let x = event?.clientX ?? 0;
     let y = event?.clientY ?? 0;
 
     // If triggered by keyboard or button without pointer coordinates, anchor beneath active element
-    if ((!x && !y) || (x === 0 && y === 0)) {
+    if (!isBottomRight && ((!x && !y) || (x === 0 && y === 0))) {
       const target = event?.currentTarget || event?.target || document.activeElement;
       if (target && typeof target.getBoundingClientRect === 'function' && target !== document.body && target !== document.documentElement) {
         const rect = target.getBoundingClientRect();
@@ -60,6 +65,7 @@ export const ContextMenuProvider = ({ children }) => {
       x,
       y,
       items,
+      anchor: isBottomRight ? 'bottom-right' : null,
     });
   }, []);
 
@@ -69,6 +75,7 @@ export const ContextMenuProvider = ({ children }) => {
       x: 0,
       y: 0,
       items: [],
+      anchor: null,
     });
   }, []);
 
@@ -97,6 +104,8 @@ export const ContextMenuProvider = ({ children }) => {
   return (
     <ContextMenuContext.Provider
       value={{
+        isOpen: menuState.isOpen,
+        anchor: menuState.anchor,
         openContextMenu,
         closeContextMenu,
         showFloatingPill,
@@ -107,6 +116,7 @@ export const ContextMenuProvider = ({ children }) => {
 
       <ContextMenu
         isOpen={menuState.isOpen}
+        anchor={menuState.anchor}
         position={{
           x: menuState.x,
           y: menuState.y,

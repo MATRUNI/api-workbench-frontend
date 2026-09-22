@@ -63,9 +63,10 @@
 .copy-container {
   position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-left: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .copy-btn {

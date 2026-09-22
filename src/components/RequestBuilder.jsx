@@ -30,6 +30,7 @@ import "../style/RequestBuilder.css"
 import ConfigSharing from './ConfigSharing'
 import CodeSnippetModal from './CodeSnippetModal'
 import { UserContext } from '../context/UserContext'
+import { ShareContext } from '../context/ShareContext'
 import { Panel } from 'react-resizable-panels'
 import { ContextMenuContext } from '../context/ContextMenuContext'
 import { generateCodeSnippet } from '../utils/codeGenerators'
@@ -59,6 +60,8 @@ function RequestBuilder({ scrollToResponse }) {
     const { isProxyRunning } = useContext(ProxyContext)
     const {user} = useContext(UserContext)
     const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
+    const shareCtx = useContext(ShareContext);
+    const hasSharedIndicator = Boolean(shareCtx && (shareCtx.unreadShares?.length > 0 || shareCtx.sentShares));
     const [activeTab,setActiveTab]=useState('body')
     const [modalActive,setModalActive] = useState(false);
     const [codeModalActive, setCodeModalActive] = useState(false);
@@ -494,7 +497,7 @@ function RequestBuilder({ scrollToResponse }) {
           />
       )}
       
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <div className={`action-button-group ${hasSharedIndicator ? 'has-indicator' : ''}`}>
           <button 
               type="button" 
               className="code-btn" 

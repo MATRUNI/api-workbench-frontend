@@ -1,6 +1,6 @@
 import { Suspense, useContext, useCallback, useEffect } from 'react'
 import NavBar from './NavBar'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import StartBootLoader from './StartBootLoader'
 import SystemFooter from './Footer'
 import { ContextMenuContext, ContextMenuProvider } from '../context/ContextMenuProvider'
@@ -23,16 +23,73 @@ import {
 } from 'lucide-react'
 
 function HomeContent() {
-  const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext)
+  const { openContextMenu, closeContextMenu, isOpen, anchor, copyToClipboard } = useContext(ContextMenuContext)
   const navigate = useNavigate()
+  const location = useLocation()
 
-  const handle = useCallback((e) => {
+  // Dynamically calculate distance from viewport bottom to top of footer
+  // so the floating workspace menu button and open menu stay cleanly floating above footer
+  useEffect(() => {
+    let rafId = null
+
+    const updateFooterOffset = () => {
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => {
+        const footer = document.querySelector('.prism-footer-shell')
+        let offset = 24
+        const windowHeight = window.innerHeight
+
+        if (footer) {
+          const rect = footer.getBoundingClientRect()
+          if (rect.top < windowHeight && rect.bottom > 0) {
+            const visibleFooterHeight = Math.max(0, windowHeight - rect.top)
+            offset = 24 + visibleFooterHeight
+          }
+        }
+
+        document.documentElement.style.setProperty('--workspace-btn-bottom', `${offset}px`)
+      })
+    }
+
+    updateFooterOffset()
+
+    window.addEventListener('scroll', updateFooterOffset, { passive: true })
+    window.addEventListener('resize', updateFooterOffset, { passive: true })
+
+    let resizeObserver = null
+    if (window.ResizeObserver) {
+      resizeObserver = new ResizeObserver(updateFooterOffset)
+      const footer = document.querySelector('.prism-footer-shell')
+      if (footer) resizeObserver.observe(footer)
+      if (document.body) resizeObserver.observe(document.body)
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', updateFooterOffset)
+      window.removeEventListener('resize', updateFooterOffset)
+      if (resizeObserver) resizeObserver.disconnect()
+    }
+  }, [location.pathname])
+
+  const handle = useCallback((e, opts = {}) => {
     if (e?.preventDefault) e.preventDefault()
     if (e?.stopPropagation) e.stopPropagation()
+
+    const isFromTriggerBtn =
+      e?.currentTarget?.id === 'workspace-context-btn' ||
+      e?.target?.closest?.('#workspace-context-btn')
+
+    // Toggle close if already open and clicked on the trigger button
+    if (isOpen && (isFromTriggerBtn || opts?.toggle)) {
+      closeContextMenu()
+      return
+    }
 
     const isLight = document.documentElement.classList.contains('light-theme')
     const isFullscreen = Boolean(document.fullscreenElement)
     const selectedText = window.getSelection()?.toString().trim() || ''
+    const isBottomRight = isFromTriggerBtn || opts?.anchor === 'bottom-right'
 
     openContextMenu(e, [
       { type: 'header', label: 'Clipboard' },
@@ -145,8 +202,8 @@ function HomeContent() {
           }
         },
       },
-    ])
-  }, [openContextMenu, navigate, copyToClipboard])
+    ], { anchor: isBottomRight ? 'bottom-right' : null })
+  }, [isOpen, closeContextMenu, openContextMenu, navigate, copyToClipboard])
 
   // Direct keyboard shortcut listener to open context menu:
   // - Alt + M (Universal, works on all laptops)
@@ -176,7 +233,7 @@ function HomeContent() {
             suppressNextContextMenu = false
           }, 200)
         }
-        handle(e)
+        handle(e, { anchor: 'bottom-right', toggle: true })
       }
     }
 
@@ -222,11 +279,12 @@ function HomeContent() {
       <button
         type="button"
         id="workspace-context-btn"
-        className="workspace-context-trigger-btn"
-        onClick={handle}
-        onContextMenu={handle}
+        className={`workspace-context-trigger-btn ${isOpen && anchor === 'bottom-right' ? 'active' : ''}`}
+        onClick={(e) => handle(e, { anchor: 'bottom-right', toggle: true })}
+        onContextMenu={(e) => handle(e, { anchor: 'bottom-right', toggle: true })}
         title="Workspace Menu (Press Alt+M or Ctrl+.)"
         aria-label="Open Workspace Context Menu"
+        aria-expanded={isOpen && anchor === 'bottom-right'}
       >
         <Menu size={14} />
         <span className="btn-label">Menu</span>

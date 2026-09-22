@@ -2,6 +2,8 @@
   position: relative;
   display: inline-block;
   -webkit-user-select: none;
+  user-select: none;
+  box-sizing: border-box;
 }
 
 .custom-dropdown-trigger {
@@ -17,8 +19,10 @@
   color: var(--text-main);
   font-family: 'Fira Code', monospace;
   font-size: 12px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
   min-width: 120px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .custom-dropdown-trigger:hover {
@@ -30,7 +34,9 @@
   top: 100%;
   left: 0;
   margin-top: 4px;
-  width: 120px;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(100vw - 32px, 380px);
   max-height: min(320px, calc(100vh - 120px));
   overflow-y: auto;
   background-color: var(--card-bg);
@@ -42,6 +48,7 @@
   z-index: 999;
   font-family: 'Fira Code', monospace;
   font-size: 12px;
+  box-sizing: border-box;
 }
 
 .dropdown-label {
@@ -89,4 +96,16 @@
   border-bottom: 1px solid var(--border-color);
   padding: 10px;
   border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .custom-dropdown-trigger {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .custom-dropdown-item {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
 }

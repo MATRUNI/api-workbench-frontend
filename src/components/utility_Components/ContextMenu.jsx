@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 import './ContextMenu.css';
 
-export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill }) => {
+export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill, anchor }) => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [activeSubmenuIndex, setActiveSubmenuIndex] = useState(-1);
@@ -122,11 +122,15 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
       }
     };
 
+    const isBottomRight = anchor === 'bottom-right';
+
     const timer = setTimeout(() => {
       window.addEventListener('click', handleOutsideClick, true);
       window.addEventListener('contextmenu', handleOutsideClick, true);
       window.addEventListener('keydown', handleKeyDown, true);
-      window.addEventListener('scroll', onClose, true);
+      if (!isBottomRight) {
+        window.addEventListener('scroll', onClose, true);
+      }
     }, 50);
 
     return () => {
@@ -134,12 +138,15 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
       window.removeEventListener('click', handleOutsideClick, true);
       window.removeEventListener('contextmenu', handleOutsideClick, true);
       window.removeEventListener('keydown', handleKeyDown, true);
-      window.removeEventListener('scroll', onClose, true);
+      if (!isBottomRight) {
+        window.removeEventListener('scroll', onClose, true);
+      }
     };
-  }, [isOpen, onClose, activeIndex, activeSubmenu, activeSubmenuIndex, items, onShowPill]);
+  }, [isOpen, onClose, activeIndex, activeSubmenu, activeSubmenuIndex, items, onShowPill, anchor]);
 
   if (!isOpen) return null;
 
+  const isBottomRight = anchor === 'bottom-right';
   const menuWidth = 210;
   const submenuWidth = 190;
   const menuHeight = items.reduce(
@@ -160,17 +167,23 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
     : Math.min(position.y, window.innerHeight - menuHeight - 10);
 
   // Awareness: Submenu horizontal direction (flips to left if main menu opened left, or no room on the right)
-  const submenuOpenLeft = openLeft || constrainedX + menuWidth + submenuWidth > window.innerWidth - 10;
-  const mainTransformOrigin = `${openUp ? 'bottom' : 'top'} ${openLeft ? 'right' : 'left'}`;
+  const submenuOpenLeft = isBottomRight ? true : (openLeft || constrainedX + menuWidth + submenuWidth > window.innerWidth - 10);
+  const mainTransformOrigin = isBottomRight
+    ? 'bottom right'
+    : `${openUp ? 'bottom' : 'top'} ${openLeft ? 'right' : 'left'}`;
 
   return (
     <AnimatePresence>
       <div
-        className="context-menu-container"
-        style={{
-          top: `${constrainedY}px`,
-          left: `${constrainedX}px`,
-        }}
+        className={`context-menu-container ${isBottomRight ? 'bottom-right-anchor' : ''}`}
+        style={
+          isBottomRight
+            ? undefined
+            : {
+                top: `${constrainedY}px`,
+                left: `${constrainedX}px`,
+              }
+        }
       >
         <motion.div
           className="context-menu-surface"
@@ -178,15 +191,15 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
           initial={{
             opacity: 0,
             scale: 0.95,
-            y: openUp ? 4 : -4,
-            x: openLeft ? 4 : -4,
+            y: isBottomRight ? 6 : (openUp ? 4 : -4),
+            x: isBottomRight ? 0 : (openLeft ? 4 : -4),
           }}
           animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
           exit={{
             opacity: 0,
             scale: 0.95,
-            y: openUp ? 4 : -4,
-            x: openLeft ? 4 : -4,
+            y: isBottomRight ? 6 : (openUp ? 4 : -4),
+            x: isBottomRight ? 0 : (openLeft ? 4 : -4),
           }}
           transition={{ duration: 0.1, ease: 'easeOut' }}
         >
@@ -214,7 +227,7 @@ export const ContextMenu = ({ isOpen, position, onClose, items = [], onShowPill 
               .slice(0, index)
               .reduce((acc, it) => acc + (it.type === 'separator' ? 9 : it.type === 'header' ? 24 : 36), 8);
             const subHeight = (item.submenu?.length || 0) * 36 + 16;
-            const submenuOpenUp = constrainedY + itemTop + subHeight > window.innerHeight - 10;
+            const submenuOpenUp = isBottomRight ? true : (constrainedY + itemTop + subHeight > window.innerHeight - 10);
             const submenuTransformOrigin = `${submenuOpenUp ? 'bottom' : 'top'} ${submenuOpenLeft ? 'right' : 'left'}`;
 
             return (

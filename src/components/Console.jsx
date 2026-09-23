@@ -1,17 +1,19 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw, ExternalLink, Copy, Code } from "lucide-react";
+import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw, ExternalLink, Copy, Code, Database } from "lucide-react";
 import { RequestContext } from '../context/RequestContext';
 import { prismMotion, fadeFromLeft, fadeFromRight } from "../animations/Motion.js";
 import '../style/console.css';
 import { formatContent } from '../services/contentTypeHandler.js';
 import { ContextMenuContext } from '../context/ContextMenuProvider.jsx';
 import { TabContext } from '../context/TabContext.jsx';
+import { getHistory, clearHistory as clearHistoryDB, deleteHistoryItem, getHistoryTableSize } from '../services/history.js';
 
 function Console() {
   const [logs, setLogs] = useState([]);
   const [filter, setFilter] = useState('ALL');
+  const [storageSize, setStorageSize] = useState({ bytes: 0, formatted: '0.00 B', count: 0 });
   
   const { setURL, setMethod, setRequest, setResponse } = useContext(RequestContext);
   const { openContextMenu } = useContext(ContextMenuContext);
@@ -27,14 +29,21 @@ function Console() {
     }, 2000);
   };
   useEffect(() => {
-    const history = JSON.parse(localStorage.getItem('api_os_history')) || [];
-    setLogs(history);
+    let isMounted = true;
+    getHistory().then(history => {
+      if (isMounted) setLogs(history || []);
+    });
+    getHistoryTableSize().then(size => {
+      if (isMounted) setStorageSize(size);
+    });
+    return () => { isMounted = false; };
   }, []);
 
-  const clearHistory = () => {
+  const clearHistory = async () => {
     if (window.confirm("Purge all terminal workspace memory caches?")) {
-      localStorage.removeItem('api_os_history');
+      await clearHistoryDB();
       setLogs([]);
+      setStorageSize({ bytes: 0, formatted: '0.00 B', count: 0 });
     }
   };
 
@@ -109,10 +118,14 @@ function Console() {
     navigate('/endpoints');
   };
 
-  const handleDeleteLog = (targetLog) => {
+  const handleDeleteLog = async (targetLog) => {
     const updatedLogs = logs.filter(log => log !== targetLog);
     setLogs(updatedLogs);
-    localStorage.setItem('api_os_history', JSON.stringify(updatedLogs));
+    if (targetLog?.id) {
+      await deleteHistoryItem(targetLog.id);
+    }
+    const newSize = await getHistoryTableSize();
+    setStorageSize(newSize);
   };
 
   const handleCopyCurl = (log) => {
@@ -195,6 +208,15 @@ function Console() {
             <motion.div className="status-pill" {...fadeFromLeft}>
               <History size={14} />
               SYSTEM_TELEMETRY
+            </motion.div>
+            <motion.div 
+              className="status-pill storage-pill" 
+              {...fadeFromRight} 
+              title="Exact IndexedDB footprint (api_os_history_db -> history table)"
+            >
+              <Database size={13} className="storage-icon" />
+              <span>INDEXED_DB: <strong className="storage-size">{storageSize.formatted}</strong></span>
+              <span className="storage-count">({storageSize.count} records)</span>
             </motion.div>
           </div>
           <h1 {...fadeFromRight}>Cache Console</h1>

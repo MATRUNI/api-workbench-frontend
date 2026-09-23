@@ -1,57 +1,44 @@
-import React, { useMemo, useContext } from 'react';
+import { useMemo, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import '../../style/MatrixStats.css';
 import { ShieldAlert, Cpu, HardDrive, Zap, Terminal, Copy, ExternalLink } from 'lucide-react';
 import { ContextMenuContext } from '../../context/ContextMenuContext';
 import { prismMotion, gridVariants, cardVariants } from '../../animations/Motion';
+import { getHistoryStats } from '../../services/history';
 
 export default function MatrixStats({ stats }) {
   const navigate = useNavigate();
   const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
+  const [localStats, setLocalStats] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getHistoryStats().then(res => {
+      if (isMounted) setLocalStats(res);
+    }).catch(err => {
+      console.warn('Failed to load local history stats:', err);
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   // Compute real telemetry from stats prop or fallback to live local history
   const { data, historyWaveform } = useMemo(() => {
-    let localHistory = [];
-    try {
-      localHistory = JSON.parse(localStorage.getItem('api_os_history')) || [];
-    } catch {
-      localHistory = [];
-    }
-
     const hasBackendStats = stats && typeof stats.total === 'number' && stats.total > 0;
+    const localHistory = localStats?.records || [];
 
     let computedData;
     if (hasBackendStats) {
       computedData = { ...stats };
-    } else if (localHistory.length > 0) {
-      const total = localHistory.length;
-      let success = 0;
-      let client_errors = 0;
-      let server_errors = 0;
-      let rate_limited = 0;
-      let bytes_transferred = 0;
-      let total_compute_time_ms = 0;
-
-      localHistory.forEach(log => {
-        const s = parseInt(log.response?.status, 10) || 200;
-        if (s >= 200 && s < 400) success++;
-        else if (s === 429) rate_limited++;
-        else if (s >= 400 && s < 500) client_errors++;
-        else if (s >= 500) server_errors++;
-
-        bytes_transferred += (log.response?.length || log.size || 512);
-        total_compute_time_ms += (log.time || log.response?.time || 45);
-      });
-
+    } else if (localStats && localStats.total > 0) {
       computedData = {
-        total,
-        success,
-        rate_limited,
-        client_errors,
-        server_errors,
-        bytes_transferred,
-        total_compute_time_ms
+        total: localStats.total,
+        success: localStats.success,
+        rate_limited: localStats.rate_limited,
+        client_errors: localStats.client_errors,
+        server_errors: localStats.server_errors,
+        bytes_transferred: localStats.bytes_transferred,
+        total_compute_time_ms: localStats.total_compute_time_ms
       };
     } else {
       computedData = {
@@ -66,13 +53,16 @@ export default function MatrixStats({ stats }) {
     }
 
     // Extract recent latencies (last 5 requests) for organic real-world oscilloscope waveform
-    const recentLatencies = localHistory.slice(0, 5).map(l => l.time || l.response?.time || 35);
+    const recentLatencies = localHistory.slice(0, 5).map(l => {
+      const t = l.time || l.response?.time;
+      return typeof t === 'string' ? parseFloat(t) || 35 : (t || 35);
+    });
     while (recentLatencies.length < 5) {
       recentLatencies.push(30);
     }
 
     return { data: computedData, historyWaveform: recentLatencies.reverse() };
-  }, [stats]);
+  }, [stats, localStats]);
 
   const total = data.total || 1;
   const integrityRatio = data.total > 0 ? (data.success / data.total) : 1.0;

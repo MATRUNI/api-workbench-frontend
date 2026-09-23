@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -17,6 +17,7 @@ import { ContextMenuContext } from '../../context/ContextMenuContext';
 import { TabContext } from '../../context/TabContext';
 import { prismMotion, fadeFromLeft, fadeFromRight, gridVariants, cardVariants } from '../../animations/Motion';
 import '../../style/Endpoints.css';
+import { getHistory, clearHistory as clearHistoryDB, deleteHistoryItem } from '../../services/history';
 
 export default function Overview({ username, email, isVerified, createdAt }) {
   const [logs, setLogs] = useState([]);
@@ -25,17 +26,20 @@ export default function Overview({ username, email, isVerified, createdAt }) {
   const { handleAddTab } = useContext(TabContext) || {};
 
   useEffect(() => {
-    try {
-      const history = JSON.parse(localStorage.getItem('api_os_history')) || [];
-      setLogs(history.slice(0, 5));
-    } catch {
-      setLogs([]);
-    }
+    let isMounted = true;
+    getHistory({ limit: 5 })
+      .then(records => {
+        if (isMounted) setLogs(records || []);
+      })
+      .catch(() => {
+        if (isMounted) setLogs([]);
+      });
+    return () => { isMounted = false; };
   }, []);
 
-  const handlePurgeLogs = () => {
+  const handlePurgeLogs = async () => {
     if (window.confirm("Purge all live system request history?")) {
-      localStorage.removeItem('api_os_history');
+      await clearHistoryDB();
       setLogs([]);
       if (showFloatingPill) showFloatingPill("Live request logs purged!");
     }
@@ -52,18 +56,12 @@ export default function Overview({ username, email, isVerified, createdAt }) {
     navigate('/endpoints');
   };
 
-  const handleDeleteSingleLog = (logToDelete) => {
-    try {
-      const history = JSON.parse(localStorage.getItem('api_os_history')) || [];
-      const updated = history.filter(
-        l => !(l.url === logToDelete.url && l.timestamp === logToDelete.timestamp && l.method === logToDelete.method)
-      );
-      localStorage.setItem('api_os_history', JSON.stringify(updated));
-      setLogs(updated.slice(0, 5));
-      if (showFloatingPill) showFloatingPill("Log deleted!");
-    } catch (err) {
-      console.error(err);
+  const handleDeleteSingleLog = async (logToDelete) => {
+    if (logToDelete?.id) {
+      await deleteHistoryItem(logToDelete.id);
     }
+    setLogs(prev => prev.filter(l => l.id ? l.id !== logToDelete.id : l.timestamp !== logToDelete.timestamp));
+    if (showFloatingPill) showFloatingPill("Log deleted!");
   };
 
   const handleLogContextMenu = (e, log) => {

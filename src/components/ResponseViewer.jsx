@@ -13,12 +13,15 @@ import {
   Eye, 
   CheckCircle2, 
   Clock, 
-  HardDrive 
+  HardDrive,
+  Activity,
+  Zap
 } from "lucide-react";
 import VoidLoader from './VoidLoader';
 import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
 import KeyValueList from './utility_Components/KeyValueList';
 import ResponsePreview from './ResponsePreview';
+import NetworkWaterfall from './NetworkWaterfall';
 import '../style/responseViewer.css';
 import { Panel } from 'react-resizable-panels';
 import { ContextMenuContext } from '../context/ContextMenuContext';
@@ -27,7 +30,7 @@ const ResponseViewer = forwardRef((props, ref) => {
     const { response, isLoading, requestPhase, setResponse } = useContext(RequestContext);
     const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
     const [copied, setCopied] = useState(false);
-    const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'raw' | 'preview'
+    const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'raw' | 'preview' | 'timing'
     const [isExpanded, setIsExpanded] = useState(false);
 
     // Detect content type or default to JSON
@@ -193,6 +196,13 @@ const ResponseViewer = forwardRef((props, ref) => {
                 type: "checkbox",
                 checked: activeTab === "raw",
                 onClick: () => setActiveTab("raw")
+            },
+            {
+                label: "Timing / Waterfall",
+                icon: Activity,
+                type: "checkbox",
+                checked: activeTab === "timing",
+                onClick: () => setActiveTab("timing")
             }
         );
 
@@ -256,7 +266,25 @@ const ResponseViewer = forwardRef((props, ref) => {
                     <span className={`status-badge status-${getStatusClass(response.status)}`}>
                         {`${getStatusText(response.status)} ${response.status || ""}`}
                     </span>
-                    <span className="time-badge">{`${response.time || "0"} ms`}</span>
+                    <button 
+                        type="button" 
+                        className={`time-badge latency-pill ${activeTab === 'timing' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('timing')}
+                        title="Click to view latency waterfall profile"
+                    >
+                        {response.timing ? (
+                            <span className="mini-waterfall-spectrum">
+                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.dns || 0, 5)}%`, background: '#d2a8ff' }} />
+                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tcp || 0, 5)}%`, background: '#8b5cf6' }} />
+                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tls || 0, 5)}%`, background: '#c084fc' }} />
+                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.ttfb || 0, 10)}%`, background: '#f59e0b' }} />
+                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.download || 0, 5)}%`, background: '#49cc90' }} />
+                            </span>
+                        ) : (
+                            <Clock size={11} />
+                        )}
+                        <span>{`${response.time || "0"} ms`}</span>
+                    </button>
                 </div>
             </div>
 
@@ -281,6 +309,13 @@ const ResponseViewer = forwardRef((props, ref) => {
                     onClick={() => setActiveTab('raw')}
                 >
                     <FileText size={13} /> RAW
+                </button>
+                <button 
+                    type="button"
+                    className={`sub-tab ${activeTab === 'timing' ? 'active' : ''}`} 
+                    onClick={() => setActiveTab('timing')}
+                >
+                    <Activity size={13} /> TIMING
                 </button>
                 {hasPreview && (
                     <button 
@@ -320,6 +355,14 @@ const ResponseViewer = forwardRef((props, ref) => {
                                 showAddBtn={false}
                                 label="Response Headers"
                                 emptyMessage="No header information available."
+                            />
+                        )}
+
+                        {activeTab === 'timing' && (
+                            <NetworkWaterfall 
+                                timing={response.timing} 
+                                totalTime={response.time} 
+                                status={response.status} 
                             />
                         )}
 

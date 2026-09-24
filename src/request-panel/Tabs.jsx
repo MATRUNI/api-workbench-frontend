@@ -55,10 +55,18 @@ function Tabs({activeTab,setActiveTab}) {
           Query Params
         </button>
       </div>
-      { !isMobile && <div className="tab-container" aria-disabled={!isProxyRunning}>
-        <span className="tab">PROXY</span>
-        <AnimatedToggle isOn={isProxyEnable} setIsOn={setIsProxyEnable}/>
-      </div>}
+      { !isMobile && (
+        <div 
+          className="tab-container" 
+          aria-disabled={!isProxyRunning}
+          title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local server proxy" : "Proxy disabled: routing directly through browser") : "Local proxy is offline"}
+        >
+          <span className="tab" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+            PROXY
+          </span>
+          <AnimatedToggle isOn={isProxyEnable} setIsOn={setIsProxyEnable}/>
+        </div>
+      )}
     </div>
   )
 }

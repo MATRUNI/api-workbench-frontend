@@ -1,6 +1,8 @@
 import { callAPI } from '../../services/api';
 import { saveToHistory, getHistory, getHistoryTableSize, clearHistory, getAllDatabaseStats } from '../../services/history';
 
+let lastTimingTelemetry = null;
+
 /**
  * Parses modifier clauses after 'with'.
  * Format: with [-a <val>] [& -h <val>] [& -q <val>] [& -b <val>]
@@ -126,6 +128,7 @@ export async function executeTerminalCommand(rawCmd, context) {
         '  INDEXED_DB & TELEMETRY:',
         '    history [size | clear | limit <n>]            Query real IndexedDB history',
         '    db [stats | audit | tables]                   Audit all IndexedDB tables',
+        '    timing | waterfall                            Inspect network latency breakdown',
         '    clear                                         Purge terminal output buffer'
       ].join('\n')
     };
@@ -134,6 +137,39 @@ export async function executeTerminalCommand(rawCmd, context) {
   // 2. CLEAR BUFFER
   if (lower === 'clear') {
     return { type: 'clear' };
+  }
+
+  // 2.5 LATENCY WATERFALL TELEMETRY
+  if (lower === 'timing' || lower === 'waterfall' || lower === 'latency') {
+    const timing = context.response?.timing || lastTimingTelemetry;
+    if (!timing) {
+      return {
+        type: 'suggestion',
+        text: [
+          'NO LATENCY TELEMETRY RECORDED:',
+          '  Execute an HTTP request first (e.g. `get https://api.github.com` or via Workbench).',
+          '  The waterfall profiler will analyze DNS, TCP, TLS, and TTFB phases.'
+        ].join('\n')
+      };
+    }
+    return {
+      type: 'telemetry',
+      text: [
+        'NETWORK LATENCY WATERFALL PROFILE:',
+        `  Total Duration: ${timing.total} ms | Protocol: ${timing.protocol} | Source: ${timing.source}`,
+        `  Waterfall:      ${timing.asciiBar}`,
+        '',
+        '  PHASE BREAKDOWN:',
+        `    • DNS Lookup:        ${timing.dns} ms (${timing.percentages.dns}%)`,
+        `    • TCP Connect:       ${timing.tcp} ms (${timing.percentages.tcp}%)`,
+        `    • TLS Cryptography:  ${timing.tls} ms (${timing.percentages.tls}%)`,
+        `    • Server TTFB:       ${timing.ttfb} ms (${timing.percentages.ttfb}%) [Origin Processing]`,
+        `    • Content Download:  ${timing.download} ms (${timing.percentages.download}%)`,
+        '',
+        `  DIAGNOSTIC INSIGHT:`,
+        `    ${timing.insight}`
+      ].join('\n')
+    };
   }
 
   // 3. LIBRARY OPERATIONS: library list, library search, library get, api list
@@ -923,12 +959,16 @@ async function handleHttpDispatch(cmd, context) {
     if (context.setResponse) {
       context.setResponse(res);
     }
+    if (res.timing) {
+      lastTimingTelemetry = res.timing;
+    }
 
     // Save to real IndexedDB history
     await saveToHistory(url, method, finalRequest, res);
 
     const statusBadge = `[${res.status} ${res.status >= 200 && res.status < 300 ? 'OK' : 'RESPONSE'}]`;
     const headersCount = res.headers ? Object.keys(res.headers).length : 0;
+    const timing = res.timing;
 
     let previewBody = '';
     if (res.data) {
@@ -936,11 +976,19 @@ async function handleHttpDispatch(cmd, context) {
       if (previewBody.length >= 300) previewBody += '... (truncated in terminal, view full in Response tab)';
     }
 
+    const timingSummary = timing ? [
+      `Waterfall: ${timing.asciiBar || ''}`,
+      `Insight:   ${timing.insight || ''}`
+    ].filter(Boolean).join('\n') : '';
+
+    const routeTag = res.proxyUsed ? 'Proxy (Vlang)' : 'Browser Direct';
+
     return {
       type: res.status >= 200 && res.status < 300 ? 'success' : 'error',
       text: [
         `${statusBadge} ${method} ${url}`,
-        `Latency: ${res.time || duration}ms | Size: ${res.length || '0 B'} | Type: ${res.type || 'JSON'} | Headers: ${headersCount}`,
+        `Route: ${routeTag} | Latency: ${res.time || duration}ms | Size: ${res.length || '0 B'} | Type: ${res.type || 'JSON'} | Protocol: ${timing?.protocol || 'HTTP/1.1'}`,
+        timingSummary,
         previewBody ? `\nPayload Preview:\n${previewBody}` : ''
       ].filter(Boolean).join('\n')
     };

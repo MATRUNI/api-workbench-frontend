@@ -1,0 +1,598 @@
+/* ==========================================================================
+   ⚡ API.OS NETWORK WATERFALL & LATENCY PROFILER
+   Fully Responsive (Mobile, Tablet, Desktop) without horizontal scroll/clipping
+   ========================================================================== */
+
+.waterfall-container {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+  font-family: 'Fira Code', monospace;
+  color: var(--text-main);
+  background: var(--bg-color);
+}
+
+/* Empty State */
+.waterfall-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.waterfall-empty-icon {
+  color: var(--brand-color);
+  opacity: 0.6;
+  margin-bottom: 12px;
+}
+
+.waterfall-empty-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.waterfall-empty-desc {
+  font-size: 11px;
+  max-width: 400px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* 1. COMPACT INTEGRATED HEADER ROW */
+.waterfall-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 2px 0;
+}
+
+.waterfall-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.waterfall-total-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  font-weight: 800;
+}
+
+.total-ms {
+  font-size: 20px;
+  color: var(--brand-color);
+}
+
+.total-unit {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.waterfall-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.live-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 2px;
+}
+
+.live-pulse-dot.active {
+  background: var(--brand-green);
+  box-shadow: 0 0 6px var(--brand-green);
+}
+
+.live-pulse-dot.direct {
+  background: var(--brand-color);
+  box-shadow: 0 0 6px var(--brand-color);
+}
+
+.dominant-tag-pill {
+  color: var(--config-color) !important;
+  border-color: color-mix(in srgb, var(--config-color) 40%, transparent) !important;
+}
+
+.dominant-icon {
+  color: var(--config-color);
+  margin-right: 2px;
+}
+
+.waterfall-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* 2. SLIM BUDGET STRIP */
+.waterfall-budget-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.budget-multi-track {
+  display: flex;
+  width: 100%;
+  height: 5px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--terminal-input);
+}
+
+.budget-seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.budget-seg.handshake { background: var(--brand-color); }
+.budget-seg.compute { background: var(--config-color); }
+.budget-seg.transfer { background: var(--brand-green); }
+
+.budget-strip-labels {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.budget-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.budget-label .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+}
+
+.budget-label.handshake .dot { background: var(--brand-color); }
+.budget-label.compute .dot { background: var(--config-color); }
+.budget-label.transfer .dot { background: var(--brand-green); }
+
+/* 3. TIMELINE CANVAS */
+.waterfall-canvas-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Desktop Multi-column Ruler */
+.timeline-axis-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 80px;
+  gap: 12px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  align-items: center;
+}
+
+.axis-timeline-scale {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px 4px 4px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.axis-end {
+  color: var(--text-main);
+}
+
+.axis-stat-spacer {
+  text-align: right;
+  padding-right: 4px;
+}
+
+/* CASCADE GANTT ROWS */
+.cascade-timeline-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.timeline-grid-lines {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 192px;
+  right: 92px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Desktop Row: 3 columns */
+.cascade-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 80px;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+  border: 1px solid var(--border-color);
+  transition: background 0.15s ease, border-color 0.15s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.cascade-row:hover {
+  background: color-mix(in srgb, var(--brand-color) 8%, var(--card-bg));
+  border-color: var(--brand-color);
+}
+
+.cascade-row.dominant {
+  border-color: color-mix(in srgb, var(--config-color) 40%, var(--border-color));
+}
+
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.phase-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.phase-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.phase-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phase-time-span {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.row-mobile-stat {
+  display: none; /* Hidden on desktop, shown on mobile */
+}
+
+.row-track {
+  height: 18px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--terminal-input);
+  border-radius: 3px;
+}
+
+.cascade-bar-segment {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 2px;
+  min-width: 6px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.cascade-bar-segment:hover {
+  filter: brightness(1.25);
+}
+
+.row-stat-col {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.stat-dur {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.stat-pct {
+  color: var(--text-muted);
+}
+
+/* SPECTRUM VIEW */
+.spectrum-stacked-bar {
+  display: flex;
+  width: 100%;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--terminal-input);
+}
+
+.spectrum-segment {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.spectrum-segment:hover {
+  filter: brightness(1.2);
+}
+
+.spectrum-segment-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #000;
+  user-select: none;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.spectrum-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.spectrum-phase-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  font-size: 10px;
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.pill-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pill-name {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.pill-val {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.pill-val small {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Unified Latency Pill in ResponseViewer header */
+.time-badge.latency-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: 'Fira Code', monospace;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-badge.latency-pill:hover,
+.time-badge.latency-pill.active {
+  color: var(--brand-color);
+  border-color: var(--brand-color);
+  background: color-mix(in srgb, var(--brand-color) 12%, transparent);
+}
+
+.mini-waterfall-spectrum {
+  display: flex;
+  width: 28px;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mini-spectrum-seg {
+  height: 100%;
+}
+
+/* ==========================================================================
+   📱 MOBILE RESPONSIVE ADAPTATIONS (<= 680px)
+   ========================================================================== */
+
+@media (max-width: 680px) {
+  .waterfall-container {
+    padding: 10px 8px;
+    gap: 10px;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .waterfall-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .waterfall-meta-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .waterfall-meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .waterfall-actions-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .waterfall-actions-right .format-toggle {
+    margin-left: 0;
+    flex: 1 1 auto;
+  }
+
+  .waterfall-actions-right .copy-btn {
+    flex: 0 0 auto;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+
+  .waterfall-canvas-card {
+    padding: 8px;
+  }
+
+  .budget-strip-labels {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Hide desktop ruler lines on mobile */
+  .timeline-axis-row {
+    display: none;
+  }
+
+  .timeline-grid-lines {
+    display: none;
+  }
+
+  /* Stack each cascade row on mobile: Header on top, 100% full-width bar below */
+  .cascade-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px 8px;
+  }
+
+  .row-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .phase-title-group {
+    min-width: 0;
+    max-width: 70%;
+    gap: 6px;
+  }
+
+  .phase-label {
+    font-size: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .phase-time-span {
+    font-size: 8.5px;
+  }
+
+  .row-mobile-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .row-track {
+    width: 100%;
+    height: 12px;
+  }
+
+  .row-stat-col {
+    display: none;
+  }
+
+  .spectrum-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 6px;
+  }
+
+  .spectrum-phase-pill {
+    padding: 6px 8px;
+    font-size: 9px;
+  }
+}

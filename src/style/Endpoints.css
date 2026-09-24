@@ -678,34 +678,97 @@
 
 @media (max-width: 1220px) {
   .workbench-container {
-    min-height: 180vh;
+    min-height: auto;
+    height: auto;
     flex-direction: column;
     overflow-y: visible;
   }
-  .separator{
+
+  .separator {
+    height: 14px;
+    width: 100%;
     justify-content: center;
+    align-items: center;
+    background: color-mix(in srgb, var(--card-bg) 60%, transparent);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    margin: 4px 0;
+    cursor: row-resize;
   }
-  .request-pane {
+
+  .request-pane,
+  .response-pane {
     position: relative;
     border-right: none;
-    gap: 1.5rem;
-    flex: none;
+    border-left: none;
+    flex: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 1rem;
+  }
+
+  .tabs-wrapper {
+    justify-content: end;
+    padding: 6px 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pane-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .pane-header-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .response-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .response-meta > * {
+    margin-left: 0;
   }
 
   .url-bar-group {
     flex-direction: column;
     background: transparent;
     border: none;
-    gap: 10px;
+    gap: 8px;
+    padding: 0;
   }
 
   .url-input {
     padding: 0 1rem;
     background: var(--terminal-input);
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--border-color) !important;
+    box-sizing: border-box;
+    font-size: 0.85rem;
   }
+
   .editor-area {
-    height: 60%;
+    height: auto;
+    min-height: 240px;
   }
+
   .method-selector {
     width: 100%;
     flex: none;
@@ -713,12 +776,12 @@
 
   .method-selector .custom-dropdown-trigger {
     width: 100% !important;
-    height: 50px !important;
+    height: 44px !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 8px !important;
-    padding: 0 16px !important;
+    padding: 0 14px !important;
     box-sizing: border-box;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .method-selector .custom-dropdown-menu {
@@ -727,37 +790,89 @@
     max-width: 100% !important;
     border-radius: 8px;
     box-sizing: border-box;
-    margin-top: 6px;
+    margin-top: 4px;
     z-index: 1000;
   }
 
   .method-selector .custom-dropdown-item {
-    padding: 12px 16px;
-    font-size: 0.88rem;
+    padding: 10px 14px;
+    font-size: 0.85rem;
   }
 
   .url-input-wrapper {
     width: 100%;
   }
 
-  .url-input, 
   .send-button {
     width: 100%;
     border-radius: 8px !important;
     border: 1px solid var(--border-color) !important;
-    height: 50px;
+    height: 44px;
     box-sizing: border-box;
+  }
+
+  .tabs-header {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
   }
 
   .tab-container {
     display: flex;
-    width: 100%;
+    width: auto;
+    min-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    border-bottom: 1px solid var(--border-color);
   }
 
   .tab {
-    flex: 1;
+    flex: none;
     text-align: center;
-    padding: 12px 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .pane {
+    padding: 12px 10px;
+    gap: 12px;
+  }
+
+  .editor-window {
+    min-height: 220px;
+    max-height: 50vh;
+  }
+
+  .output {
+    height: auto !important;
+    min-height: 280px;
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .kv-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px;
+    padding: 8px 0;
+  }
+  .kv-row input {
+    padding: 8px 6px;
+    font-size: 0.78rem;
+  }
+  .header-key {
+    width: auto !important;
+    max-width: 100%;
+    font-size: 11px;
+  }
+  .header-val {
+    font-size: 11px;
+  }
+  .kv-read-cell {
+    padding: 0 6px;
   }
 }
 /* === TAB RENAME INPUT === */

@@ -31,12 +31,16 @@ export function ProxyProvider({ children }) {
 
                 if (response.ok) {
                     setIsProxyRunning(true);
+                    window.__isProxyRunning = true;
+                    window.__proxy_port = proxyPort;
                 } else {
                     setIsProxyRunning(false);
+                    window.__isProxyRunning = false;
                 }
             } catch (error) {
                 // Network error, connection refused, or aborted timeout means it's offline
                 setIsProxyRunning(false);
+                window.__isProxyRunning = false;
             }
             finally{
                 clearTimeout(timeoutId)

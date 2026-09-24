@@ -154,6 +154,45 @@
     .proxy-indicator {
         padding: 6px 8px;
     }
+    .terminal-nav-badge {
+        display: none;
+    }
+}
+
+.terminal-nav-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: 'Fira Code', monospace;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.terminal-nav-trigger:hover {
+    border-color: var(--brand-color, #a855f7);
+    color: var(--brand-color, #a855f7);
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);
+}
+
+.terminal-nav-trigger.active {
+    border-color: var(--brand-color, #a855f7);
+    background: rgba(168, 85, 247, 0.12);
+    color: var(--brand-color, #a855f7);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+.terminal-nav-badge {
+    font-size: 0.68rem;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--text-muted);
 }
 
 #profile-panel {

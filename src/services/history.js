@@ -1,5 +1,5 @@
 const DB_NAME = 'api_os_history_db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'history';
 const MAX_HISTORY_RECORDS = 1000;
 
@@ -66,6 +66,27 @@ export function initHistoryDB() {
 }
 
 /**
+ * Safely sanitizes arbitrary objects for Structured Clone algorithm in IndexedDB.
+ */
+function safeClone(data, fallback = null) {
+  if (data === undefined) return fallback;
+  if (data === null || typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+    return data;
+  }
+  if (typeof Blob !== 'undefined' && data instanceof Blob) return data;
+  if (typeof ArrayBuffer !== 'undefined' && data instanceof ArrayBuffer) return data;
+
+  try {
+    return JSON.parse(JSON.stringify(data));
+  } catch (e) {
+    if (typeof data.toString === 'function') {
+      return data.toString();
+    }
+    return String(data);
+  }
+}
+
+/**
  * Migrates existing history from localStorage into IndexedDB seamlessly.
  */
 async function migrateFromLocalStorage(db) {
@@ -75,7 +96,6 @@ async function migrateFromLocalStorage(db) {
 
     const parsedHistory = JSON.parse(rawLocalHistory);
     if (!Array.isArray(parsedHistory) || parsedHistory.length === 0) {
-      localStorage.removeItem('api_os_history');
       return;
     }
 
@@ -83,8 +103,13 @@ async function migrateFromLocalStorage(db) {
     const store = tx.objectStore(STORE_NAME);
 
     for (const item of parsedHistory) {
-      if (item && item.id) {
-        store.put(item);
+      if (item) {
+        const record = {
+          ...item,
+          id: item.id || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          timestamp: item.timestamp || new Date().toISOString()
+        };
+        store.put(record);
       }
     }
 
@@ -108,37 +133,45 @@ export const saveToHistory = async (url, method, currentRequest = {}, currentRes
     const db = await initHistoryDB();
     if (!db) return;
 
+    const rawData = currentResponse.data !== undefined ? currentResponse.data : currentResponse.rawData;
+    const safeData = safeClone(rawData, '');
+
     const newLog = {
       id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       timestamp: new Date().toISOString(),
       method: method || 'GET',
       url: url || '',
       request: {
-        body: currentRequest.body,
-        contentType: currentRequest.contentType,
-        headers: currentRequest.headers || [],
-        query: currentRequest.query || []
+        body: safeClone(currentRequest.body, ''),
+        contentType: currentRequest.contentType || 'application/json',
+        headers: safeClone(currentRequest.headers, []),
+        query: safeClone(currentRequest.query, [])
       },
       response: {
-        status: currentResponse.status,
-        rawData: currentResponse.data,
-        headers: currentResponse.headers || [],
+        status: currentResponse.status || '200',
+        rawData: safeData,
+        headers: safeClone(currentResponse.headers, {}),
         time: currentResponse.time || '0 ms',
-        length: currentResponse.length || 0
+        length: currentResponse.length || '0 B'
       },
-      category: currentResponse.category,
-      type: currentResponse.type,
-      size: currentResponse.length || 0
+      category: currentResponse.category || 'TEXT',
+      type: currentResponse.type || 'JSON',
+      size: currentResponse.length || (typeof rawData === 'string' ? `${rawData.length} B` : '0 B')
     };
 
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
-    store.add(newLog);
+    store.put(newLog);
 
     await new Promise((resolve, reject) => {
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
+
+    // Notify all active workbench components of history update
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('api_os_history_updated', { detail: newLog }));
+    }
 
     // Periodically prune older entries beyond MAX_HISTORY_RECORDS
     pruneHistory(db).catch(err => console.warn('API.OS: Prune history error:', err));
@@ -155,7 +188,6 @@ export const getHistory = async ({ limit = 500, query = '', filter = 'ALL' } = {
   try {
     const db = await initHistoryDB();
     if (!db) {
-      // Fallback to localStorage if IndexedDB is unavailable
       const fallback = JSON.parse(localStorage.getItem('api_os_history')) || [];
       return fallback.slice(0, limit);
     }
@@ -163,46 +195,42 @@ export const getHistory = async ({ limit = 500, query = '', filter = 'ALL' } = {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
-      const index = store.index('timestamp');
-      const results = [];
+      const req = store.getAll();
       const lowerQuery = query ? query.toLowerCase() : '';
 
-      // Traverse in reverse chronological order (newest first)
-      const request = index.openCursor(null, 'prev');
+      req.onsuccess = () => {
+        let records = req.result || [];
 
-      request.onsuccess = (event) => {
-        const cursor = event.target.result;
-        if (!cursor) {
-          return resolve(results);
-        }
-
-        const log = cursor.value;
-        let matches = true;
+        // Sort descending by timestamp
+        records.sort((a, b) => {
+          const tA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+          const tB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+          return tB - tA;
+        });
 
         if (filter !== 'ALL') {
-          const statusNum = parseInt(log.response?.status, 10);
-          if (filter === 'SUCCESS' && !(statusNum >= 200 && statusNum < 300)) matches = false;
-          if (filter === 'WARNING' && !(statusNum >= 400 && statusNum < 500)) matches = false;
-          if (filter === 'ERROR' && !(statusNum >= 500)) matches = false;
+          records = records.filter(log => {
+            const statusNum = parseInt(log.response?.status, 10);
+            if (filter === 'SUCCESS') return statusNum >= 200 && statusNum < 300;
+            if (filter === 'WARNING') return statusNum >= 400 && statusNum < 500;
+            if (filter === 'FAILED') return statusNum >= 400;
+            if (filter === 'ERROR') return statusNum >= 500;
+            return true;
+          });
         }
 
-        if (matches && lowerQuery) {
-          const matchUrl = log.url && log.url.toLowerCase().includes(lowerQuery);
-          const matchMethod = log.method && log.method.toLowerCase().includes(lowerQuery);
-          if (!matchUrl && !matchMethod) matches = false;
+        if (lowerQuery) {
+          records = records.filter(log => {
+            const matchUrl = log.url && log.url.toLowerCase().includes(lowerQuery);
+            const matchMethod = log.method && log.method.toLowerCase().includes(lowerQuery);
+            return matchUrl || matchMethod;
+          });
         }
 
-        if (matches) {
-          results.push(log);
-          if (results.length >= limit) {
-            return resolve(results);
-          }
-        }
-
-        cursor.continue();
+        resolve(records.slice(0, limit));
       };
 
-      request.onerror = () => reject(request.error);
+      req.onerror = () => reject(req.error);
     });
   } catch (error) {
     console.error('API.OS: Failed to retrieve history from IndexedDB:', error);
@@ -223,7 +251,12 @@ export const deleteHistoryItem = async (id) => {
       const store = tx.objectStore(STORE_NAME);
       const request = store.delete(id);
 
-      request.onsuccess = () => resolve(true);
+      request.onsuccess = () => {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('api_os_history_updated'));
+        }
+        resolve(true);
+      };
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
@@ -240,6 +273,9 @@ export const clearHistory = async () => {
     const db = await initHistoryDB();
     if (!db) {
       localStorage.removeItem('api_os_history');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('api_os_history_cleared'));
+      }
       return true;
     }
 
@@ -250,6 +286,9 @@ export const clearHistory = async () => {
 
       request.onsuccess = () => {
         localStorage.removeItem('api_os_history');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('api_os_history_cleared'));
+        }
         resolve(true);
       };
       request.onerror = () => reject(request.error);
@@ -407,3 +446,64 @@ async function pruneHistory(db) {
     console.warn('API.OS: Pruning failed:', err);
   }
 }
+
+/**
+ * Audits all application IndexedDB tables (api_os_history_db and lists).
+ * Returns real size telemetry for both tables to prevent confusion.
+ */
+export const getAllDatabaseStats = async () => {
+  const historyStats = await getHistoryTableSize();
+  let listsStats = { bytes: 0, formatted: '0.00 B', count: 0 };
+
+  try {
+    if (typeof indexedDB !== 'undefined') {
+      const listsDb = await new Promise((res, rej) => {
+        const req = indexedDB.open('lists', 1);
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+
+      if (listsDb.objectStoreNames.contains('jsonList')) {
+        listsStats = await new Promise((res) => {
+          const tx = listsDb.transaction('jsonList', 'readonly');
+          const store = tx.objectStore('jsonList');
+          const cursorReq = store.openCursor();
+          let bytes = 0;
+          let count = 0;
+          const encoder = typeof TextEncoder !== 'undefined' ? new TextEncoder() : null;
+
+          cursorReq.onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+              const val = cursor.value;
+              if (val instanceof Blob) {
+                bytes += val.size;
+              } else if (val instanceof ArrayBuffer) {
+                bytes += val.byteLength;
+              } else if (encoder) {
+                bytes += encoder.encode(JSON.stringify(val)).length;
+              } else {
+                bytes += JSON.stringify(val).length;
+              }
+              count++;
+              cursor.continue();
+            } else {
+              res({ bytes, formatted: formatStorageBytes(bytes), count });
+            }
+          };
+          cursorReq.onerror = () => res({ bytes: 0, formatted: '0.00 B', count: 0 });
+        });
+      }
+    }
+  } catch (err) {
+    // lists DB might not be initialized yet
+  }
+
+  const totalBytes = historyStats.bytes + listsStats.bytes;
+  return {
+    history: historyStats,
+    lists: listsStats,
+    totalBytes,
+    totalFormatted: formatStorageBytes(totalBytes)
+  };
+};

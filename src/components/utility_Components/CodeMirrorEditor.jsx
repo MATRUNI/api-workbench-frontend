@@ -1,10 +1,10 @@
 import { useRef, useEffect } from "react";
 import { basicSetup, EditorView } from "codemirror";
-import { placeholder, keymap } from "@codemirror/view";
+import { placeholder, keymap, tooltips } from "@codemirror/view";
 import { search } from "@codemirror/search"
-import { autocompletion } from "@codemirror/autocomplete";
+import { autocompletion, acceptCompletion, setSelectedCompletion } from "@codemirror/autocomplete";
 import { linter } from "@codemirror/lint"
-import { EditorState, Compartment } from "@codemirror/state";
+import { EditorState, Compartment, Prec } from "@codemirror/state";
 import { syntaxHighlighting, syntaxTree } from "@codemirror/language";
 
 
@@ -37,7 +37,18 @@ const validateSyntax = (view) => {
     return diagnostics;
 };
 
-export default function CodeMirrorEditor({value="",onChange,lang="json",placeholderText, editable=true,completions=[]})
+export default function CodeMirrorEditor({
+    value="",
+    onChange,
+    lang="json",
+    placeholderText,
+    editable=true,
+    completions=[],
+    customCompletionSource=null,
+    onEnter=null,
+    onArrowUp=null,
+    onArrowDown=null
+})
 {
     const editorRef = useRef(null);
     const viewRef = useRef(null);
@@ -49,6 +60,10 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
     const wrapRef = useRef(false);
 
     const completionsRef = useRef(completions);
+    const customCompletionSourceRef = useRef(customCompletionSource);
+    const onEnterRef = useRef(onEnter);
+    const onArrowUpRef = useRef(onArrowUp);
+    const onArrowDownRef = useRef(onArrowDown);
 
     const onChangeRef = useRef(onChange);
     const langRef = useRef(lang);
@@ -64,6 +79,22 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
     useEffect(()=>{
         completionsRef.current = completions;
     },[completions])
+
+    useEffect(() => {
+        customCompletionSourceRef.current = customCompletionSource;
+    }, [customCompletionSource]);
+
+    useEffect(() => {
+        onEnterRef.current = onEnter;
+    }, [onEnter]);
+
+    useEffect(() => {
+        onArrowUpRef.current = onArrowUp;
+    }, [onArrowUp]);
+
+    useEffect(() => {
+        onArrowDownRef.current = onArrowDown;
+    }, [onArrowDown]);
 
     const myCompletionSource = (context) => {
         if(langRef.current!=="json") return null;
@@ -89,27 +120,82 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
             doc:value,
             extensions:[
                 basicSetup,
+                tooltips({ position: "fixed", parent: typeof document !== "undefined" ? document.body : undefined }),
                 search(),
                 wrapCompartment.current.of([]),
-                keymap.of([
-                    {
-                        key: "Alt-z",
-                        run: (view) => {
-                            wrapRef.current = !wrapRef.current;
-                        
-                            view.dispatch({
-                                effects: wrapCompartment.current.reconfigure(
-                                    wrapRef.current
-                                        ? EditorView.lineWrapping
-                                        : []
-                                )
-                            });
-                        
-                            return true;
+                Prec.highest(
+                    keymap.of([
+                        {
+                            key: "Alt-z",
+                            run: (view) => {
+                                wrapRef.current = !wrapRef.current;
+                            
+                                view.dispatch({
+                                    effects: wrapCompartment.current.reconfigure(
+                                        wrapRef.current
+                                            ? EditorView.lineWrapping
+                                            : []
+                                    )
+                                });
+                            
+                                return true;
+                            }
+                        },
+                        {
+                            key: "Shift-Enter",
+                            run: (view) => {
+                                if (onEnterRef.current) {
+                                    view.dispatch(view.state.replaceSelection("\n"));
+                                    return true;
+                                }
+                                return false;
+                            }
+                        },
+                        {
+                            key: "Enter",
+                            run: (view) => {
+                                // 1. If autocomplete popup is active, accept the selected completion
+                                if (acceptCompletion(view)) {
+                                    return true;
+                                }
+                                // 2. If Enter handler is present, execute command and clear editor
+                                if (onEnterRef.current) {
+                                    const text = view.state.doc.toString();
+                                    if (text.trim()) {
+                                        onEnterRef.current(text);
+                                        view.dispatch({
+                                            changes: { from: 0, to: view.state.doc.length, insert: "" }
+                                        });
+                                    }
+                                    return true;
+                                }
+                                return false;
+                            }
+                        },
+                        {
+                            key: "ArrowUp",
+                            run: (view) => {
+                                if (onArrowUpRef.current) {
+                                    return onArrowUpRef.current(view);
+                                }
+                                return false;
+                            }
+                        },
+                        {
+                            key: "ArrowDown",
+                            run: (view) => {
+                                if (onArrowDownRef.current) {
+                                    return onArrowDownRef.current(view);
+                                }
+                                return false;
+                            }
                         }
-                    }
-                ]),
-                autocompletion(),
+                    ])
+                ),
+                autocompletion({
+                    override: customCompletionSourceRef.current ? [customCompletionSourceRef.current] : undefined,
+                    selectOnOpen: true
+                }),
                 placeholder(placeholderText),
                 syntaxHighlighting(editorHighlightStyle),
                 languageCompartment.current.of(
@@ -146,6 +232,27 @@ export default function CodeMirrorEditor({value="",onChange,lang="json",placehol
             view.destroy()
         }
     },[])
+
+    useEffect(() => {
+        const handleMouseOver = (e) => {
+            const li = e.target.closest?.(".cm-tooltip-autocomplete li");
+            if (!li || !li.id || !viewRef.current) return;
+            const match = /-(\d+)$/.exec(li.id);
+            if (match) {
+                const index = parseInt(match[1], 10);
+                if (!isNaN(index)) {
+                    try {
+                        viewRef.current.dispatch({ effects: setSelectedCompletion(index) });
+                    } catch (err) {}
+                }
+            }
+        };
+
+        document.addEventListener("mouseover", handleMouseOver, { passive: true });
+        return () => {
+            document.removeEventListener("mouseover", handleMouseOver);
+        };
+    }, []);
 
     useEffect(()=>{
         const view = viewRef.current;

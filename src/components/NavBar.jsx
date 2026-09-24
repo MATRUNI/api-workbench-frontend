@@ -10,6 +10,7 @@ import { ProxyContext } from '../context/ProxyContext';
 import ProxyDownloadModal from './ProxyDownloadModal';
 import { docsRegistry } from '../docs/index.js';
 import { appear } from '../animations/Motion';
+import { useTerminal } from '../context/TerminalContext';
 
 function NavBar() {
     const location = useLocation();
@@ -20,6 +21,7 @@ function NavBar() {
     const { user } = useContext(UserContext);
     const { isProxyRunning } = useContext(ProxyContext);
     const [isProxyModalOpen, setIsProxyModalOpen] = useState(false);
+    const { isTerminalOpen, toggleTerminal } = useTerminal();
 
     const isChatActive = location.pathname === '/chat';
     const { stopRing } = useContext(SocketContext);
@@ -41,7 +43,7 @@ function NavBar() {
     }, []);
 
     const handleProfileClick = () => {
-        if (!!user) {
+        if (user) {
             navigate('/profile');
         } else {
             navigate('/auth');
@@ -79,6 +81,15 @@ function NavBar() {
             </div>
 
             <div className="nav-group">
+                <div 
+                    className={`terminal-nav-trigger ${isTerminalOpen ? 'active' : ''}`}
+                    onClick={toggleTerminal}
+                    title="Toggle Kernel Omni-Terminal (Ctrl + `)"
+                >
+                    <Terminal size={14} className="terminal-nav-icon" />
+                    <span className="terminal-nav-text">CLI</span>
+                    <span className="terminal-nav-badge">Ctrl+`</span>
+                </div>
                 <div 
                     className={`proxy-indicator ${isProxyRunning ? 'active' : 'offline'}`}
                     onClick={() => { if (!isProxyRunning) setIsProxyModalOpen(true); }}

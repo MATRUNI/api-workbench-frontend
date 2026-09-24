@@ -1,0 +1,770 @@
+/* ==========================================================================
+   ⚡ API.OS KERNEL OMNI-TERMINAL (AUTHENTIC OPERATOR CONSOLE)
+   ========================================================================== */
+
+/* 1. Terminal Floating / Docked Frame (Modeless - No blocking backdrop) */
+.kernel-terminal-wrapper {
+  position: fixed;
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.12);
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  color: var(--text-main);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* Bottom-Docked Drawer Mode (Resizable) */
+.kernel-terminal-wrapper.mode-drawer {
+  bottom: 0;
+  top: auto;
+  left: 0;
+  right: 0;
+  height: 380px;
+  min-height: 180px;
+  max-height: 92vh;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-top: 2px solid var(--brand-color);
+  border-radius: 12px 12px 0 0;
+}
+
+/* Floating Window HUD Mode (Draggable & 2D Resizable) */
+.kernel-terminal-wrapper.mode-hud {
+  min-width: 440px;
+  min-height: 240px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  border-radius: 12px;
+  border: 1px solid var(--brand-color);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.78), 0 0 28px rgba(168, 85, 247, 0.16);
+}
+
+/* Floating HUD Mode 2D Edge & Corner Resize Handles */
+.terminal-hud-edge-r {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 7px;
+  height: calc(100% - 14px);
+  cursor: ew-resize;
+  z-index: 40;
+  transition: background 0.15s ease;
+}
+
+.terminal-hud-edge-r:hover {
+  background: rgba(168, 85, 247, 0.25);
+}
+
+.terminal-hud-edge-b {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 7px;
+  width: calc(100% - 14px);
+  cursor: ns-resize;
+  z-index: 40;
+  transition: background 0.15s ease;
+}
+
+.terminal-hud-edge-b:hover {
+  background: rgba(168, 85, 247, 0.25);
+}
+
+.terminal-hud-corner {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: nwse-resize;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0.55;
+  user-select: none;
+  touch-action: none;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.terminal-hud-corner:hover,
+.terminal-hud-corner.is-active {
+  opacity: 1;
+  color: var(--brand-color);
+}
+
+.corner-grip-svg {
+  display: block;
+}
+
+/* Resize Handle Bar (At Top of Bottom Drawer) */
+.terminal-resize-handle {
+  width: 100%;
+  height: 9px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  touch-action: none;
+  position: relative;
+  z-index: 20;
+  transition: background 0.15s ease;
+}
+
+.terminal-resize-handle:hover,
+.terminal-resize-handle.is-resizing {
+  background: rgba(168, 85, 247, 0.18);
+}
+
+.terminal-resize-handle .resize-grip {
+  width: 48px;
+  height: 3px;
+  border-radius: 9999px;
+  background: var(--text-muted);
+  opacity: 0.45;
+  transition: all 0.2s ease;
+}
+
+.terminal-resize-handle:hover .resize-grip,
+.terminal-resize-handle.is-resizing .resize-grip {
+  background: var(--brand-color);
+  width: 68px;
+  opacity: 1;
+}
+
+.kernel-terminal-wrapper.is-resizing,
+.kernel-terminal-wrapper.is-dragging {
+  user-select: none !important;
+}
+
+.kernel-terminal-wrapper.is-resizing *,
+.kernel-terminal-wrapper.is-dragging * {
+  user-select: none !important;
+}
+
+.kernel-terminal-wrapper.is-resizing .terminal-resize-handle,
+.kernel-terminal-wrapper.is-resizing .terminal-hud-corner,
+.kernel-terminal-wrapper.is-resizing .terminal-hud-edge-r,
+.kernel-terminal-wrapper.is-resizing .terminal-hud-edge-b {
+  pointer-events: auto !important;
+}
+
+/* 2. Topbar Header with Traffic Lights & Window Dragging */
+.terminal-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+}
+
+.terminal-header-bar.is-hud-header {
+  cursor: grab;
+}
+
+.terminal-header-bar.is-hud-header:active,
+.kernel-terminal-wrapper.is-dragging .terminal-header-bar {
+  cursor: grabbing !important;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* macOS / UNIX Traffic Lights */
+.terminal-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 6px;
+}
+
+.traffic-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  padding: 0;
+  outline: none;
+}
+
+.traffic-dot:hover {
+  transform: scale(1.15);
+  filter: brightness(1.2);
+}
+
+.traffic-dot.dot-close {
+  background: #ef4444;
+}
+
+.traffic-dot.dot-min {
+  background: #f59e0b;
+}
+
+.traffic-dot.dot-max {
+  background: #10b981;
+}
+
+/* Session Title */
+.terminal-session-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  color: var(--text-main);
+  letter-spacing: 0.3px;
+}
+
+.session-user {
+  color: var(--brand-green, #4ade80);
+}
+
+.session-sep {
+  color: var(--text-muted);
+}
+
+.session-path {
+  color: #38bdf8;
+}
+
+.version-tag {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  margin-left: 2px;
+}
+
+.terminal-brand-icon {
+  color: var(--brand-color);
+}
+
+.target-tab-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.shortcut-pill {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.terminal-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.terminal-ctrl-btn:hover {
+  background: var(--terminal-input);
+  color: var(--text-main);
+}
+
+.terminal-ctrl-btn.active-glow {
+  color: var(--brand-color, #a855f7);
+  background: rgba(168, 85, 247, 0.12);
+}
+
+.terminal-ctrl-btn.close-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* 3. Dedicated Bottom Suggestions Dock (Separated from Messages Viewport) */
+.terminal-suggestions-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-color);
+  border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.suggestions-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.suggestions-sparkle-icon {
+  color: var(--brand-color, #a855f7);
+}
+
+.suggestions-scroll {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+
+.suggestions-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.chips-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.terminal-suggestions-section .chip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--terminal-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.terminal-suggestions-section .chip:hover {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: var(--brand-color, #a855f7);
+  color: var(--brand-color, #a855f7);
+}
+
+.terminal-suggestions-section .chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* In-Stream Suggestion / Command Matrix Card */
+.log-suggestion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-left: 3px solid var(--brand-color, #a855f7);
+  border-radius: 6px;
+  margin: 4px 0;
+}
+
+.suggestion-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--brand-color, #a855f7);
+  letter-spacing: 0.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.log-icon.suggestion-icon {
+  color: var(--brand-color, #a855f7);
+}
+
+.suggestion-content {
+  color: var(--text-main);
+}
+
+/* 4. Authentic Terminal Viewport Canvas */
+.terminal-log-viewport {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 18px 16px;
+  background: var(--terminal-input);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: text;
+}
+
+.terminal-log-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* Stream Command Line */
+.command-stream-line {
+  display: flex;
+  align-items: baseline;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.command-stream-text {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Output Block */
+.log-output-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 2px;
+}
+
+.log-prefix {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.log-icon.success-icon { color: var(--brand-green); }
+.log-icon.error-icon { color: #ef4444; }
+.log-icon.telemetry-icon { color: #38bdf8; }
+.log-icon.info-icon { color: var(--text-muted); }
+
+.log-content {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: inherit;
+  font-size: 0.84rem;
+  color: var(--text-main);
+}
+
+.type-success .log-content {
+  color: var(--brand-green);
+}
+
+.type-error .log-content {
+  color: #ef4444;
+}
+
+.type-telemetry .log-content {
+  color: #38bdf8;
+}
+
+.type-system .log-content {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.type-info .log-content {
+  color: var(--text-muted);
+}
+
+/* 5. Authentic Terminal Prompt Glyph & Inline Editor */
+.terminal-prompt-glyph {
+  display: inline-flex;
+  align-items: baseline;
+  font-weight: 700;
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  font-size: 0.85rem;
+  user-select: none;
+  flex-shrink: 0;
+  line-height: 1.45;
+}
+
+.terminal-prompt-glyph .prompt-user {
+  color: var(--brand-green, #4ade80);
+}
+
+.terminal-prompt-glyph .prompt-sep {
+  color: var(--text-muted);
+}
+
+.terminal-prompt-glyph .prompt-dir {
+  color: #38bdf8;
+}
+
+.terminal-prompt-glyph .prompt-symbol {
+  color: var(--brand-color, #a855f7);
+  margin-left: 2px;
+  margin-right: 7px;
+}
+
+/* Active Inline Prompt Line (Flows right in the canvas) */
+.terminal-active-prompt-line {
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  gap: 0;
+  margin-top: 4px;
+  cursor: text;
+}
+
+.terminal-inline-editor {
+  flex: 1;
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.terminal-inline-editor #code-editor {
+  width: 100%;
+  min-height: 22px;
+  height: auto;
+}
+
+.terminal-inline-editor .cm-editor {
+  background: transparent !important;
+  color: var(--text-main) !important;
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  outline: none !important;
+  border: none !important;
+}
+
+.terminal-inline-editor .cm-scroller {
+  overflow: hidden !important;
+  padding: 0 !important;
+  line-height: 1.45;
+}
+
+.terminal-inline-editor .cm-content {
+  padding: 0 !important;
+  caret-color: var(--brand-color, #a855f7);
+}
+
+.terminal-inline-editor .cm-gutters {
+  display: none !important;
+}
+
+.terminal-inline-editor .cm-activeLine {
+  background: transparent !important;
+}
+
+.terminal-inline-editor .cm-placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.55;
+  font-style: italic;
+}
+
+.terminal-inline-editor .cm-cursor {
+  border-left: 2px solid var(--brand-color, #a855f7) !important;
+  animation: blinkTerminalCaret 1s step-end infinite;
+}
+
+@keyframes blinkTerminalCaret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* 6. Footer Status Bar */
+.terminal-footer-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px;
+  background: var(--bg-color);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  user-select: none;
+}
+
+.terminal-footer-status .sec-tag {
+  display: inline-flex;
+  align-items: center;
+  color: var(--brand-green);
+}
+
+.terminal-footer-status.is-executing {
+  background: rgba(168, 85, 247, 0.08);
+  color: var(--brand-color, #a855f7);
+}
+
+.footer-busy-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--brand-color, #a855f7);
+}
+
+.footer-busy-icon {
+  animation: pulseSlow 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes pulseSlow {
+  from { opacity: 0.35; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+
+/* ==========================================================================
+   Light Theme Integration & Polish
+   ========================================================================== */
+html.light-theme .kernel-terminal-wrapper {
+  background: var(--card-bg, #ffffff);
+  border-color: var(--border-color, #e4e4e7);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12), 0 0 20px rgba(124, 58, 237, 0.08);
+  color: var(--text-main, #09090b);
+}
+
+html.light-theme .terminal-header-bar {
+  background: var(--bg-color, #f4f4f5);
+  border-color: var(--border-color, #e4e4e7);
+}
+
+html.light-theme .terminal-ctrl-btn.active-glow {
+  color: var(--brand-color, #7c3aed);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+html.light-theme .terminal-resize-handle {
+  background: var(--bg-color, #f4f4f5);
+  border-color: var(--border-color, #e4e4e7);
+}
+
+html.light-theme .terminal-resize-handle .resize-grip {
+  background: var(--border-color, #e4e4e7);
+}
+
+html.light-theme .terminal-log-viewport {
+  background: var(--terminal-input, #f8f8fa);
+}
+
+html.light-theme .command-stream-text,
+html.light-theme .terminal-log-row .log-content {
+  color: var(--text-main, #09090b);
+}
+
+html.light-theme .session-user,
+html.light-theme .terminal-prompt-glyph .prompt-user {
+  color: #16a34a;
+}
+
+html.light-theme .session-path,
+html.light-theme .terminal-prompt-glyph .prompt-dir {
+  color: #0284c7;
+}
+
+html.light-theme .terminal-prompt-glyph .prompt-symbol {
+  color: #7c3aed;
+}
+
+html.light-theme .log-icon.telemetry-icon,
+html.light-theme .type-telemetry .log-content {
+  color: #0284c7;
+}
+
+html.light-theme .terminal-suggestions-section {
+  background: var(--bg-color, #f4f4f5);
+  border-color: var(--border-color, #e4e4e7);
+}
+
+html.light-theme .terminal-suggestions-section .chip {
+  background: var(--card-bg, #ffffff);
+  border-color: var(--border-color, #e4e4e7);
+  color: var(--text-main, #09090b);
+}
+
+html.light-theme .terminal-suggestions-section .chip:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: var(--brand-color, #7c3aed);
+  color: var(--brand-color, #7c3aed);
+}
+
+html.light-theme .log-suggestion-card {
+  background: rgba(124, 58, 237, 0.04);
+  border-color: rgba(124, 58, 237, 0.2);
+  border-left: 3px solid var(--brand-color, #7c3aed);
+}
+
+html.light-theme .suggestion-badge,
+html.light-theme .log-icon.suggestion-icon {
+  color: var(--brand-color, #7c3aed);
+}
+
+html.light-theme .terminal-footer-status {
+  background: var(--bg-color, #f4f4f5);
+  border-color: var(--border-color, #e4e4e7);
+}
+
+html.light-theme .terminal-inline-editor .cm-cursor {
+  border-left: 2px solid var(--brand-color, #7c3aed) !important;
+}
+
+html.light-theme .traffic-dot.dot-close {
+  background: #dc2626;
+}
+
+html.light-theme .traffic-dot.dot-min {
+  background: #d97706;
+}
+
+html.light-theme .traffic-dot.dot-max {
+  background: #16a34a;
+}
+
+/* ==========================================================================
+   Kernel Terminal VS Code IntelliSense Sub-Menu & Tooltip Polish
+   ========================================================================== */
+.cm-tooltip.cm-tooltip-autocomplete {
+  background: var(--card-bg, #0f172a) !important;
+  border: 1px solid var(--border-color, #334155) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  padding: 3px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  z-index: 99999 !important;
+}
+
+.cm-tooltip.cm-completionInfo {
+  position: absolute !important;
+  background: var(--card-bg, #0f172a) !important;
+  border: 1px solid var(--border-color, #334155) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 15px rgba(168, 85, 247, 0.12) !important;
+  padding: 0 !important;
+  width: 320px !important;
+  max-width: 380px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  overflow: hidden !important;
+  z-index: 100000 !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete,
+html.light-theme .cm-tooltip.cm-completionInfo {
+  background: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+}

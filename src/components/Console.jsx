@@ -30,13 +30,31 @@ function Console() {
   };
   useEffect(() => {
     let isMounted = true;
-    getHistory().then(history => {
-      if (isMounted) setLogs(history || []);
-    });
-    getHistoryTableSize().then(size => {
-      if (isMounted) setStorageSize(size);
-    });
-    return () => { isMounted = false; };
+    
+    const refreshHistory = () => {
+      getHistory().then(history => {
+        if (isMounted) setLogs(history || []);
+      }).catch(err => {
+        console.error('Console getHistory error:', err);
+      });
+      getHistoryTableSize().then(size => {
+        if (isMounted) setStorageSize(size);
+      }).catch(err => {
+        console.error('Console getHistoryTableSize error:', err);
+      });
+    };
+
+    refreshHistory();
+
+    const handleUpdate = () => refreshHistory();
+    window.addEventListener('api_os_history_updated', handleUpdate);
+    window.addEventListener('api_os_history_cleared', handleUpdate);
+
+    return () => { 
+      isMounted = false; 
+      window.removeEventListener('api_os_history_updated', handleUpdate);
+      window.removeEventListener('api_os_history_cleared', handleUpdate);
+    };
   }, []);
 
   const clearHistory = async () => {
@@ -52,24 +70,26 @@ function Console() {
     if (setMethod) setMethod(log.method);
     
     setRequest({
-      body: log.request.body,
-      contentType: log.request.contentType,
-      headers: log.request.headers,
-      query: log.request.query
+      body: log.request?.body,
+      contentType: log.request?.contentType || 'application/json',
+      headers: log.request?.headers || [],
+      query: log.request?.query || []
     });
     
-    const data = await formatContent(log.response.rawData, log.type);
+    const data = await formatContent(log.response?.rawData, log.type);
+    const status = log.response?.status || '200';
+    const statusNum = parseInt(status, 10);
     
     setResponse({
-      status: log.response.status,
+      status,
       data,
-      rawData: log.response.rawData,
-      headers: log.response.headers,
-      message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
-      length: log.response.length,
-      time: log.response.time,
-      type: log.type,
-      category: log.category
+      rawData: log.response?.rawData,
+      headers: log.response?.headers || [],
+      message: statusNum >= 200 && statusNum < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
+      length: log.response?.length || '0 B',
+      time: log.response?.time || '0 ms',
+      type: log.type || 'JSON',
+      category: log.category || 'TEXT'
     });
 
     navigate('/endpoints'); 
@@ -84,33 +104,36 @@ function Console() {
   };
 
   const filteredLogs = logs.filter(log => {
-    const statusNum = parseInt(log.response.status, 10);
+    const status = log?.response?.status;
+    const statusNum = parseInt(status, 10);
     if (filter === 'ALL') return true;
     if (filter === 'SUCCESS') return statusNum >= 200 && statusNum < 300;
-    if (filter === 'FAILED') return statusNum >= 400;
+    if (filter === 'FAILED') return isNaN(statusNum) || statusNum >= 400;
     return true;
   });
 
   const handleOpenInNewTab = async (log) => {
-    const data = await formatContent(log.response.rawData, log.type);
+    const data = await formatContent(log.response?.rawData, log.type);
+    const status = log.response?.status || '200';
+    const statusNum = parseInt(status, 10);
 
     handleAddTab({
       url: log.url,
       method: log.method,
       alias: log.category ? `${log.category} Request` : "",
       request: {
-        body: log.request.body,
-        contentType: log.request.contentType,
-        headers: log.request.headers || [],
-        query: log.request.query || []
+        body: log.request?.body,
+        contentType: log.request?.contentType || 'application/json',
+        headers: log.request?.headers || [],
+        query: log.request?.query || []
       },
       response: {
-        status: log.response.status,
+        status,
         data: data,
-        rawData: log.response.rawData,
-        headers: log.response.headers || [],
-        message: log.response.status >= 200 && log.response.status < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
-        time: log.response.time || 100,
+        rawData: log.response?.rawData,
+        headers: log.response?.headers || [],
+        message: statusNum >= 200 && statusNum < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
+        time: log.response?.time || 100,
         category: log.category || ""
       }
     });
@@ -294,8 +317,8 @@ function Console() {
     
                     <div className="log-metrics">
                       <span className="log-size">{log.size}</span>
-                      <span className={`status-${getStatusClass(log.response.status)} log-status`}>
-                        {log.response.status}
+                      <span className={`status-${getStatusClass(log?.response?.status)} log-status`}>
+                        {log?.response?.status || 'ERR'}
                       </span>
                       <RefreshCw size={14} className="restore-icon" />
                     </div>

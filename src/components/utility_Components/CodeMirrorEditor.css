@@ -111,24 +111,364 @@
 }
 
 
+/* ==========================================================================
+   VS Code IntelliSense Autocomplete & Documentation Sub-Menu Flyout
+   ========================================================================== */
+.cm-tooltip,
 #code-editor .cm-tooltip {
   background: var(--card-bg, #0f172a) !important;
   border: 1px solid var(--border-color, #334155) !important;
   border-radius: 6px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  font-family: "Fira Code", monospace !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  z-index: 9999 !important;
 }
 
+/* Autocomplete List Panel */
+.cm-tooltip.cm-tooltip-autocomplete,
+#code-editor .cm-tooltip.cm-tooltip-autocomplete {
+  padding: 3px !important;
+  overflow: visible !important;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul,
+#code-editor .cm-tooltip.cm-tooltip-autocomplete > ul {
+  min-width: 190px !important;
+  max-width: 280px !important;
+  max-height: 14em !important;
+  padding: 2px !important;
+  margin: 0 !important;
+  list-style: none !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li,
 #code-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li {
-  padding: 6px 12px;
-  color: var(--text-main, #e2e8f0);
-  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 0.8rem !important;
+  line-height: 1.4 !important;
+  color: var(--text-main, #e2e8f0) !important;
+  cursor: pointer !important;
+  transition: background 0.1s ease !important;
+  border: 1px solid transparent !important;
 }
 
+.cm-tooltip.cm-tooltip-autocomplete > ul > li:hover,
+#code-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected],
 #code-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
-  background: color-mix(in srgb, var(--brand-color, #3b82f6) 20%, transparent) !important;
-  color: var(--brand-color, #3b82f6) !important;
+  background: color-mix(in srgb, var(--brand-color, #a855f7) 22%, transparent) !important;
+  color: #ffffff !important;
+  border-color: color-mix(in srgb, var(--brand-color, #a855f7) 40%, transparent) !important;
+}
+
+.cm-completionLabel {
+  font-family: 'Fira Code', 'Geist Mono', monospace !important;
+  font-weight: 600 !important;
+  color: var(--text-main, #e2e8f0) !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionLabel {
+  color: #ffffff !important;
+}
+
+.cm-completionDetail {
+  margin-left: auto !important;
+  padding-left: 10px !important;
+  font-size: 0.65rem !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  color: var(--text-muted, #94a3b8) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  opacity: 0.75 !important;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionDetail {
+  color: rgba(255, 255, 255, 0.85) !important;
+  opacity: 1 !important;
+}
+
+/* VS Code Style Vector Glyph Badges (NO Emojis) */
+.cm-completionIcon {
+  width: 22px !important;
+  height: 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 7px !important;
+  padding: 0 !important;
+  border-radius: 3px !important;
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
+  letter-spacing: -0.2px !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+.cm-completionIcon:after {
+  content: "" !important;
+}
+
+.cm-completionIcon-keyword {
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+}
+.cm-completionIcon-keyword:after { content: "cmd" !important; }
+
+.cm-completionIcon-function, .cm-completionIcon-method {
+  background: rgba(56, 189, 248, 0.18) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.35) !important;
+}
+.cm-completionIcon-function:after, .cm-completionIcon-method:after { content: "fn" !important; }
+
+.cm-completionIcon-class {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+.cm-completionIcon-class:after { content: "tab" !important; }
+
+.cm-completionIcon-interface {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+.cm-completionIcon-interface:after { content: "nav" !important; }
+
+.cm-completionIcon-property {
+  background: rgba(236, 72, 153, 0.18) !important;
+  color: #f472b6 !important;
+  border: 1px solid rgba(236, 72, 153, 0.35) !important;
+}
+.cm-completionIcon-property:after { content: "mod" !important; }
+
+.cm-completionIcon-constant {
+  background: rgba(129, 140, 248, 0.18) !important;
+  color: #a5b4fc !important;
+  border: 1px solid rgba(129, 140, 248, 0.35) !important;
+}
+.cm-completionIcon-constant:after { content: "flag" !important; }
+
+.cm-completionIcon-variable {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #818cf8 !important;
+  border: 1px solid rgba(99, 102, 241, 0.35) !important;
+}
+.cm-completionIcon-variable:after { content: "db" !important; }
+
+.cm-completionIcon-info {
+  background: rgba(14, 165, 233, 0.18) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(14, 165, 233, 0.35) !important;
+}
+.cm-completionIcon-info:after { content: "info" !important; }
+
+.cm-completionIcon-text {
+  background: rgba(148, 163, 184, 0.18) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+}
+.cm-completionIcon-text:after { content: "url" !important; }
+
+/* VS Code Style Documentation Sub-Menu Flyout */
+.cm-tooltip.cm-completionInfo,
+#code-editor .cm-tooltip.cm-completionInfo {
+  position: absolute !important;
+  background: var(--card-bg, #0f172a) !important;
+  border: 1px solid var(--border-color, #334155) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), 0 0 15px rgba(168, 85, 247, 0.12) !important;
+  padding: 0 !important;
+  width: 320px !important;
+  max-width: 380px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  overflow: hidden !important;
+  z-index: 10000 !important;
+  animation: cmFlyoutFade 0.12s ease-out;
+}
+
+@keyframes cmFlyoutFade {
+  from { opacity: 0; transform: translateX(3px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.cm-vscode-doc-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-vscode-doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-color, #334155);
+}
+
+.cm-vscode-doc-title {
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-color, #a855f7);
+}
+
+.cm-vscode-doc-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(168, 85, 247, 0.16);
+  color: var(--brand-color, #a855f7);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cm-vscode-doc-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cm-vscode-doc-desc {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-main, #e2e8f0);
+}
+
+.cm-vscode-doc-syntax, .cm-vscode-doc-example {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--terminal-input, #020617);
+  border: 1px solid var(--border-color, #334155);
   border-radius: 4px;
+  padding: 5px 8px;
+}
+
+.cm-vscode-doc-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cm-vscode-doc-code {
+  font-family: 'Fira Code', 'Geist Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--text-main, #e2e8f0);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.cm-vscode-doc-footer {
+  padding: 5px 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--border-color, #334155);
+  font-size: 0.65rem;
+  color: var(--text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cm-vscode-doc-footer kbd {
+  background: var(--terminal-input, #020617);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: inherit;
+  font-size: 0.65rem;
+  color: var(--text-main, #e2e8f0);
+}
+
+/* Light Theme Integration */
+html.light-theme .cm-tooltip,
+html.light-theme #code-editor .cm-tooltip {
+  background: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  color: #09090b !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete > ul > li:hover {
+  background: #f4f4f5 !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background: rgba(124, 58, 237, 0.12) !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionLabel {
+  color: #7c3aed !important;
+}
+
+html.light-theme .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] .cm-completionDetail {
+  color: #7c3aed !important;
+}
+
+html.light-theme .cm-vscode-doc-header {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .cm-vscode-doc-title {
+  color: #7c3aed;
+}
+
+html.light-theme .cm-vscode-doc-badge {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+html.light-theme .cm-vscode-doc-desc {
+  color: #18181b;
+}
+
+html.light-theme .cm-vscode-doc-syntax,
+html.light-theme .cm-vscode-doc-example {
+  background: #f8f8fa;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .cm-vscode-doc-code {
+  color: #09090b;
+}
+
+html.light-theme .cm-vscode-doc-footer {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+}
+
+html.light-theme .cm-vscode-doc-footer kbd {
+  background: #ffffff;
+  border-color: #e4e4e7;
+  color: #09090b;
 }
 
 #code-editor .cm-diagnostic {

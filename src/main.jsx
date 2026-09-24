@@ -12,6 +12,7 @@ import { ProxyProvider } from './context/ProxyContext.jsx'
 import { MobileProvider } from './context/MobileContext.jsx'
 import { TabProvider } from './context/TabContext.jsx'
 import { ContextMenuProvider } from './context/ContextMenuProvider.jsx'
+import { TerminalProvider } from './context/TerminalProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -25,7 +26,9 @@ createRoot(document.getElementById('root')).render(
                   <ConfigApiProvider>
                     <ShareProvider>
                       <ContextMenuProvider>
-                        <App />
+                        <TerminalProvider>
+                          <App />
+                        </TerminalProvider>
                       </ContextMenuProvider>
                     </ShareProvider>
                   </ConfigApiProvider>

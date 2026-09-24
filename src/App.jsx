@@ -144,6 +144,8 @@ function AppContent() {
     return <StartBootLoader/>
   return <RouterProvider router={router}/>
 }
+import KernelTerminal from './components/terminal/KernelTerminal'
+
 function AppLayout() {
   const [isInboxOpen, setIsInboxOpen] = useState(false);
 
@@ -152,6 +154,8 @@ function AppLayout() {
       <Outlet />
 
       <GlobalNotificationToast />
+
+      <KernelTerminal />
 
       <FloatingSharedIndicator
         onOpenInbox={() => setIsInboxOpen(true)}

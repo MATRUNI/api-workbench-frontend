@@ -61,9 +61,9 @@ export async function handleDatabaseStatsCommand() {
 }
 
 export async function handleHistoryCommand(cmd) {
-  const lower = cmd.toLowerCase().trim();
+  const action = cmd[0]?.toLowerCase();
 
-  if (lower === 'history size') {
+  if (action === 'size') {
     try {
       const stats = await getAllDatabaseStats();
       return {
@@ -84,7 +84,7 @@ export async function handleHistoryCommand(cmd) {
     }
   }
 
-  if (lower === 'history clear') {
+  if (action === 'clear') {
     try {
       await clearHistory();
       return {
@@ -100,8 +100,17 @@ export async function handleHistoryCommand(cmd) {
   }
 
   try {
-    const limitMatch = cmd.match(/limit\s+(\d+)/i);
-    const limit = limitMatch ? parseInt(limitMatch[1], 10) : 10;
+    let limit = 10;
+    if (cmd.length > 0) {
+      const limitArgIdx = cmd.findIndex(arg => arg?.toLowerCase() === 'limit');
+      if (limitArgIdx !== -1 && cmd[limitArgIdx + 1]) {
+        const parsed = parseInt(cmd[limitArgIdx + 1], 10);
+        if (!Number.isNaN(parsed)) limit = parsed;
+      } else {
+        const directNum = parseInt(cmd[0], 10);
+        if (!Number.isNaN(directNum)) limit = directNum;
+      }
+    }
     const records = await getHistory({ limit });
 
     if (!records || records.length === 0) {

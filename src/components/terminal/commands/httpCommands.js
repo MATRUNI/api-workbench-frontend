@@ -51,7 +51,7 @@ export async function handleHttpDispatch(cmd, context) {
   if (!url) {
     return {
       type: 'error',
-      text: 'Missing Target URL. Syntax: send [METHOD] <https://api.example.com> [with ...]'
+      text: 'Missing Target URL. Syntax: <method> <https://api.example.com> [with ...] or curl <command>'
     };
   }
 

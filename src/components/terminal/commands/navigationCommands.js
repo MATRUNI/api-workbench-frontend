@@ -29,8 +29,7 @@ export function handleNavigationCommand(cmd, context) {
     };
   }
 
-  const parts = cmd.trim().split(/\s+/);
-  const target = parts[1]?.toLowerCase();
+  const target = cmd[0]?.toLowerCase();
 
   if (!target) {
     return {

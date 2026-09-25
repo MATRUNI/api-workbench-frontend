@@ -1,14 +1,13 @@
 import { FALLBACK_APIS } from './commands/utils';
 
 const CORE_COMMANDS = [
-  { label: 'send', type: 'keyword', detail: 'cmd', desc: 'Dispatch HTTP request: send [METHOD] [URL] with -a & -h & -b [--new]', syntax: 'send [METHOD] [URL] with -a & -h & -b [--new]' },
   { label: 'get', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a GET request', syntax: 'get <url> [with ...]' },
   { label: 'post', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a POST request with payload', syntax: 'post <url> with -b <json>' },
   { label: 'put', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a PUT request', syntax: 'put <url> with -b <json>' },
   { label: 'delete', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a DELETE request', syntax: 'delete <url>' },
   { label: 'patch', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a PATCH request', syntax: 'patch <url> with -b <json>' },
   { label: 'curl', type: 'function', detail: 'fn', desc: 'Parse and execute raw cURL snippet into Workbench', syntax: 'curl -X POST <url> -H ... -d ...' },
-  { label: 'tab', type: 'class', detail: 'tab', desc: 'Workbench tab manager: list, switch, next, prev, new, close, dup', syntax: 'tab <list | switch | next | prev | new | close>' },
+  { label: 'tab', type: 'class', detail: 'tab', desc: 'Workbench tab manager: list, <n>, next, prev, new, close, dup', syntax: 'tab <list | <n> | next | prev | new | close>' },
   { label: 'library', type: 'interface', detail: 'lib', desc: 'Browse and load curated public APIs from Library into Workbench', syntax: 'library <list | search | get>' },
   { label: 'nav', type: 'interface', detail: 'nav', desc: 'Navigate to any workspace view instantly', syntax: 'nav <workbench | console | library | docs | chat | profile | home | auth>' },
   { label: 'history', type: 'variable', detail: 'db', desc: 'Query IndexedDB request history or storage size', syntax: 'history [size | clear | limit <n>]' },
@@ -51,7 +50,6 @@ const ROUTES = [
 
 const TAB_SUBCOMMANDS = [
   { label: 'list', desc: 'Print formatted table of all open tabs' },
-  { label: 'switch', desc: 'Switch active tab by index or name (e.g. tab switch 2)' },
   { label: 'next', desc: 'Cycle forward to next tab' },
   { label: 'prev', desc: 'Cycle backward to previous tab' },
   { label: 'new', desc: 'Create a new tab: tab new [method] [url]' },
@@ -168,7 +166,7 @@ export function createTerminalCompletionSource(config = {}) {
         detail: 'tab',
         badge: `TAB #${idx + 1}`,
         desc: `[${tab.method || 'GET'}] ${tab.url || '(Untitled)'}${tab.alias ? ` (${tab.alias})` : ''}`,
-        syntax: `tab switch ${idx + 1}`
+        syntax: `tab ${idx + 1}`
       }));
 
       return {
@@ -177,19 +175,6 @@ export function createTerminalCompletionSource(config = {}) {
       };
     }
 
-    if (/^tab\s+switch\s+$/i.test(prefix)) {
-      return {
-        from: word.from,
-        options: tabs.map((tab, idx) => createOption({
-          label: String(idx + 1),
-          type: 'text',
-          detail: 'tab',
-          badge: `TAB #${idx + 1}`,
-          desc: `Switch to [${tab.method || 'GET'}] ${tab.url || '(Untitled)'}${tab.alias ? ` (${tab.alias})` : ''}`,
-          syntax: `tab switch ${idx + 1}`
-        }))
-      };
-    }
 
     if (/^library\s+$/i.test(prefix)) {
       const actions = LIBRARY_SUBCOMMANDS.map(a => createOption({
@@ -296,7 +281,7 @@ export function createTerminalCompletionSource(config = {}) {
               detail: api.method || 'GET',
               badge: api.name || 'API',
               desc: `${api.name} (${api.category || 'API'})`,
-              syntax: `send ${api.method || 'GET'} ${api.endpoint}`,
+              syntax: `${(api.method || 'GET').toLowerCase()} ${api.endpoint}`,
               example: api.description
             }),
             priority: isMatchingMethod ? 2 : 1
@@ -313,7 +298,7 @@ export function createTerminalCompletionSource(config = {}) {
               detail: 'url',
               badge: 'RECENT',
               desc: 'Target URL from session history',
-              syntax: `send ${u}`
+              syntax: `${(targetMethod || 'get').toLowerCase()} ${u}`
             }),
             priority: 0
           });

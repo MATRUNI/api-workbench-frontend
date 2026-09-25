@@ -2,8 +2,7 @@ import { FALLBACK_APIS } from './utils';
 
 export function handleLibraryCommand(cmd, context) {
   const apiList = (context.apiList && context.apiList.length > 0) ? context.apiList : FALLBACK_APIS;
-  const parts = cmd.trim().split(/\s+/);
-  const sub = parts[1]?.toLowerCase();
+  const sub = cmd[0]?.toLowerCase();
 
   if (!sub || sub === 'list') {
     if (apiList.length === 0) {
@@ -39,7 +38,7 @@ export function handleLibraryCommand(cmd, context) {
   }
 
   if (sub === 'search') {
-    const query = parts.slice(2).join(' ').trim().toLowerCase();
+    const query = cmd.slice(1).join(' ').trim().toLowerCase();
     if (!query) {
       return { type: 'error', text: 'Usage: library search <keyword>' };
     }
@@ -76,7 +75,7 @@ export function handleLibraryCommand(cmd, context) {
   }
 
   if (sub === 'get') {
-    let targetArg = parts.slice(2).join(' ').trim();
+    let targetArg = cmd.slice(1).join(' ').trim();
     const isNew = targetArg.includes('--new') || targetArg.includes('--tab');
     targetArg = targetArg.replace(/--(new|tab)/g, '').trim().replace(/^["']|["']$/g, '');
 
@@ -86,7 +85,7 @@ export function handleLibraryCommand(cmd, context) {
 
     let targetApi = null;
     const numIdx = parseInt(targetArg, 10);
-    if (!isNaN(numIdx) && numIdx >= 1 && numIdx <= apiList.length) {
+    if (!Number.isNaN(numIdx) && numIdx >= 1 && numIdx <= apiList.length) {
       targetApi = apiList[numIdx - 1];
     } else {
       targetApi = apiList.find(api => 

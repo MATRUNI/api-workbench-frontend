@@ -13,51 +13,52 @@ import {
 export { parseWithClauses };
 
 export async function executeTerminalCommand(rawCmd, context) {
-  const cmd = rawCmd?.trim();
+  const cmd = rawCmd?.trim().replace(/\s+/g,' ');
   if (!cmd) return null;
+  const args = cmd.split(' ');
+  const [arg1 , ...subArgs] = args;
 
-  const lower = cmd.toLowerCase();
+  const action = arg1.toLowerCase()
 
-  if (lower === 'help' || lower === '?') {
+  if (action === 'help' || action === '?') {
     return getHelpMatrix();
   }
 
-  if (lower === 'clear') {
+  if (action === 'clear') {
     return { type: 'clear' };
   }
 
-  if (lower === 'timing' || lower === 'waterfall' || lower === 'latency') {
+  if (action === 'timing' || action === 'waterfall' || action === 'latency') {
     return handleTimingCommand(context);
   }
 
-  if (lower === 'db' || lower.startsWith('db ') || lower === 'tables') {
+  if (action === 'db' || action === 'tables') {
     return await handleDatabaseStatsCommand();
   }
 
-  if (lower === 'history' || lower.startsWith('history ')) {
-    return await handleHistoryCommand(cmd);
+  if (action === 'history') {
+    return await handleHistoryCommand(subArgs);
   }
 
-  if (/^nav\b/i.test(cmd)) {
-    return handleNavigationCommand(cmd, context);
+  if ( action==="nav") {
+    return handleNavigationCommand(subArgs, context);
   }
 
-  if (/^tab\b/i.test(cmd)) {
-    return handleTabCommand(cmd, context);
+  if ( action==="tab" ) {
+    return handleTabCommand(subArgs, context);
   }
 
-  if (/^library\b/i.test(cmd)) {
-    return handleLibraryCommand(cmd, context);
+  if (action==="library") {
+    return handleLibraryCommand(subArgs, context);
   }
 
-  const isHttpVerb = /^(send|get|post|put|delete|patch|head|options)\b/i.test(cmd);
-  const isCurl = /^curl\b/i.test(cmd);
-  if (isHttpVerb || isCurl) {
-    return await handleHttpDispatch(cmd, context);
+  const HTTP_VERBS = new Set(['send', 'curl', 'get', 'post', 'put', 'delete', 'patch', 'head', 'options']);
+  if (HTTP_VERBS.has(action) || action.startsWith('http://') || action.startsWith('https://')) {
+    return await handleHttpDispatch(rawCmd?.trim(), context);
   }
 
   return {
     type: 'echo',
-    text: `Command not recognized: "${cmd}". Type "help" to view syntax matrix.`
+    text: `Command not recognized: "${rawCmd}". Type "help" to view syntax matrix.`
   };
 }

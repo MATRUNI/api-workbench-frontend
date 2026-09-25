@@ -1,4 +1,4 @@
-import { parseWithClauses } from './utils';
+import { parseWithClauses } from './utils.js';
 
 export function handleTabCommand(cmd, context) {
   const tabCtx = context.tabCtx;
@@ -22,8 +22,7 @@ export function handleTabCommand(cmd, context) {
   } = tabCtx;
 
   const tabIds = tabMap ? Array.from(tabMap.keys()) : [];
-  const parts = cmd.trim().split(/\s+/);
-  const sub = parts[1]?.toLowerCase();
+  const sub = cmd[0]?.toLowerCase();
 
   const getActiveIndex = () => tabIds.indexOf(activeTab);
 
@@ -46,25 +45,30 @@ export function handleTabCommand(cmd, context) {
 
     return {
       type: 'telemetry',
-      text: `WORKBENCH TABS (${tabIds.length} open):\n${rows}\n\nTip: "tab switch <n>", "tab next" / "tab prev", "tab new [method] [url]".`
+      text: `WORKBENCH TABS (${tabIds.length} open):\n${rows}\n\nTip: "tab <n>", "tab next" / "tab prev", "tab new [method] [url]".`
     };
   }
 
-  const isDirectSwitchNumber = /^\d+$/.test(sub);
-  const isSwitchVerb = sub === 'switch';
+  if (sub === 'switch') {
+    return {
+      type: 'error',
+      text: 'Unknown tab command "switch". Use "tab <n>" directly (e.g. "tab 1", "tab 2").'
+    };
+  }
+
   const isKnownSub = ['new', 'close', 'dup', 'rename', 'method', 'next', 'prev'].includes(sub);
 
-  if (isDirectSwitchNumber || isSwitchVerb || !isKnownSub) {
-    const targetArg = isSwitchVerb ? parts[2] : sub;
+  if (!isKnownSub) {
+    const targetArg = cmd[0];
     if (!targetArg) {
-      return { type: 'error', text: 'Specify a tab number or search term. Example: "tab switch 2" or "tab 2".' };
+      return { type: 'error', text: 'Specify a tab number or search term. Example: "tab 2".' };
     }
 
     let targetTabId = null;
     let targetIdx = -1;
 
-    if (/^\d+$/.test(targetArg)) {
-      const num = parseInt(targetArg, 10);
+    const num = parseInt(targetArg, 10);
+    if (!Number.isNaN(num)) {
       if (num >= 1 && num <= tabIds.length) {
         targetIdx = num - 1;
         targetTabId = tabIds[targetIdx];
@@ -86,12 +90,8 @@ export function handleTabCommand(cmd, context) {
     }
 
     if (targetTabId) {
-      if (handleTabSwitch) {
-        handleTabSwitch(targetTabId);
-      }
-      if (context.navigate) {
-        context.navigate('/endpoints');
-      }
+      if (handleTabSwitch) handleTabSwitch(targetTabId);
+      if (context.navigate) context.navigate('/endpoints');
       const tabData = tabMap.get(targetTabId) || {};
       return {
         type: 'success',
@@ -129,7 +129,7 @@ export function handleTabCommand(cmd, context) {
   }
 
   if (sub === 'new') {
-    const rawRest = parts.slice(2).join(' ').trim();
+    const rawRest = cmd.slice(1).join(' ').trim();
     let method = 'GET';
     let url = 'http://localhost:3000';
     let withClause = '';
@@ -160,7 +160,7 @@ export function handleTabCommand(cmd, context) {
 
     const newRequest = {
       body: modifiers.body,
-      contentType: modifiers.body ? 'application/json' : 'application/json',
+      contentType: 'application/json',
       headers: modifiers.headers,
       query: modifiers.query,
       auth: modifiers.auth || { type: 'none' }
@@ -171,12 +171,7 @@ export function handleTabCommand(cmd, context) {
       : 'New Tab';
 
     if (handleAddTab) {
-      handleAddTab({
-        url,
-        method,
-        alias,
-        request: newRequest
-      });
+      handleAddTab({ url, method, alias, request: newRequest });
     }
 
     if (context.navigate) context.navigate('/endpoints');
@@ -195,7 +190,7 @@ export function handleTabCommand(cmd, context) {
   }
 
   if (sub === 'close') {
-    const targetArg = parts[2]?.toLowerCase();
+    const targetArg = cmd[1]?.toLowerCase();
     if (tabIds.length <= 1) {
       return { type: 'error', text: 'Cannot close the last remaining tab in Workbench.' };
     }
@@ -233,7 +228,7 @@ export function handleTabCommand(cmd, context) {
 
   if (sub === 'dup') {
     let targetTabId = activeTab;
-    const targetArg = parts[2];
+    const targetArg = cmd[1];
     if (targetArg && /^\d+$/.test(targetArg)) {
       const num = parseInt(targetArg, 10);
       if (num >= 1 && num <= tabIds.length) {
@@ -252,7 +247,7 @@ export function handleTabCommand(cmd, context) {
   }
 
   if (sub === 'rename') {
-    const newName = parts.slice(2).join(' ').replace(/^["']|["']$/g, '').trim();
+    const newName = cmd.slice(1).join(' ').replace(/^["']|["']$/g, '').trim(); // cmd.slice(1) gets the new name
     if (!newName) {
       return { type: 'error', text: 'Specify a new tab name. Example: tab rename "Stripe Customer"' };
     }
@@ -264,7 +259,7 @@ export function handleTabCommand(cmd, context) {
   }
 
   if (sub === 'method') {
-    const newMethod = parts[2]?.toUpperCase();
+    const newMethod = cmd[1]?.toUpperCase(); // cmd[1] is the new method
     const valid = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
     if (!valid.includes(newMethod)) {
       return { type: 'error', text: `Invalid HTTP method "${newMethod}". Valid: ${valid.join(', ')}` };
@@ -280,15 +275,15 @@ export function handleTabCommand(cmd, context) {
     type: 'suggestion',
     text: [
       `Unknown tab command "${sub}". Canonical tab commands:`,
-      '  tab list                 List all open tabs',
-      '  tab switch <n>           Switch to tab number or name',
-      '  tab next | tab prev      Cycle through tabs',
-      '  tab new [method] [url]   Create a new tab',
-      '  tab close [n]            Close active or specified tab',
-      '  tab close other          Close all other tabs',
-      '  tab dup [n]              Duplicate tab',
-      '  tab rename <name>        Set custom tab name',
-      '  tab method <METHOD>      Change tab HTTP method'
+      '  tab list                List all open tabs',
+      '  tab <n>                 Switch to tab number or name',
+      '  tab next | tab prev     Cycle through tabs',
+      '  tab new [method] [url]  Create a new tab',
+      '  tab close [n]           Close active or specified tab',
+      '  tab close other         Close all other tabs',
+      '  tab dup [n]             Duplicate tab',
+      '  tab rename <name>       Set custom tab name',
+      '  tab method <METHOD>     Change tab HTTP method'
     ].join('\n')
   };
 }

@@ -135,6 +135,7 @@ export const saveToHistory = async (url, method, currentRequest = {}, currentRes
 
     const rawData = currentResponse.data !== undefined ? currentResponse.data : currentResponse.rawData;
     const safeData = safeClone(rawData, '');
+    const timingData = safeClone(currentResponse.timing || currentResponse.response?.timing, null);
 
     const newLog = {
       id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -152,8 +153,10 @@ export const saveToHistory = async (url, method, currentRequest = {}, currentRes
         rawData: safeData,
         headers: safeClone(currentResponse.headers, {}),
         time: currentResponse.time || '0 ms',
+        timing: timingData,
         length: currentResponse.length || '0 B'
       },
+      timing: timingData,
       category: currentResponse.category || 'TEXT',
       type: currentResponse.type || 'JSON',
       size: currentResponse.length || (typeof rawData === 'string' ? `${rawData.length} B` : '0 B')

@@ -94,8 +94,9 @@
 
 .console-log-row {
   display: grid;
-  grid-template-columns: 1fr 6fr 1fr ;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
+  gap: 16px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border-color);
   font-family: 'Fira Code', monospace;
@@ -112,6 +113,27 @@
 .console-log-row:hover {
   background: rgba(168, 85, 247, 0.04);
   border-left: 3px solid var(--brand-color);
+}
+
+.log-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.log-time-badge:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #7dd3fc;
 }
 
 .log-meta {

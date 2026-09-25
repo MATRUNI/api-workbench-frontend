@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw, ExternalLink, Copy, Code, Database } from "lucide-react";
+import { Terminal, Trash2, History, CheckCircle2, AlertTriangle, Zap, RefreshCw, ExternalLink, Copy, Code, Database, Clock } from "lucide-react";
 import { RequestContext } from '../context/RequestContext';
 import { prismMotion, fadeFromLeft, fadeFromRight } from "../animations/Motion.js";
 import '../style/console.css';
@@ -79,6 +79,7 @@ function Console() {
     const data = await formatContent(log.response?.rawData, log.type);
     const status = log.response?.status || '200';
     const statusNum = parseInt(status, 10);
+    const timing = log.response?.timing || log.timing || null;
     
     setResponse({
       status,
@@ -88,6 +89,7 @@ function Console() {
       message: statusNum >= 200 && statusNum < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
       length: log.response?.length || '0 B',
       time: log.response?.time || '0 ms',
+      timing,
       type: log.type || 'JSON',
       category: log.category || 'TEXT'
     });
@@ -116,6 +118,7 @@ function Console() {
     const data = await formatContent(log.response?.rawData, log.type);
     const status = log.response?.status || '200';
     const statusNum = parseInt(status, 10);
+    const timing = log.response?.timing || log.timing || null;
 
     handleAddTab({
       url: log.url,
@@ -134,6 +137,7 @@ function Console() {
         headers: log.response?.headers || [],
         message: statusNum >= 200 && statusNum < 300 ? "Cached Success Snapshot" : "Cached Error Snapshot",
         time: log.response?.time || 100,
+        timing,
         category: log.category || ""
       }
     });
@@ -316,6 +320,17 @@ function Console() {
                     </div>
     
                     <div className="log-metrics">
+                      <span 
+                        className="log-time-badge"
+                        title={
+                          (log.response?.timing || log.timing)
+                            ? `Response Latency: ${log.response?.time || '0ms'}\n• DNS: ${(log.response?.timing || log.timing).dns || 0}ms\n• TCP: ${(log.response?.timing || log.timing).tcp || 0}ms\n• TLS: ${(log.response?.timing || log.timing).tls || 0}ms\n• TTFB: ${(log.response?.timing || log.timing).ttfb || 0}ms\n• Download: ${(log.response?.timing || log.timing).download || 0}ms`
+                            : `Response Latency: ${log.response?.time || '0ms'}`
+                        }
+                      >
+                        <Clock size={11} className="clock-icon" />
+                        {typeof log.response?.time === 'number' ? `${log.response.time}ms` : (log.response?.time || '0ms')}
+                      </span>
                       <span className="log-size">{log.size}</span>
                       <span className={`status-${getStatusClass(log?.response?.status)} log-status`}>
                         {log?.response?.status || 'ERR'}

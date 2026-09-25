@@ -116,8 +116,9 @@ function RequestBuilder({ scrollToResponse }) {
         const finalResponse = {
           status: response.status,
           data: response.rawData,
-          headers:response.headers,
+          headers: response.headers,
           time: response.time || 12,
+          timing: response.timing || null,
           length: response.length || 0,
           type: response.type,
           category: response.category
@@ -130,11 +131,13 @@ function RequestBuilder({ scrollToResponse }) {
         const errResponse = {
           status: error.status || "500",
           data: error.message,
-          time: "0 ms"
+          time: "0 ms",
+          timing: error.timing || null
         };
         setResponse({
           status:error.status,
           data:error.message,
+          timing: error.timing || null
         })
         saveToHistory(url,method,request,errResponse)
       }

@@ -1,7 +1,9 @@
 .fetch-container {
-  padding: 40px;
-  max-width: 1500px;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 1600px;
   margin: 0 auto;
+  padding: 40px 32px;
   color: var(--text-main);
 }
 
@@ -47,8 +49,10 @@
 
 
 .api-grid {
+  width: 100%;
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 1.5rem;
 }
 
@@ -58,10 +62,11 @@
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 24px;
+  padding: 22px 20px;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  box-sizing: border-box;
   transition:
     border-color 0.3s cubic-bezier(0.23, 1, 0.32, 1),
     box-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1),
@@ -119,6 +124,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
@@ -222,6 +229,8 @@
 }
 
 .configure-btn {
+  width: 100%;
+  box-sizing: border-box;
   background: var(--accent-color);
   color: var(--bg-color); 
   border: none;
@@ -313,19 +322,36 @@
   z-index: 5;
 }
 
-/* Responsive Grid Breakpoints */
-@media (min-width: 860px) and (max-width: 1220px) {
+@media (min-width: 1400px) {
+  .api-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1080px) and (max-width: 1399px) {
   .fetch-container {
-    padding: 32px 24px;
+    padding: 36px 28px;
   }
 
   .api-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1079px) {
+  .fetch-container {
+    padding: 32px 20px;
+  }
+
+  .api-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1.25rem;
   }
 }
 
-@media (max-width: 859px) {
+@media (max-width: 767px) {
   .fetch-container {
     padding: 24px 16px;
   }
@@ -336,12 +362,12 @@
   }
 
   .api-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 1rem;
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 540px) {
   .fetch-container {
     padding: 20px 12px;
   }

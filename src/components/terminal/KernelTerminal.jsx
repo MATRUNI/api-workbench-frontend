@@ -27,6 +27,7 @@ import { TabContext } from '../../context/TabContext';
 import { LibraryContext } from '../../context/LibraryContext';
 import { executeTerminalCommand } from './commandEngine';
 import { createTerminalCompletionSource } from './terminalCompletions';
+import { FALLBACK_APIS } from './commands/utils';
 import '../../style/KernelTerminal.css';
 import { UserContext } from '../../context/UserContext.jsx';
 
@@ -365,13 +366,17 @@ export default function KernelTerminal() {
     return urls;
   }, [url, tabs]);
 
+  const effectiveApis = useMemo(() => {
+    return (APIList && APIList.length > 0) ? APIList : FALLBACK_APIS;
+  }, [APIList]);
+
   const completionSource = useMemo(() => {
     return createTerminalCompletionSource({
       tabs,
-      apiList: APIList,
+      apiList: effectiveApis,
       recentUrls
     });
-  }, [tabs, APIList, recentUrls]);
+  }, [tabs, effectiveApis, recentUrls]);
 
   // Handle command submission from CodeMirror Enter or Run button
   const handleExecute = async (rawCmd) => {
@@ -402,7 +407,7 @@ export default function KernelTerminal() {
       const result = await executeTerminalCommand(cmd, {
         ...requestCtx,
         tabCtx,
-        apiList: APIList,
+        apiList: effectiveApis,
         navigate,
         handleAddTab: tabCtx?.handleAddTab
       });
@@ -468,6 +473,12 @@ export default function KernelTerminal() {
   };
 
   const handleViewportClick = (e) => {
+    // If the user is selecting text to copy, do not steal focus and clear the selection
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      return;
+    }
+
     // If not clicking interactive controls, focus the prompt editor
     if (!e.target.closest('button') && !e.target.closest('a') && !e.target.closest('.chip')) {
       const cmContent = logContainerRef.current?.querySelector('.cm-content');
@@ -722,16 +733,27 @@ export default function KernelTerminal() {
                 <button className="chip" onClick={() => setPromptChip('tab new')} disabled={isExecuting}>
                   tab new
                 </button>
-                <button className="chip" onClick={() => setPromptChip('goto workbench')} disabled={isExecuting}>
+                <button className="chip" onClick={() => setPromptChip('nav workbench')} disabled={isExecuting}>
                   <Compass size={10} style={{ marginRight: 4 }} />
-                  goto workbench
+                  nav workbench
                 </button>
-                <button className="chip" onClick={() => setPromptChip('goto console')} disabled={isExecuting}>
-                  goto console
+                <button className="chip" onClick={() => setPromptChip('nav console')} disabled={isExecuting}>
+                  nav console
                 </button>
-                <button className="chip" onClick={() => setPromptChip('send https://jsonplaceholder.typicode.com/posts/1')} disabled={isExecuting}>
-                  GET /posts/1
+                <button className="chip" onClick={() => setPromptChip('library list')} disabled={isExecuting}>
+                  library list
                 </button>
+                {effectiveApis.slice(0, 3).map((api) => (
+                  <button 
+                    key={api._id || api.name} 
+                    className="chip" 
+                    onClick={() => setPromptChip(`library get "${api.name}"`)} 
+                    disabled={isExecuting}
+                    title={`${api.method || 'GET'} ${api.endpoint}`}
+                  >
+                    {api.name}
+                  </button>
+                ))}
                 <button className="chip" onClick={() => setPromptChip('send POST https://api.stripe.com/v1/customers with -a bearer sk_test_secret & -b {"name": "Test"}')} disabled={isExecuting}>
                   POST with -a & -b
                 </button>

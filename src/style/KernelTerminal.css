@@ -414,6 +414,8 @@
   flex-direction: column;
   gap: 8px;
   cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .terminal-log-row {
@@ -422,6 +424,7 @@
   gap: 2px;
   font-size: 0.85rem;
   line-height: 1.45;
+  user-select: text;
 }
 
 /* Stream Command Line */
@@ -431,11 +434,13 @@
   font-size: 0.85rem;
   line-height: 1.45;
   word-break: break-all;
+  user-select: text;
 }
 
 .command-stream-text {
   color: var(--text-main);
   font-weight: 600;
+  user-select: text;
 }
 
 /* Output Block */

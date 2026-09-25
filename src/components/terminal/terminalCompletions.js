@@ -1,11 +1,7 @@
-/**
- * Dynamic, Production-Grade Autocomplete Source for Kernel Terminal.
- * Zero hardcoded tab indices or bloated static catalogs.
- * Dynamically resolves against live Workbench tabs, Library APIs, and Route definitions.
- */
+import { FALLBACK_APIS } from './commands/utils';
 
 const CORE_COMMANDS = [
-  { label: 'send', type: 'keyword', detail: 'cmd', desc: 'Dispatch HTTP request (defaults to GET, or infers POST if body is set)', syntax: 'send [METHOD] [URL] with -a & -h & -b [--new]' },
+  { label: 'send', type: 'keyword', detail: 'cmd', desc: 'Dispatch HTTP request: send [METHOD] [URL] with -a & -h & -b [--new]', syntax: 'send [METHOD] [URL] with -a & -h & -b [--new]' },
   { label: 'get', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a GET request', syntax: 'get <url> [with ...]' },
   { label: 'post', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a POST request with payload', syntax: 'post <url> with -b <json>' },
   { label: 'put', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a PUT request', syntax: 'put <url> with -b <json>' },
@@ -14,11 +10,22 @@ const CORE_COMMANDS = [
   { label: 'curl', type: 'function', detail: 'fn', desc: 'Parse and execute raw cURL snippet into Workbench', syntax: 'curl -X POST <url> -H ... -d ...' },
   { label: 'tab', type: 'class', detail: 'tab', desc: 'Workbench tab manager: list, switch, next, prev, new, close, dup', syntax: 'tab <list | switch | next | prev | new | close>' },
   { label: 'library', type: 'interface', detail: 'lib', desc: 'Browse and load curated public APIs from Library into Workbench', syntax: 'library <list | search | get>' },
-  { label: 'goto', type: 'interface', detail: 'nav', desc: 'Navigate to any workspace view instantly', syntax: 'goto <workbench | console | library | docs | chat | profile>' },
-  { label: 'history', type: 'variable', detail: 'db', desc: 'Query IndexedDB request history or storage size', syntax: 'history [size | --filter | clear]' },
+  { label: 'nav', type: 'interface', detail: 'nav', desc: 'Navigate to any workspace view instantly', syntax: 'nav <workbench | console | library | docs | chat | profile | home | auth>' },
+  { label: 'history', type: 'variable', detail: 'db', desc: 'Query IndexedDB request history or storage size', syntax: 'history [size | clear | limit <n>]' },
   { label: 'db', type: 'variable', detail: 'db', desc: 'Audit all IndexedDB database tables & storage footprint', syntax: 'db [tables | stats]' },
+  { label: 'timing', type: 'variable', detail: 'perf', desc: 'Inspect latency waterfall telemetry for last request', syntax: 'timing' },
   { label: 'clear', type: 'keyword', detail: 'cmd', desc: 'Purge terminal screen buffer', syntax: 'clear' },
   { label: 'help', type: 'info', detail: 'info', desc: 'Display CLI syntax reference matrix', syntax: 'help' }
+];
+
+const HTTP_METHOD_OPTIONS = [
+  { label: 'GET', type: 'keyword', detail: 'method', desc: 'Retrieve data from the specified resource' },
+  { label: 'POST', type: 'keyword', detail: 'method', desc: 'Submit payload to create or process a resource' },
+  { label: 'PUT', type: 'keyword', detail: 'method', desc: 'Replace or update entire resource at target URL' },
+  { label: 'PATCH', type: 'keyword', detail: 'method', desc: 'Apply partial modifications to a resource' },
+  { label: 'DELETE', type: 'keyword', detail: 'method', desc: 'Remove specified resource' },
+  { label: 'HEAD', type: 'keyword', detail: 'method', desc: 'Same as GET but returns HTTP headers only' },
+  { label: 'OPTIONS', type: 'keyword', detail: 'method', desc: 'Describe the communication options for target resource' }
 ];
 
 const MODIFIER_OPTIONS = [
@@ -38,6 +45,7 @@ const ROUTES = [
   { name: 'docs', desc: 'Interactive developer documentation (/docs)' },
   { name: 'chat', desc: 'Collaborative WebSocket shell (/chat)' },
   { name: 'profile', desc: 'User profile and storage metrics (/profile)' },
+  { name: 'home', desc: 'System Hero Landing (/)' },
   { name: 'auth', desc: 'Authentication and session gate (/auth)' }
 ];
 
@@ -90,11 +98,12 @@ function renderDocCard({ label, badge, desc, syntax, example }) {
   return dom;
 }
 
-function createOption({ label, type = 'keyword', detail = 'cmd', badge, desc, syntax, example }) {
+function createOption({ label, type = 'keyword', detail = 'cmd', badge, desc, syntax, example, apply }) {
   return {
     label,
     type,
     detail,
+    apply: apply !== undefined ? apply : label,
     info: () => renderDocCard({
       label,
       badge: badge || detail,
@@ -105,23 +114,21 @@ function createOption({ label, type = 'keyword', detail = 'cmd', badge, desc, sy
   };
 }
 
-/**
- * Creates dynamic completion source wired to live context state.
- */
 export function createTerminalCompletionSource(config = {}) {
   const { tabs = [], apiList = [], recentUrls = [] } = Array.isArray(config) 
     ? { recentUrls: config } 
     : config;
 
+  const effectiveApiList = (apiList && apiList.length > 0) ? apiList : FALLBACK_APIS;
+
   return function terminalCompletionSource(context) {
     const textBefore = context.state.doc.sliceString(0, context.pos);
-    const word = context.matchBefore(/[\w\-&:"'/.]*/);
+    const word = context.matchBefore(/[^\s]*/);
     if (!word) return null;
 
-    const trimmed = textBefore.trim();
+    const prefix = textBefore.slice(0, word.from);
 
-    // 1. Root command completion at start of line
-    if (!textBefore.includes(' ')) {
+    if (prefix === '') {
       return {
         from: word.from,
         options: CORE_COMMANDS.map(c => createOption({
@@ -131,8 +138,7 @@ export function createTerminalCompletionSource(config = {}) {
       };
     }
 
-    // 2. Navigation routes: goto <route>, nav <route>, open <route>
-    if (/^(goto|nav|open|navigate)\s+[\w]*$/i.test(trimmed)) {
+    if (/^nav\s+$/i.test(prefix)) {
       return {
         from: word.from,
         options: ROUTES.map(r => createOption({
@@ -141,13 +147,12 @@ export function createTerminalCompletionSource(config = {}) {
           detail: 'route',
           badge: 'ROUTE',
           desc: r.desc,
-          syntax: `goto ${r.name}`
+          syntax: `nav ${r.name}`
         }))
       };
     }
 
-    // 3. Tab operations & dynamic tabs resolution from live state
-    if (/^(tab|t)\s+[\w]*$/i.test(trimmed)) {
+    if (/^tab\s+$/i.test(prefix)) {
       const actions = TAB_SUBCOMMANDS.map(a => createOption({
         label: a.label,
         type: 'keyword',
@@ -157,7 +162,6 @@ export function createTerminalCompletionSource(config = {}) {
         syntax: `tab ${a.label}`
       }));
 
-      // Dynamically map real open tabs
       const dynamicTabs = tabs.map((tab, idx) => createOption({
         label: String(idx + 1),
         type: 'text',
@@ -173,8 +177,7 @@ export function createTerminalCompletionSource(config = {}) {
       };
     }
 
-    // Tab switch dynamic targets (indexes or aliases)
-    if (/^(tab|t)\s+(?:switch|s)\s+[\w]*$/i.test(trimmed)) {
+    if (/^tab\s+switch\s+$/i.test(prefix)) {
       return {
         from: word.from,
         options: tabs.map((tab, idx) => createOption({
@@ -188,8 +191,7 @@ export function createTerminalCompletionSource(config = {}) {
       };
     }
 
-    // 4. Library operations & dynamic API catalog resolution from LibraryContext
-    if (/^(library|lib|api)\s+[\w]*$/i.test(trimmed)) {
+    if (/^library\s+$/i.test(prefix)) {
       const actions = LIBRARY_SUBCOMMANDS.map(a => createOption({
         label: a.label,
         type: 'keyword',
@@ -199,46 +201,138 @@ export function createTerminalCompletionSource(config = {}) {
         syntax: `library ${a.label}`
       }));
 
+      const apiOptions = effectiveApiList.map((api) => createOption({
+        label: `get "${api.name}"`,
+        apply: `get "${api.name}"`,
+        type: 'interface',
+        detail: api.method || 'GET',
+        badge: api.category || 'API',
+        desc: api.endpoint || api.description,
+        syntax: `library get "${api.name}"`,
+        example: `${api.method || 'GET'} ${api.endpoint}`
+      }));
+
       return {
         from: word.from,
-        options: actions
+        options: [...actions, ...apiOptions]
       };
     }
 
-    // Library get: dynamically populate APIs from live catalog
-    if (/^(library|lib|api)\s+(?:get|load|run)\s+["\w]*$/i.test(trimmed)) {
-      return {
-        from: word.from,
-        options: apiList.map(api => createOption({
-          label: `"${api.name}"`,
+    if (/^library\s+get\s+["']?$/i.test(prefix)) {
+      const isQuoted = word.text.startsWith('"') || word.text.startsWith("'");
+      const nameOptions = effectiveApiList.map((api, idx) => {
+        const cleanName = api.name;
+        const quotedName = `"${cleanName}"`;
+        return createOption({
+          label: isQuoted ? quotedName : cleanName,
+          apply: isQuoted ? quotedName : (cleanName.includes(' ') ? quotedName : cleanName),
           type: 'interface',
-          detail: 'lib',
+          detail: api.method || 'GET',
           badge: api.category || 'API',
-          desc: api.description || `Pre-configured ${api.method} endpoint`,
-          syntax: `library get "${api.name}"`,
-          example: `library get "${api.name}" --new`
-        }))
+          desc: api.endpoint || api.description,
+          syntax: `library get "${cleanName}"`,
+          example: `[#${idx + 1}] ${api.method || 'GET'} ${api.endpoint}`
+        });
+      });
+
+      const indexOptions = effectiveApiList.map((api, idx) => createOption({
+        label: String(idx + 1),
+        apply: String(idx + 1),
+        type: 'text',
+        detail: api.name,
+        badge: `#${idx + 1}`,
+        desc: `${api.method || 'GET'} ${api.endpoint}`,
+        syntax: `library get ${idx + 1}`
+      }));
+
+      return {
+        from: word.from,
+        options: [...nameOptions, ...indexOptions]
       };
     }
 
-    // 5. Dynamic Recent URLs after HTTP methods
-    if (/^(send|get|post|put|delete|patch)\s+[\w-:/.]*$/i.test(trimmed)) {
-      if (recentUrls.length > 0) {
-        return {
-          from: word.from,
-          options: recentUrls.slice(0, 8).map(u => createOption({
-            label: u,
-            type: 'text',
-            detail: 'url',
-            badge: 'RECENT',
-            desc: 'Target URL from session history',
-            syntax: `send ${u}`
-          }))
-        };
-      }
+    if (/^library\s+search\s+$/i.test(prefix)) {
+      const categories = Array.from(new Set(effectiveApiList.map(a => a.category).filter(Boolean)));
+      const catOptions = categories.map(cat => createOption({
+        label: cat,
+        type: 'keyword',
+        detail: 'category',
+        badge: 'CATEGORY',
+        desc: `Filter by ${cat} category`,
+        syntax: `library search ${cat}`
+      }));
+
+      const apiOptions = effectiveApiList.map(api => createOption({
+        label: api.name,
+        type: 'interface',
+        detail: api.category || 'API',
+        badge: 'API',
+        desc: api.description || api.endpoint,
+        syntax: `library search ${api.name}`
+      }));
+
+      return {
+        from: word.from,
+        options: [...catOptions, ...apiOptions]
+      };
     }
 
-    // 6. Modifiers after "with" or "&"
+    const isHttpUrlPosition = /^(?:send(?:\s+(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS))?|(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)|curl(?:\s+-X\s+[A-Z]+)?)\s+$/i.test(prefix);
+
+    if (isHttpUrlPosition) {
+      const isSendBare = /^send\s+$/i.test(prefix);
+      const targetMethodMatch = prefix.match(/\b(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\b/i);
+      const targetMethod = targetMethodMatch ? targetMethodMatch[1].toUpperCase() : null;
+
+      const urlOptions = [];
+
+      effectiveApiList.forEach(api => {
+        if (api.endpoint && !urlOptions.some(o => o.label === api.endpoint)) {
+          const isMatchingMethod = !targetMethod || (api.method && api.method.toUpperCase() === targetMethod);
+          urlOptions.push({
+            option: createOption({
+              label: api.endpoint,
+              type: 'interface',
+              detail: api.method || 'GET',
+              badge: api.name || 'API',
+              desc: `${api.name} (${api.category || 'API'})`,
+              syntax: `send ${api.method || 'GET'} ${api.endpoint}`,
+              example: api.description
+            }),
+            priority: isMatchingMethod ? 2 : 1
+          });
+        }
+      });
+
+      recentUrls.forEach(u => {
+        if (u && !urlOptions.some(o => o.option.label === u)) {
+          urlOptions.push({
+            option: createOption({
+              label: u,
+              type: 'text',
+              detail: 'url',
+              badge: 'RECENT',
+              desc: 'Target URL from session history',
+              syntax: `send ${u}`
+            }),
+            priority: 0
+          });
+        }
+      });
+
+      urlOptions.sort((a, b) => b.priority - a.priority);
+
+      const methodOptions = isSendBare ? HTTP_METHOD_OPTIONS.map(m => createOption({
+        ...m,
+        badge: 'METHOD'
+      })) : [];
+
+      return {
+        from: word.from,
+        options: [...methodOptions, ...urlOptions.map(o => o.option)]
+      };
+    }
+
     if (/(?:with|&)\s*[\w-]*$/i.test(textBefore) || word.text.startsWith('-')) {
       return {
         from: word.from,

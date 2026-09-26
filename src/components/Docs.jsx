@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 import { docsRegistry } from '../docs/index.js';
 import { X, Menu, Info, Lightbulb, AlertCircle } from 'lucide-react';
 import { DynamicIcon } from './utility_Components/DynamicIcon';
@@ -72,8 +75,8 @@ function Docs() {
         {activeDoc ? (
           <div className="markdown-body">
             <Markdown 
-              remarkPlugins={[remarkGfm]} 
-              rehypePlugins={[rehypeRaw]}
+              remarkPlugins={[remarkGfm, remarkMath]} 
+              rehypePlugins={[rehypeRaw, rehypeKatex]}
               components={{
                 blockquote({ node, children, ...props }) {
                   let alertType = null;
@@ -106,15 +109,30 @@ function Docs() {
                      if (alertType === 'tip') {
                         icon = <Lightbulb size={18} />;
                         alertClass = "docs-alert-tip";
-                     } else if (alertType === 'warning' || alertType === 'caution') {
+                     } else if (alertType === 'warning') {
                         icon = <AlertCircle size={18} />;
                         alertClass = "docs-alert-warning";
+                     } else if (alertType === 'caution') {
+                        icon = <AlertCircle size={18} />;
+                        alertClass = "docs-alert-caution";
                      }
+
+                     const filterEmptyChildren = (nodes) => {
+                       return React.Children.toArray(nodes).filter(child => {
+                         if (typeof child === 'string') return child.trim().length > 0;
+                         if (React.isValidElement(child) && child.type === 'p') {
+                           const pChildren = React.Children.toArray(child.props.children);
+                           if (pChildren.length === 0) return false;
+                           if (pChildren.every(c => typeof c === 'string' && c.trim().length === 0)) return false;
+                         }
+                         return true;
+                       });
+                     };
                      
                      return (
                         <div className={`docs-alert ${alertClass}`}>
                            <div className="docs-alert-icon">{icon}</div>
-                           <div className="docs-alert-content">{processedChildren}</div>
+                           <div className="docs-alert-content">{filterEmptyChildren(processedChildren)}</div>
                         </div>
                      );
                   }
@@ -127,6 +145,27 @@ function Docs() {
                       {children}
                     </code>
                   )
+                },
+                table({node, children, ...props}) {
+                  return (
+                    <div className="docs-table-container">
+                      <table {...props}>{children}</table>
+                    </div>
+                  );
+                },
+                a({node, href, children, ...props}) {
+                  const isExternal = href && (href.startsWith('http://') || href.startsWith('https://'));
+                  return (
+                    <a 
+                      href={href} 
+                      target={isExternal ? '_blank' : undefined} 
+                      rel={isExternal ? 'noopener noreferrer' : undefined}
+                      className="docs-external-link"
+                      {...props}
+                    >
+                      {children}
+                    </a>
+                  );
                 }
               }}
             >

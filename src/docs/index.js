@@ -2,6 +2,7 @@ import gettingStarted from './getting-started.md?raw';
 import authentication from './authentication.md?raw';
 import endpoints from './endpoints.md?raw';
 import commMatrix from './comm-matrix.md?raw';
+import stressEngine from './stress-engine.md?raw';
 
 export const docsRegistry = [
   {
@@ -17,6 +18,13 @@ export const docsRegistry = [
     description: 'Master the Request Builder and CORS bypass agent.',
     icon: 'Zap',
     content: endpoints
+  },
+  {
+    id: 'stress-engine',
+    title: 'Stress Engine',
+    description: 'High-throughput load testing, worker pools, and telemetry.',
+    icon: 'Gauge',
+    content: stressEngine
   },
   {
     id: 'comm-matrix',

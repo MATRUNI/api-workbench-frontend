@@ -1,3 +1,5 @@
+@import "katex/dist/katex.min.css";
+
 :root {
     --bg-color: #000000;
     --card-bg: #141414;

@@ -1,0 +1,1888 @@
+/* ==========================================================================
+   Stress Mode & Telemetry Dashboard Styling
+   ========================================================================== */
+
+/* Mode Switcher Toggle */
+.endpoint-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+  margin-left: 0;
+  margin-right: auto;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Response wrapper */
+.stress-response-wrapper {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #8b949e);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-btn:hover {
+  color: var(--text-main, #ffffff);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-btn.active {
+  color: var(--text-main, #ffffff);
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mode-btn.stress-btn.active {
+  color: #fca130;
+  border-color: rgba(252, 161, 48, 0.4);
+  background: rgba(252, 161, 48, 0.08);
+}
+
+.mode-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fca130;
+  box-shadow: 0 0 8px #fca130;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Stress Controls Panel */
+.stress-controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  height: calc(100% - 70px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.stress-controls-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.stress-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fca130;
+  text-transform: uppercase;
+}
+
+.stress-badge-icon {
+  color: #fca130;
+}
+
+.stress-header-target {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.stress-method-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--brand-color, #a855f7);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.stress-target-url {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--text-main, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stress-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stress-field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main, #ffffff);
+}
+
+.stress-field-val {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--brand-color, #a855f7);
+  font-weight: 600;
+}
+
+.stress-presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stress-preset-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  color: var(--text-muted, #8b949e);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stress-preset-btn:hover:not(:disabled) {
+  border-color: var(--text-muted, #8b949e);
+  color: var(--text-main, #ffffff);
+}
+
+.stress-preset-btn.active {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: var(--brand-color, #a855f7);
+  color: var(--brand-color, #a855f7);
+  font-weight: 600;
+}
+
+/* Sleek Themed Number Control */
+.stress-num-control {
+  display: flex;
+  align-items: center;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 8px;
+  padding: 4px 10px;
+  gap: 10px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.stress-num-control:hover:not(.disabled) {
+  border-color: color-mix(in srgb, var(--border-color, #27272a) 60%, var(--brand-color, #a855f7));
+}
+
+.stress-num-control:focus-within {
+  border-color: var(--brand-color, #a855f7);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-color, #a855f7) 25%, transparent), 
+              inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.stress-num-control.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stress-num-prefix-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--card-bg, #141414) 75%, var(--brand-color, #a855f7) 25%);
+  color: var(--brand-color, #a855f7);
+  flex-shrink: 0;
+}
+
+.stress-num-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main, #ffffff);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 0;
+  padding: 6px 4px;
+}
+
+/* Hide native browser spinners */
+.stress-num-field::-webkit-outer-spin-button,
+.stress-num-field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stress-num-field[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stress-num-stepper {
+  display: inline-flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--card-bg, #141414) 70%, transparent);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.stress-step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #8b949e);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.stress-step-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--brand-color, #a855f7) 20%, transparent);
+  color: var(--text-main, #ffffff);
+}
+
+.stress-step-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.stress-step-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.stress-range-badge {
+  font-size: 0.72rem;
+  color: var(--text-muted, #8b949e);
+  background: color-mix(in srgb, var(--card-bg, #141414) 80%, transparent);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 5px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+/* Advanced Execution Settings Section */
+.stress-advanced-section {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.stress-advanced-section:focus-within {
+  border-color: color-mix(in srgb, var(--border-color, #27272a) 50%, var(--brand-color, #a855f7));
+}
+
+.stress-advanced-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--card-bg, #141414);
+  border: none;
+  cursor: pointer;
+  color: var(--text-main, #ffffff);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.stress-advanced-toggle:hover {
+  background: color-mix(in srgb, var(--card-bg, #141414) 80%, var(--brand-color, #a855f7) 20%);
+}
+
+.stress-advanced-toggle.open {
+  border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.stress-advanced-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stress-advanced-icon {
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-customized-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.stress-advanced-title-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted, #8b949e);
+  font-size: 0.76rem;
+}
+
+.stress-advanced-quick-summary {
+  font-family: monospace;
+  font-size: 0.72rem;
+}
+
+.stress-advanced-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--terminal-input, #010409);
+  animation: stressFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes stressFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stress-field-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted, #8b949e);
+  line-height: 1.35;
+  margin-top: -2px;
+}
+
+.stress-advanced-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.stress-reset-advanced-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  background: transparent;
+  border: 1px dashed var(--border-color, #27272a);
+  color: var(--text-muted, #8b949e);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stress-reset-advanced-btn:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.stress-options-single {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 8px;
+}
+
+.stress-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 8px;
+}
+
+.stress-toggle-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+
+.stress-toggle-label.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.stress-toggle-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.proxy-status-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.proxy-status-pill.online {
+  background: rgba(73, 204, 144, 0.15);
+  color: #49cc90;
+  border: 1px solid rgba(73, 204, 144, 0.3);
+}
+
+.proxy-status-pill.offline {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.stress-toggle-label input {
+  display: none;
+}
+
+.stress-checkbox-custom {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #27272a);
+  background: var(--terminal-input, #010409);
+  margin-top: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.stress-toggle-label input:checked + .stress-checkbox-custom {
+  background: var(--brand-color, #a855f7);
+  border-color: var(--brand-color, #a855f7);
+}
+
+.stress-toggle-label input:checked + .stress-checkbox-custom::after {
+  content: "✔";
+  color: #ffffff;
+  font-size: 10px;
+}
+
+.stress-toggle-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.stress-toggle-text span {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-main, #ffffff);
+}
+
+.stress-toggle-text small {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-action-wrapper {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.stress-btn-start {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stress-btn-start:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+  filter: brightness(1.1);
+}
+
+.stress-btn-start:active {
+  transform: translateY(0);
+}
+
+.stress-btn-abort {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  animation: pulse-abort 1.5s infinite;
+}
+
+@keyframes pulse-abort {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* ==========================================================================
+   Stress Telemetry Viewer Styling
+   ========================================================================== */
+.stress-telemetry-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.stress-telemetry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.stress-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stress-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.stress-status-pill.running {
+  background: rgba(252, 161, 48, 0.15);
+  color: #fca130;
+  border: 1px solid rgba(252, 161, 48, 0.4);
+}
+
+.stress-status-pill.completed {
+  background: rgba(73, 204, 144, 0.15);
+  color: #49cc90;
+  border: 1px solid rgba(73, 204, 144, 0.4);
+}
+
+.stress-status-pill.aborted {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.stress-status-pill.idle {
+  background: rgba(139, 148, 158, 0.1);
+  color: var(--text-muted, #8b949e);
+  border: 1px solid var(--border-color, #27272a);
+}
+
+.stress-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fca130;
+  box-shadow: 0 0 10px #fca130;
+  animation: pulse-dot 1s infinite;
+}
+
+.stress-elapsed-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stress-abort-sm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stress-abort-sm-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.stress-copy-report-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  color: var(--text-main, #ffffff);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stress-copy-report-btn:hover {
+  border-color: var(--brand-color, #a855f7);
+  color: var(--brand-color, #a855f7);
+}
+
+/* Hero Cards Grid */
+.stress-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1400px) {
+  .stress-hero-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stress-hero-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.stress-hero-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rps-card .stress-hero-icon {
+  background: rgba(73, 204, 144, 0.12);
+  color: #49cc90;
+}
+
+.duration-card .stress-hero-icon {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.workers-card .stress-hero-icon {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+
+.latency-card .stress-hero-icon {
+  background: rgba(97, 175, 254, 0.12);
+  color: #61affe;
+}
+
+.stress-hero-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stress-hero-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #8b949e);
+  text-transform: uppercase;
+}
+
+.stress-hero-value {
+  font-family: monospace;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.stress-hero-unit {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted, #8b949e);
+}
+
+/* Progress Box */
+.stress-progress-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 10px;
+}
+
+.stress-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main, #ffffff);
+}
+
+.stress-progress-percent {
+  font-family: monospace;
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-progress-track {
+  height: 10px;
+  background: var(--terminal-input, #010409);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  border: 1px solid var(--border-color, #27272a);
+}
+
+.stress-progress-fill-success {
+  height: 100%;
+  background: linear-gradient(90deg, #49cc90, #10b981);
+  transition: width 0.1s linear;
+}
+
+.stress-progress-fill-warning {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fca130);
+  transition: width 0.1s linear;
+}
+
+.stress-progress-fill-failure {
+  height: 100%;
+  background: #ef4444;
+  transition: width 0.1s linear;
+}
+
+.stress-sub-counters {
+  display: flex;
+  gap: 12px;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.stress-sub-pill.success {
+  color: #49cc90;
+  font-weight: 600;
+}
+
+.stress-sub-pill.warning {
+  color: #fca130;
+  font-weight: 600;
+}
+
+.stress-sub-pill.failure {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.stress-sub-pill.total {
+  color: var(--text-muted, #8b949e);
+  margin-left: auto;
+}
+
+/* Section Cards (Percentiles, Sparkline, Statuses) */
+.stress-section-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 10px;
+}
+
+.stress-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #8b949e);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.stress-percentiles-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.stress-p-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+}
+
+.stress-p-box.highlight {
+  border-color: rgba(168, 85, 247, 0.4);
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.stress-p-label {
+  font-size: 0.7rem;
+  color: var(--text-muted, #8b949e);
+  font-weight: 500;
+}
+
+.stress-p-val {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main, #ffffff);
+}
+
+.stress-p-box.highlight .stress-p-val {
+  color: var(--brand-color, #a855f7);
+}
+
+/* Sparkline Track */
+.stress-sparkline-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 55px;
+  padding: 8px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+}
+
+.stress-spark-bar {
+  flex: 1;
+  background: linear-gradient(180deg, #61affe 0%, rgba(97, 175, 254, 0.2) 100%);
+  border-radius: 2px;
+  min-height: 4px;
+  transition: height 0.1s ease;
+}
+
+/* Status Codes List */
+.stress-status-pills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stress-code-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+
+.stress-code-badge.success {
+  background: rgba(73, 204, 144, 0.12);
+  border: 1px solid rgba(73, 204, 144, 0.3);
+  color: #49cc90;
+}
+
+.stress-code-badge.warning {
+  background: rgba(252, 161, 48, 0.12);
+  border: 1px solid rgba(252, 161, 48, 0.3);
+  color: #fca130;
+}
+
+.stress-code-badge.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.stress-code-badge.info {
+  background: rgba(97, 175, 254, 0.12);
+  border: 1px solid rgba(97, 175, 254, 0.3);
+  color: #61affe;
+}
+
+.stress-code-num {
+  font-weight: 700;
+}
+
+.stress-code-count {
+  color: var(--text-main, #ffffff);
+}
+
+.stress-code-pct {
+  color: var(--text-muted, #8b949e);
+  font-size: 0.75rem;
+}
+
+/* Rate Limit Alert Box */
+.stress-rate-limit-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(252, 161, 48, 0.1);
+  border: 1px solid rgba(252, 161, 48, 0.35);
+  color: #fca130;
+  font-size: 0.85rem;
+}
+
+.stress-rate-limit-alert p {
+  margin: 2px 0 0 0;
+  color: var(--text-muted, #8b949e);
+  font-size: 0.78rem;
+}
+
+.send-button.stress-send-btn {
+  background: rgba(252, 161, 48, 0.15) !important;
+  border: 1px solid rgba(252, 161, 48, 0.5) !important;
+  color: #fca130 !important;
+}
+
+.send-button.stress-send-btn:hover {
+  background: rgba(252, 161, 48, 0.25) !important;
+  border-color: #fca130 !important;
+}
+
+/* ==========================================================================
+   Sample Quick Card inside Telemetry Dashboard
+   ========================================================================== */
+.stress-sample-quickcard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--card-bg, #141414);
+  border: 1px solid color-mix(in srgb, var(--border-color, #27272a) 70%, var(--brand-color, #a855f7) 30%);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.stress-sample-quickcard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stress-sample-quickcard-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stress-quickcard-icon {
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-quickcard-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-main, #ffffff);
+  text-transform: uppercase;
+}
+
+.stress-quickcard-status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.stress-quickcard-status.success {
+  background: rgba(73, 204, 144, 0.15);
+  color: #49cc90;
+  border: 1px solid rgba(73, 204, 144, 0.35);
+}
+
+.stress-quickcard-status.warning {
+  background: rgba(252, 161, 48, 0.15);
+  color: #fca130;
+  border: 1px solid rgba(252, 161, 48, 0.35);
+}
+
+.stress-quickcard-status.info {
+  background: rgba(97, 175, 254, 0.15);
+  color: #61affe;
+  border: 1px solid rgba(97, 175, 254, 0.35);
+}
+
+.stress-quickcard-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-sample-quickcard-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stress-quickcard-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  color: var(--text-main, #ffffff);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stress-quickcard-btn:hover {
+  border-color: var(--brand-color, #a855f7);
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-quickcard-btn.primary {
+  background: color-mix(in srgb, var(--brand-color, #a855f7) 18%, transparent);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #d8b4fe;
+}
+
+.stress-quickcard-btn.primary:hover {
+  background: var(--brand-color, #a855f7);
+  color: #ffffff;
+}
+
+.stress-sample-preview-box {
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+  padding: 8px 12px;
+  max-height: 85px;
+  overflow-y: auto;
+}
+
+.stress-sample-code-preview {
+  margin: 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted, #8b949e);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ==========================================================================
+   Request Samples Table & Viewer
+   ========================================================================== */
+.stress-samples-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-color, #0d1117);
+}
+
+.stress-samples-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color, #27272a);
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--card-bg, #141414);
+}
+
+.stress-samples-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  color: var(--text-muted, #8b949e);
+  font-weight: 500;
+}
+
+.stress-toolbar-icon {
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-toolbar-dot {
+  opacity: 0.4;
+}
+
+.stress-status-group-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.stress-status-sub-label {
+  font-size: 0.72rem;
+  color: var(--text-muted, #8b949e);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stress-sample-freq {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: 'Fira Code', monospace;
+  white-space: nowrap;
+}
+
+.stress-sample-multiplier {
+  font-size: 0.85rem;
+  color: var(--text-main, #ffffff);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.stress-sample-pct {
+  font-size: 0.74rem;
+  color: var(--text-muted, #8b949e);
+  white-space: nowrap;
+}
+
+.stress-sample-latency-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Fira Code', monospace;
+  white-space: nowrap;
+}
+
+.stress-sample-avg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: var(--text-main, #ffffff);
+  white-space: nowrap;
+}
+
+.stress-sample-avg strong {
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-sample-range {
+  font-size: 0.68rem;
+  color: var(--text-muted, #8b949e);
+  white-space: nowrap;
+}
+
+.stress-samples-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+  padding: 4px 10px;
+  min-width: 220px;
+}
+
+.stress-search-icon {
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-samples-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.78rem;
+  color: var(--text-main, #ffffff);
+  width: 100%;
+}
+
+.stress-samples-table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.stress-samples-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  min-width: 680px;
+}
+
+.stress-samples-table thead {
+  position: sticky;
+  top: 0;
+  background: var(--card-bg, #141414);
+  z-index: 2;
+  border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.stress-samples-table th {
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #8b949e);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.stress-sample-row {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color, #27272a) 60%, transparent);
+  transition: background 0.15s ease;
+}
+
+.stress-sample-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.stress-sample-row td {
+  padding: 8px 12px;
+  vertical-align: middle;
+}
+
+.stress-sample-idx {
+  font-family: monospace;
+  color: var(--text-muted, #8b949e);
+  font-weight: 600;
+}
+
+.stress-code-badge-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.stress-code-badge-sm.success {
+  background: rgba(73, 204, 144, 0.12);
+  color: #49cc90;
+  border: 1px solid rgba(73, 204, 144, 0.3);
+}
+
+.stress-code-badge-sm.warning {
+  background: rgba(252, 161, 48, 0.12);
+  color: #fca130;
+  border: 1px solid rgba(252, 161, 48, 0.3);
+}
+
+.stress-code-badge-sm.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.stress-sample-latency {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-sample-preview-cell {
+  max-width: 280px;
+  overflow: hidden;
+}
+
+.stress-sample-snippet {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--text-main, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.stress-sample-actions-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.stress-sm-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  color: var(--text-muted, #8b949e);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stress-sm-action-btn:hover {
+  color: var(--text-main, #ffffff);
+  border-color: var(--text-muted, #8b949e);
+}
+
+.stress-sm-action-btn.active {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: var(--brand-color, #a855f7);
+  color: var(--brand-color, #a855f7);
+}
+
+.stress-sm-action-btn.primary {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #d8b4fe;
+  font-weight: 600;
+}
+
+.stress-sm-action-btn.primary:hover {
+  background: var(--brand-color, #a855f7);
+  color: #ffffff;
+}
+
+.stress-sample-expanded-headers-row td {
+  padding: 0 12px 10px 12px;
+  background: var(--terminal-input, #010409);
+}
+
+.stress-sample-headers-drawer {
+  padding: 10px 14px;
+  background: var(--card-bg, #141414);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.stress-headers-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--brand-color, #a855f7);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.stress-headers-drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 6px 16px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.74rem;
+}
+
+.stress-header-kv {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stress-h-k {
+  color: var(--brand-color, #a855f7);
+  font-weight: 600;
+}
+
+.stress-h-v {
+  color: var(--text-main, #ffffff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   Errors & Diagnostic Log Viewer
+   ========================================================================== */
+.stress-errors-viewer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.stress-errors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.stress-errors-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stress-errors-main-icon {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.stress-errors-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.stress-errors-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-error-signatures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stress-error-sig-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid var(--border-color, #27272a);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.stress-error-sig-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.stress-error-sig-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+}
+
+.stress-error-sig-msg {
+  font-family: monospace;
+  color: var(--text-main, #ffffff);
+  word-break: break-all;
+}
+
+.stress-error-sig-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stress-error-sig-count {
+  font-family: monospace;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.stress-error-sig-pct {
+  font-size: 0.75rem;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-error-traces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.stress-error-trace-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 10px;
+  background: var(--terminal-input, #010409);
+  border: 1px solid color-mix(in srgb, var(--border-color, #27272a) 60%, transparent);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.76rem;
+}
+
+.stress-error-trace-idx {
+  color: #ef4444;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.stress-error-trace-msg {
+  color: var(--text-muted, #8b949e);
+  word-break: break-all;
+}
+
+/* ==========================================================================
+   Empty States & Tabs Styling
+   ========================================================================== */
+.stress-empty-samples-view,
+.stress-empty-sample-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 2rem;
+  gap: 10px;
+  color: var(--text-muted, #8b949e);
+}
+
+.stress-empty-icon {
+  color: var(--brand-color, #a855f7);
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.stress-empty-samples-view h3,
+.stress-empty-sample-prompt h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main, #ffffff);
+}
+
+.stress-empty-samples-view p,
+.stress-empty-sample-prompt p {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 420px;
+  line-height: 1.4;
+}
+
+.stress-empty-cta-btn {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--brand-color, #a855f7) 15%, transparent);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #d8b4fe;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stress-empty-cta-btn:hover {
+  background: var(--brand-color, #a855f7);
+  color: #ffffff;
+}
+
+.sub-tab.error-tab {
+  color: #ef4444;
+}
+
+.sub-tab.error-tab:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.sub-tab.error-tab.active {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+/* ==========================================================================
+   Comprehensive Mobile & Tablet Responsiveness
+   ========================================================================== */
+@media (max-width: 1220px) {
+  .stress-response-wrapper {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .stress-controls-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 14px 10px;
+    gap: 1rem;
+  }
+
+  .stress-telemetry-container {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 14px 10px;
+    gap: 14px;
+  }
+
+  .stress-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stress-percentiles-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .endpoint-mode-toggle {
+    margin-right: 8px;
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+
+  .mode-btn {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    gap: 4px;
+  }
+
+  .stress-telemetry-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .stress-status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .stress-header-actions {
+    width: 100%;
+  }
+
+  .stress-copy-report-btn,
+  .stress-abort-sm-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+
+  .stress-options-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .stress-btn-start,
+  .stress-btn-abort {
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    line-height: 1.3;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .stress-hero-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .stress-hero-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stress-hero-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .stress-presets-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .stress-preset-btn {
+    width: 100%;
+    padding: 7px 4px;
+    font-size: 0.76rem;
+    text-align: center;
+  }
+
+  .stress-num-control {
+    padding: 4px 6px;
+    gap: 6px;
+  }
+
+  .stress-range-badge {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .stress-sub-counters {
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stress-percentiles-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .stress-p-box {
+    padding: 6px 2px;
+  }
+
+  .stress-p-label {
+    font-size: 0.65rem;
+  }
+
+  .stress-p-val {
+    font-family: monospace;
+    font-size: 0.82rem;
+  }
+
+  .stress-status-pills-list {
+    gap: 5px;
+  }
+
+  .stress-code-badge {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+  }
+}

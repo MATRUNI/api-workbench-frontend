@@ -45,12 +45,65 @@ export function RequestProvider({children})
     const [requestPhase, setRequestPhase] = useState("")
     const [method,setMethod]=useState("GET")
     const [isProxyEnable,setIsProxyEnable] = useState(false)
+
+    // Stress Testing Mode State
+    const [isStressMode, setIsStressMode] = useState(false);
+    const [stressConfig, setStressConfig] = useState({
+        totalRequests: 100,
+        concurrency: 10,
+        timeoutMs: 15000,
+        delayBetweenRequestsMs: 0,
+        storeResponses: false
+    });
+
+    const [stressTelemetry, setStressTelemetry] = useState({
+        isRunning: false,
+        completed: 0,
+        total: 100,
+        inFlight: 0,
+        percent: 0,
+        elapsedMs: 0,
+        currentRps: 0,
+        successCount: 0,
+        failureCount: 0,
+        statusCounts: {},
+        recentLatencies: [],
+        lastLatency: 0,
+        aborted: false,
+        sampleResponse: null,
+        storedResponses: [],
+        sampleErrors: [],
+        finalReport: null
+    });
+
+    const activeRunnerRef = useState({ current: null })[0];
+
+    const abortStressTest = () => {
+        if (activeRunnerRef.current) {
+            activeRunnerRef.current.abort();
+        }
+    };
+
     useEffect(()=>{
         if(isProxyRunning) return;
         setIsProxyEnable(false)
     },[isProxyRunning])
     return (
-        <RequestContext.Provider value={{contentTypeTemplates ,request,setRequest,url,setURL,response,setResponse,isLoading,setIsLoading,requestPhase,setRequestPhase,method,setMethod,isProxyEnable,setIsProxyEnable}}>
+        <RequestContext.Provider value={{
+            contentTypeTemplates,
+            request, setRequest,
+            url, setURL,
+            response, setResponse,
+            isLoading, setIsLoading,
+            requestPhase, setRequestPhase,
+            method, setMethod,
+            isProxyEnable, setIsProxyEnable,
+            isStressMode, setIsStressMode,
+            stressConfig, setStressConfig,
+            stressTelemetry, setStressTelemetry,
+            activeRunnerRef,
+            abortStressTest
+        }}>
             {children}
         </RequestContext.Provider>
     )

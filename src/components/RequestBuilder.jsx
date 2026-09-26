@@ -25,13 +25,16 @@ import {
   ShieldCheck,
   Trash2
 } from "lucide-react"
+import { TbFlame } from "react-icons/tb"
 import KeyValueList from './utility_Components/KeyValueList'
+import StressControls from './StressControls'
 
 import "../style/RequestBuilder.css"
 import ConfigSharing from './ConfigSharing'
 import CodeSnippetModal from './CodeSnippetModal'
 import { UserContext } from '../context/UserContext'
 import { ShareContext } from '../context/ShareContext'
+import { MobileContext } from '../context/MobileContext'
 import { Panel } from 'react-resizable-panels'
 import { ContextMenuContext } from '../context/ContextMenuContext'
 import { generateCodeSnippet } from '../utils/codeGenerators'
@@ -57,9 +60,10 @@ const methodOptions = [
 ];
 
 function RequestBuilder({ scrollToResponse }) {
-    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest,isProxyEnable,setIsProxyEnable}=useContext(RequestContext)
+    const {url,setURL,request,setResponse,setIsLoading,setRequestPhase,method,setMethod,setRequest,isProxyEnable,setIsProxyEnable,isStressMode}=useContext(RequestContext)
     const { isProxyRunning } = useContext(ProxyContext)
     const {user} = useContext(UserContext)
+    const { isMobile } = useContext(MobileContext)
     const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
     const shareCtx = useContext(ShareContext);
     const hasSharedIndicator = Boolean(shareCtx && (shareCtx.unreadShares?.length > 0 || shareCtx.sentShares));
@@ -67,6 +71,8 @@ function RequestBuilder({ scrollToResponse }) {
     const [modalActive,setModalActive] = useState(false);
     const [codeModalActive, setCodeModalActive] = useState(false);
     const bodyRef = useRef(null);
+
+    const PaneComponent = isMobile ? 'div' : Panel;
 
     const isBodyDisabled = method === 'GET' || method === 'HEAD';
 
@@ -76,6 +82,15 @@ function RequestBuilder({ scrollToResponse }) {
         setActiveTab('headers');
       }
     }, [isBodyDisabled, activeTab]);
+
+    // Switch to Stress tab when Stress Mode is toggled (desktop only)
+    useEffect(() => {
+      if (isStressMode && !isMobile) {
+        setActiveTab('stress');
+      } else if (activeTab === 'stress') {
+        setActiveTab(isBodyDisabled ? 'headers' : 'body');
+      }
+    }, [isStressMode, isBodyDisabled, isMobile]);
 
     const isValidURL=(value)=>
     {
@@ -97,6 +112,13 @@ function RequestBuilder({ scrollToResponse }) {
       if(!isValidURL(url))
       {
         alert("Invalid URL");
+        return;
+      }
+      if (isStressMode) {
+        if (activeTab !== 'stress') {
+          setActiveTab('stress');
+        }
+        scrollToResponse();
         return;
       }
       const body = isBodyDisabled ? "" : bodyRef.current?.getCurrentBody()
@@ -422,7 +444,7 @@ function RequestBuilder({ scrollToResponse }) {
     };
 
   return (
-<Panel 
+<PaneComponent 
   className="pane request-pane"
   onContextMenu={handleContextMenu}
   onKeyDown={handleKeyDown}
@@ -460,11 +482,17 @@ function RequestBuilder({ scrollToResponse }) {
                 </button>
             )}
         </div>
-        <button className="send-button" type='submit'>
-          <Send size={18}/>
+        <button 
+          className={`send-button ${(isStressMode && !isMobile) ? 'stress-send-btn' : ''}`} 
+          type='submit'
+          title={(isStressMode && !isMobile) ? "Open Stress Controls / Start Test" : "Send Request (Ctrl+Enter)"}
+        >
+          {(isStressMode && !isMobile) ? <TbFlame size={19} style={{ color: '#fca130' }} /> : <Send size={18} />}
         </button>
       </form>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {activeTab === "stress" && !isMobile && <StressControls scrollToResponse={scrollToResponse} />}
 
       {activeTab === "body" && <Body_panel ref={bodyRef}/>}
 
@@ -504,27 +532,29 @@ function RequestBuilder({ scrollToResponse }) {
           />
       )}
       
-      <div className={`action-button-group ${hasSharedIndicator ? 'has-indicator' : ''}`}>
-          <button 
-              type="button" 
-              className="code-btn" 
-              title="Generate Code Snippet" 
-              onClick={() => setCodeModalActive(true)}
-          >
-              CODE <Code size={15} />
-          </button>
-          
-          {user && (
-              <button 
-                  type="button" 
-                  className="config-btn" 
-                  title="Share your configuration with others." 
-                  onClick={() => setModalActive(true)}
-              >
-                  CONFIG <Share2 size={15} />
-              </button>
-          )}
-      </div>
+      {activeTab !== "stress" && (
+        <div className={`action-button-group ${hasSharedIndicator ? 'has-indicator' : ''}`}>
+            <button 
+                type="button" 
+                className="code-btn" 
+                title="Generate Code Snippet" 
+                onClick={() => setCodeModalActive(true)}
+            >
+                CODE <Code size={15} />
+            </button>
+            
+            {user && (
+                <button 
+                    type="button" 
+                    className="config-btn" 
+                    title="Share your configuration with others." 
+                    onClick={() => setModalActive(true)}
+                >
+                    CONFIG <Share2 size={15} />
+                </button>
+            )}
+        </div>
+      )}
 
       {modalActive &&
       <ConfigSharing isOpen={modalActive} onClose={()=>setModalActive(false)}/>
@@ -543,7 +573,7 @@ function RequestBuilder({ scrollToResponse }) {
           }}
       />
       }
-    </Panel>
+    </PaneComponent>
   )
 }
 

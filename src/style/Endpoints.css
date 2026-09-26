@@ -677,23 +677,28 @@
 }
 
 @media (max-width: 1220px) {
-  .workbench-container {
-    min-height: auto;
-    height: auto;
-    flex-direction: column;
-    overflow-y: visible;
+  .workbench-container,
+  .workbench-container.workbench-mobile {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: auto !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow-y: visible !important;
   }
 
   .separator {
-    height: 14px;
+    display: flex;
+    height: 18px;
     width: 100%;
     justify-content: center;
     align-items: center;
     background: color-mix(in srgb, var(--card-bg) 60%, transparent);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
-    margin: 4px 0;
-    cursor: row-resize;
+    margin: 6px 0;
+    cursor: default;
+    color: var(--text-muted);
   }
 
   .request-pane,
@@ -712,10 +717,14 @@
   }
 
   .tabs-wrapper {
-    justify-content: end;
+    justify-content: flex-start;
     padding: 6px 8px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .tabs-wrapper > .tab-item:first-of-type {
+    margin-left: auto;
   }
 
   .pane-header {
@@ -820,7 +829,6 @@
   .tab-container {
     display: flex;
     width: auto;
-    min-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     gap: 4px;

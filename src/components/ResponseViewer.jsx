@@ -1,37 +1,67 @@
-import { forwardRef, useContext, useState } from 'react';
+import { forwardRef, useContext, useState, useEffect } from 'react';
 import { RequestContext } from '../context/RequestContext';
 import { 
-  Copy, 
-  Check, 
-  Trash2, 
-  Download, 
-  Maximize2, 
-  Minimize2, 
-  FileCode, 
-  FileText, 
-  KeyRound, 
-  Eye, 
-  CheckCircle2, 
-  Clock, 
-  HardDrive,
-  Activity,
-  Zap
-} from "lucide-react";
+  TbCopy, 
+  TbCheck, 
+  TbTrash, 
+  TbDownload, 
+  TbMaximize, 
+  TbMinimize, 
+  TbFileCode, 
+  TbFileText, 
+  TbKey, 
+  TbEye, 
+  TbCircleCheck, 
+  TbClock, 
+  TbActivity,
+  TbGauge,
+  TbListDetails,
+  TbAlertTriangle,
+  TbPlayerStop,
+  TbBolt,
+  TbDatabase
+} from "react-icons/tb";
 import VoidLoader from './VoidLoader';
 import CodeMirrorEditor from './utility_Components/CodeMirrorEditor';
 import KeyValueList from './utility_Components/KeyValueList';
 import ResponsePreview from './ResponsePreview';
 import NetworkWaterfall from './NetworkWaterfall';
+import StressTelemetryViewer from './StressTelemetryViewer';
+import StressSamplesViewer from './StressSamplesViewer';
+import StressErrorsViewer from './StressErrorsViewer';
 import '../style/responseViewer.css';
 import { Panel } from 'react-resizable-panels';
 import { ContextMenuContext } from '../context/ContextMenuContext';
+import { MobileContext } from '../context/MobileContext';
 
 const ResponseViewer = forwardRef((props, ref) => {
-    const { response, isLoading, requestPhase, setResponse } = useContext(RequestContext);
+    const { 
+        response, 
+        isLoading, 
+        requestPhase, 
+        setResponse, 
+        isStressMode,
+        stressTelemetry,
+        stressConfig,
+        abortStressTest
+    } = useContext(RequestContext);
+
     const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
+    const { isMobile: isMobileCtx } = useContext(MobileContext);
+    const isMobile = props.isMobile || isMobileCtx;
+    const PaneComponent = isMobile ? 'div' : Panel;
     const [copied, setCopied] = useState(false);
-    const [activeTab, setActiveTab] = useState('body'); // 'body' | 'headers' | 'raw' | 'preview' | 'timing'
+    const [activeTab, setActiveTab] = useState('body'); // 'telemetry' | 'body' | 'headers' | 'raw' | 'samples' | 'errors' | 'preview' | 'timing'
     const [isExpanded, setIsExpanded] = useState(false);
+
+    // Auto-select telemetry when entering stress mode
+    useEffect(() => {
+        if (isStressMode && !isMobile) {
+            setActiveTab('telemetry');
+        } else if (!isStressMode) {
+            setActiveTab('body');
+        }
+    }, [isStressMode, isMobile]);
 
     // Detect content type or default to JSON
     const getContentType = (data) => {
@@ -95,12 +125,16 @@ const ResponseViewer = forwardRef((props, ref) => {
         if (status >= 200 && status < 300) return "success";
         if (status >= 400 && status < 500) return "warning";
         if (status >= 500) return "error";
+        return "info";
     };
 
     const handleCopy = async (e) => {
         if (e && e.preventDefault) e.preventDefault();
         try {
-            await copyToClipboard(getFormattedData(), "Copied formatted response!");
+            const dataToCopy = (isStressMode && activeTab === 'telemetry')
+                ? JSON.stringify(stressTelemetry?.finalReport || stressTelemetry, null, 2)
+                : getFormattedData();
+            await copyToClipboard(dataToCopy, (isStressMode && activeTab === 'telemetry') ? "Copied telemetry report!" : "Copied formatted response!");
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
@@ -109,6 +143,18 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     const handleDownload = () => {
+        if (isStressMode && activeTab === 'telemetry') {
+            const reportData = JSON.stringify(stressTelemetry?.finalReport || stressTelemetry, null, 2);
+            const blob = new Blob([reportData], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `stress-telemetry-${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            return;
+        }
+
         const fileData = response.rawData || getFormattedData();
         const blob = fileData instanceof Blob ? fileData : new Blob([fileData], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -134,7 +180,7 @@ const ResponseViewer = forwardRef((props, ref) => {
                 { type: "header", label: "Selection" },
                 {
                     label: `Copy "${selectedText.length > 18 ? selectedText.slice(0, 18) + '…' : selectedText}"`,
-                    icon: Copy,
+                    icon: TbCopy,
                     shortcut: "Ctrl+C",
                     onClick: () => copyToClipboard(selectedText, "Copied selection!")
                 },
@@ -146,14 +192,14 @@ const ResponseViewer = forwardRef((props, ref) => {
             { type: "header", label: "Response Actions" },
             {
                 label: "Copy Response",
-                icon: Copy,
+                icon: TbCopy,
                 shortcut: "Ctrl+C",
                 disabled: !hasData,
                 onClick: () => copyToClipboard(formattedData, "Copied formatted response!")
             },
             {
                 label: "Copy Raw Response",
-                icon: FileText,
+                icon: TbFileText,
                 disabled: !hasData,
                 onClick: () => {
                     const rawContent = typeof response.rawData === "string" ? response.rawData : formattedData;
@@ -162,14 +208,14 @@ const ResponseViewer = forwardRef((props, ref) => {
             },
             {
                 label: "Save / Download",
-                icon: Download,
+                icon: TbDownload,
                 shortcut: "Ctrl+S",
-                disabled: !hasData,
+                disabled: !hasData && !stressTelemetry?.finalReport,
                 onClick: handleDownload
             },
             {
                 label: "Clear Response",
-                icon: Trash2,
+                icon: TbTrash,
                 danger: true,
                 disabled: !hasData,
                 onClick: () => setResponse({ status: 200 })
@@ -178,38 +224,58 @@ const ResponseViewer = forwardRef((props, ref) => {
             { type: "header", label: "Response Views" },
             {
                 label: "Body",
-                icon: FileCode,
+                icon: TbFileCode,
                 type: "checkbox",
                 checked: activeTab === "body",
                 onClick: () => setActiveTab("body")
             },
             {
                 label: "Headers",
-                icon: KeyRound,
+                icon: TbKey,
                 type: "checkbox",
                 checked: activeTab === "headers",
                 onClick: () => setActiveTab("headers")
             },
             {
                 label: "Raw",
-                icon: FileText,
+                icon: TbFileText,
                 type: "checkbox",
                 checked: activeTab === "raw",
                 onClick: () => setActiveTab("raw")
-            },
-            {
+            }
+        );
+
+        if (isStressMode) {
+            menuItems.push(
+                {
+                    label: "Telemetry",
+                    icon: TbGauge,
+                    type: "checkbox",
+                    checked: activeTab === "telemetry",
+                    onClick: () => setActiveTab("telemetry")
+                },
+                {
+                    label: "Samples",
+                    icon: TbListDetails,
+                    type: "checkbox",
+                    checked: activeTab === "samples",
+                    onClick: () => setActiveTab("samples")
+                }
+            );
+        } else {
+            menuItems.push({
                 label: "Timing / Waterfall",
-                icon: Activity,
+                icon: TbActivity,
                 type: "checkbox",
                 checked: activeTab === "timing",
                 onClick: () => setActiveTab("timing")
-            }
-        );
+            });
+        }
 
         if (hasPreview) {
             menuItems.push({
                 label: "Preview",
-                icon: Eye,
+                icon: TbEye,
                 type: "checkbox",
                 checked: activeTab === "preview",
                 onClick: () => setActiveTab("preview")
@@ -219,7 +285,7 @@ const ResponseViewer = forwardRef((props, ref) => {
         menuItems.push(
             {
                 label: isExpanded ? "Collapse View" : "Expand View",
-                icon: isExpanded ? Minimize2 : Maximize2,
+                icon: isExpanded ? TbMinimize : TbMaximize,
                 onClick: () => setIsExpanded(prev => !prev)
             }
         );
@@ -230,17 +296,17 @@ const ResponseViewer = forwardRef((props, ref) => {
                 { type: "header", label: "Response Info" },
                 {
                     label: `Status: ${response.status} (${getStatusText(response.status)})`,
-                    icon: CheckCircle2,
+                    icon: TbCircleCheck,
                     onClick: () => copyToClipboard(`${response.status} ${getStatusText(response.status)}`, "Copied status code!")
                 },
                 {
                     label: `Latency: ${response.time || 0} ms`,
-                    icon: Clock,
+                    icon: TbClock,
                     onClick: () => copyToClipboard(`${response.time || 0} ms`, "Copied response latency!")
                 },
                 {
                     label: `Size: ${response.length || formattedData.length} bytes`,
-                    icon: HardDrive,
+                    icon: TbDatabase,
                     onClick: () => copyToClipboard(`${response.length || formattedData.length} bytes`, "Copied response size!")
                 }
             );
@@ -250,99 +316,261 @@ const ResponseViewer = forwardRef((props, ref) => {
     };
 
     return (
-        <Panel 
+        <PaneComponent 
             className={`pane response-pane ${isExpanded ? 'response-pane-expanded' : ''}`}
             onContextMenu={handleContextMenu}
         >
             <div ref={ref} className="pane-header">
-                <div className="pane-header-left">
-                    <span className="label">Response</span>
-                    <span className="length-badge" title="Response size">
-                        {response.length || getFormattedData().length}
-                    </span>
-                </div>
-
-                <div className="response-meta">
-                    <span className={`status-badge status-${getStatusClass(response.status)}`}>
-                        {`${getStatusText(response.status)} ${response.status || ""}`}
-                    </span>
-                    <button 
-                        type="button" 
-                        className={`time-badge latency-pill ${activeTab === 'timing' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('timing')}
-                        title="Click to view latency waterfall profile"
-                    >
-                        {response.timing ? (
-                            <span className="mini-waterfall-spectrum">
-                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.dns || 0, 5)}%`, background: '#d2a8ff' }} />
-                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tcp || 0, 5)}%`, background: '#8b5cf6' }} />
-                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tls || 0, 5)}%`, background: '#c084fc' }} />
-                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.ttfb || 0, 10)}%`, background: '#f59e0b' }} />
-                                <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.download || 0, 5)}%`, background: '#49cc90' }} />
+                {isStressMode && !isMobile ? (
+                    <>
+                        <div className="pane-header-left">
+                            <span className="label">Stress Engine</span>
+                            <span className="length-badge" title="Requests completed / Total target">
+                                {`${stressTelemetry?.completed || 0} / ${stressTelemetry?.total || 0} reqs`}
                             </span>
-                        ) : (
-                            <Clock size={11} />
-                        )}
-                        <span>{`${response.time || "0"} ms`}</span>
-                    </button>
-                </div>
-            </div>
+                            {stressTelemetry?.isRunning ? (
+                                <span className="stress-status-pill running" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
+                                    <span className="stress-pulse-dot" style={{ width: '6px', height: '6px' }} />
+                                    <span>RUNNING ({stressTelemetry.percent || 0}%)</span>
+                                </span>
+                            ) : stressTelemetry?.finalReport ? (
+                                <span className={`stress-status-pill ${stressTelemetry.aborted ? 'aborted' : 'completed'}`} style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
+                                    {stressTelemetry.aborted ? 'ABORTED' : 'COMPLETED'}
+                                </span>
+                            ) : (
+                                <span className="stress-status-pill idle" style={{ padding: '2px 8px', fontSize: '0.68rem' }}>
+                                    READY
+                                </span>
+                            )}
+                        </div>
 
-            <div className="response-sub-tabs">
-                <button 
-                    type="button"
-                    className={`sub-tab ${activeTab === 'body' ? 'active' : ''}`} 
-                    onClick={() => setActiveTab('body')}
-                >
-                    <FileCode size={13} /> BODY
-                </button>
-                <button 
-                    type="button"
-                    className={`sub-tab ${activeTab === 'headers' ? 'active' : ''}`} 
-                    onClick={() => setActiveTab('headers')}
-                >
-                    <KeyRound size={13} /> Headers
-                </button>
-                <button 
-                    type="button"
-                    className={`sub-tab ${activeTab === 'raw' ? 'active' : ''}`} 
-                    onClick={() => setActiveTab('raw')}
-                >
-                    <FileText size={13} /> RAW
-                </button>
-                <button 
-                    type="button"
-                    className={`sub-tab ${activeTab === 'timing' ? 'active' : ''}`} 
-                    onClick={() => setActiveTab('timing')}
-                >
-                    <Activity size={13} /> TIMING
-                </button>
-                {hasPreview && (
-                    <button 
-                        type="button"
-                        className={`sub-tab ${activeTab === 'preview' ? 'active' : ''}`} 
-                        onClick={() => setActiveTab('preview')}
-                    >
-                        <Eye size={13} /> Preview
-                    </button>
+                        <div className="response-meta">
+                            {response.status && (
+                                <span className={`status-badge status-${getStatusClass(response.status)}`}>
+                                    {`${getStatusText(response.status)} ${response.status}`}
+                                </span>
+                            )}
+
+                            <span className="time-badge" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)' }} title="Total benchmark execution time">
+                                <TbClock size={12} />
+                                <span>{`${(((stressTelemetry?.finalReport?.elapsedMs || stressTelemetry?.elapsedMs) || 0) / 1000).toFixed(2)}s`}</span>
+                            </span>
+
+                            <span className="time-badge latency-pill" title="Average or last request latency">
+                                <TbActivity size={12} />
+                                <span>{`${stressTelemetry?.finalReport?.latencies?.avg || stressTelemetry?.lastLatency || response.time || 0} ms`}</span>
+                            </span>
+
+                            <span className="time-badge" style={{ background: 'rgba(73, 204, 144, 0.1)', color: '#49cc90', border: '1px solid rgba(73, 204, 144, 0.3)' }} title="Throughput in requests per second">
+                                <TbBolt size={12} />
+                                <span>{`${stressTelemetry?.finalReport?.throughputRps || stressTelemetry?.currentRps || 0} req/s`}</span>
+                            </span>
+
+                            {stressTelemetry?.isRunning && (
+                                <button
+                                    type="button"
+                                    className="stress-abort-sm-btn"
+                                    onClick={abortStressTest}
+                                    title="Abort ongoing stress benchmark"
+                                >
+                                    <TbPlayerStop size={12} />
+                                    <span>Stop</span>
+                                </button>
+                            )}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="pane-header-left">
+                            <span className="label">Response</span>
+                            <span className="length-badge" title="Response size">
+                                {response.length || getFormattedData().length}
+                            </span>
+                        </div>
+
+                        <div className="response-meta">
+                            <span className={`status-badge status-${getStatusClass(response.status)}`}>
+                                {`${getStatusText(response.status)} ${response.status || ""}`}
+                            </span>
+                            <button 
+                                type="button" 
+                                className={`time-badge latency-pill ${activeTab === 'timing' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('timing')}
+                                title="Click to view latency waterfall profile"
+                            >
+                                {response.timing ? (
+                                    <span className="mini-waterfall-spectrum">
+                                        <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.dns || 0, 5)}%`, background: '#d2a8ff' }} />
+                                        <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tcp || 0, 5)}%`, background: '#8b5cf6' }} />
+                                        <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.tls || 0, 5)}%`, background: '#c084fc' }} />
+                                        <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.ttfb || 0, 10)}%`, background: '#f59e0b' }} />
+                                        <span className="mini-spectrum-seg" style={{ width: `${Math.max(response.timing.percentages?.download || 0, 5)}%`, background: '#49cc90' }} />
+                                    </span>
+                                ) : (
+                                    <TbClock size={11} />
+                                )}
+                                <span>{`${response.time || "0"} ms`}</span>
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
 
+            {/* Response Sub-Tabs Bar */}
+            <div className="response-sub-tabs">
+                {isStressMode && !isMobile ? (
+                    <>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'telemetry' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('telemetry')}
+                        >
+                            <TbGauge size={13} /> TELEMETRY
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'body' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('body')}
+                        >
+                            <TbFileCode size={13} /> SAMPLE BODY
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'headers' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('headers')}
+                        >
+                            <TbKey size={13} /> HEADERS
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'raw' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('raw')}
+                        >
+                            <TbFileText size={13} /> RAW
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'samples' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('samples')}
+                        >
+                            <TbListDetails size={13} /> SAMPLES {stressTelemetry?.storedResponses?.length > 0 ? `(${stressTelemetry.storedResponses.length})` : ''}
+                        </button>
+                        {(stressTelemetry?.failureCount > 0 || stressTelemetry?.sampleErrors?.length > 0) && (
+                            <button 
+                                type="button"
+                                className={`sub-tab error-tab ${activeTab === 'errors' ? 'active' : ''}`} 
+                                onClick={() => setActiveTab('errors')}
+                            >
+                                <TbAlertTriangle size={13} /> ERRORS ({stressTelemetry.failureCount})
+                            </button>
+                        )}
+                        {response.timing && (
+                            <button 
+                                type="button"
+                                className={`sub-tab ${activeTab === 'timing' ? 'active' : ''}`} 
+                                onClick={() => setActiveTab('timing')}
+                            >
+                                <TbActivity size={13} /> TIMING
+                            </button>
+                        )}
+                        {hasPreview && (
+                            <button 
+                                type="button"
+                                className={`sub-tab ${activeTab === 'preview' ? 'active' : ''}`} 
+                                onClick={() => setActiveTab('preview')}
+                            >
+                                <TbEye size={13} /> PREVIEW
+                            </button>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'body' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('body')}
+                        >
+                            <TbFileCode size={13} /> BODY
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'headers' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('headers')}
+                        >
+                            <TbKey size={13} /> HEADERS
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'raw' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('raw')}
+                        >
+                            <TbFileText size={13} /> RAW
+                        </button>
+                        <button 
+                            type="button"
+                            className={`sub-tab ${activeTab === 'timing' ? 'active' : ''}`} 
+                            onClick={() => setActiveTab('timing')}
+                        >
+                            <TbActivity size={13} /> TIMING
+                        </button>
+                        {hasPreview && (
+                            <button 
+                                type="button"
+                                className={`sub-tab ${activeTab === 'preview' ? 'active' : ''}`} 
+                                onClick={() => setActiveTab('preview')}
+                            >
+                                <TbEye size={13} /> PREVIEW
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Tab Content Window */}
             <div className="editor-window output">
-                {isLoading ? (
+                {isLoading && !isStressMode ? (
                     <VoidLoader currentPhase={requestPhase} />
                 ) : (
                     <>
+                        {isStressMode && !isMobile && activeTab === 'telemetry' && (
+                            <div className="stress-response-wrapper">
+                                <StressTelemetryViewer onSelectTab={(tab) => setActiveTab(tab)} />
+                            </div>
+                        )}
+
                         {activeTab === "body" && (
-                            response.data instanceof Blob ? (
+                            !response.data && isStressMode ? (
+                                <div className="stress-empty-sample-prompt">
+                                    <TbFileCode size={36} className="stress-empty-icon" />
+                                    <h4>No Sample Response Captured Yet</h4>
+                                    <p>Launch a stress benchmark from the left panel to execute requests and inspect live server response bodies.</p>
+                                    <button 
+                                        type="button" 
+                                        className="stress-empty-cta-btn"
+                                        onClick={() => setActiveTab('telemetry')}
+                                    >
+                                        <TbGauge size={14} /> View Telemetry Dashboard
+                                    </button>
+                                </div>
+                            ) : response.data instanceof Blob ? (
                                 <div className="blob-notice">Binary asset loaded. Switch to the <strong>Preview</strong> tab to view.</div>
                             ) : (
-                                <CodeMirrorEditor editable={false} lang={getLanguageKey(contentType)} value={getFormattedData()} placeholderText={"RESPONSE DISPLAY"}/>
+                                <CodeMirrorEditor 
+                                    editable={false} 
+                                    lang={getLanguageKey(contentType)} 
+                                    value={getFormattedData()} 
+                                    placeholderText={isStressMode ? "SAMPLE RESPONSE DISPLAY" : "RESPONSE DISPLAY"}
+                                />
                             )
                         )}
 
                         {activeTab === "raw" && (
-                            <CodeMirrorEditor editable={false} lang="text" value={typeof response.rawData === 'string' ? response.rawData : '[Binary Blob Raw Data]'} placeholderText={"RAW RESPONSE DISPLAY"}/>
+                            <CodeMirrorEditor 
+                                editable={false} 
+                                lang="text" 
+                                value={typeof response.rawData === 'string' ? response.rawData : (response.data ? String(response.data) : '')} 
+                                placeholderText={"RAW RESPONSE DISPLAY"}
+                            />
                         )}
                         
                         {activeTab === 'headers' && (
@@ -353,8 +581,36 @@ const ResponseViewer = forwardRef((props, ref) => {
                                 }))}
                                 editable={false}
                                 showAddBtn={false}
-                                label="Response Headers"
+                                label={isStressMode ? "Sample Response Headers" : "Response Headers"}
                                 emptyMessage="No header information available."
+                            />
+                        )}
+
+                        {isStressMode && !isMobile && activeTab === 'samples' && (
+                            <StressSamplesViewer 
+                                samples={stressTelemetry?.storedResponses || []} 
+                                onSelectSample={(sample) => {
+                                    const formattedRaw = typeof sample.data === 'object' 
+                                        ? JSON.stringify(sample.data, null, 2) 
+                                        : (sample.data || sample.error || '');
+                                    setResponse({
+                                        ...response,
+                                        data: sample.data || sample.error,
+                                        rawData: formattedRaw,
+                                        status: typeof sample.status === 'number' ? sample.status : (sample.error ? 500 : 200),
+                                        time: sample.avgLatency || sample.latency || 0,
+                                        headers: sample.headers || response.headers
+                                    });
+                                    setActiveTab('body');
+                                }}
+                            />
+                        )}
+
+                        {isStressMode && !isMobile && activeTab === 'errors' && (
+                            <StressErrorsViewer 
+                                report={stressTelemetry?.finalReport} 
+                                sampleErrors={stressTelemetry?.sampleErrors || []} 
+                                failureCount={stressTelemetry?.failureCount || 0} 
                             />
                         )}
 
@@ -379,21 +635,42 @@ const ResponseViewer = forwardRef((props, ref) => {
 
             <div className='copy-container'>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button type="button" className="copy-btn" disabled={!response.data} onClick={handleCopy}>
-                        {copied ? <><Check size={14} /> COPIED</> : <><Copy size={14} /> COPY</>}
+                    <button 
+                        type="button" 
+                        className="copy-btn" 
+                        disabled={!response.data && !stressTelemetry?.finalReport} 
+                        onClick={handleCopy}
+                    >
+                        {copied ? <><TbCheck size={14} /> COPIED</> : <><TbCopy size={14} /> COPY</>}
                     </button>
-                    <button type="button" className="copy-btn" disabled={!response.data} onClick={handleDownload} title="Download response">
-                        <Download size={14} /> SAVE
+                    <button 
+                        type="button" 
+                        className="copy-btn" 
+                        disabled={!response.data && !stressTelemetry?.finalReport} 
+                        onClick={handleDownload} 
+                        title="Download response or benchmark telemetry"
+                    >
+                        <TbDownload size={14} /> SAVE
                     </button>
-                    <button type="button" className="copy-btn" onClick={() => setIsExpanded(!isExpanded)} title={isExpanded ? "Collapse view" : "Expand view"}>
-                        {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                    <button 
+                        type="button" 
+                        className="copy-btn" 
+                        onClick={() => setIsExpanded(!isExpanded)} 
+                        title={isExpanded ? "Collapse view" : "Expand view"}
+                    >
+                        {isExpanded ? <TbMinimize size={14} /> : <TbMaximize size={14} />}
                     </button>
-                    <button type="button" className='copy-btn clear-btn' disabled={!response.data} onClick={() => setResponse({ status: 200 })}>
-                        <Trash2 size={14} /> CLEAR
+                    <button 
+                        type="button" 
+                        className='copy-btn clear-btn' 
+                        disabled={!response.data} 
+                        onClick={() => setResponse({ status: 200 })}
+                    >
+                        <TbTrash size={14} /> CLEAR
                     </button>
                 </div>
             </div>
-        </Panel>
+        </PaneComponent>
     );
 });
 

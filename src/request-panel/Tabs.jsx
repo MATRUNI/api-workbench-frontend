@@ -1,13 +1,14 @@
-import { FileCode, KeyRound, ListFilter, ShieldCheck } from "lucide-react"
+import { TbFileCode, TbKey, TbFilter, TbShieldCheck, TbFlame } from "react-icons/tb"
 import AnimatedToggle from "../components/utility_Components/Toggle"
 import { useContext } from "react"
 import { MobileContext } from "../context/MobileContext"
 import { ProxyContext } from "../context/ProxyContext"
 import { RequestContext } from "../context/RequestContext"
+
 function Tabs({activeTab,setActiveTab}) {
   const {isMobile} = useContext(MobileContext)
   const { isProxyRunning } = useContext(ProxyContext)
-  const { isProxyEnable,setIsProxyEnable, method, request } = useContext(RequestContext)
+  const { isProxyEnable,setIsProxyEnable, method, request, isStressMode } = useContext(RequestContext)
 
   const isBodyDisabled = method === "GET" || method === "HEAD";
   const isAuthActive = Boolean(
@@ -26,7 +27,7 @@ function Tabs({activeTab,setActiveTab}) {
           title={isBodyDisabled ? `${method} requests do not accept a request body` : "Request Body"}
           onClick={() => { if (!isBodyDisabled) setActiveTab('body'); }}
         >
-          <FileCode size={14} />
+          <TbFileCode size={14} />
           Body
         </button>
         <button
@@ -34,7 +35,7 @@ function Tabs({activeTab,setActiveTab}) {
           className={`tab ${activeTab === 'auth' ? 'active' : ''}`}
           onClick={() => { setActiveTab('auth') }}
         >
-          <ShieldCheck size={14} />
+          <TbShieldCheck size={14} />
           Auth
           {isAuthActive && <span className="auth-tab-badge" title={`Active: ${request.auth.type}`} />}
         </button>
@@ -43,7 +44,7 @@ function Tabs({activeTab,setActiveTab}) {
           className={`tab ${activeTab === 'headers' ? 'active' : ''}`}
           onClick={() => { setActiveTab('headers') }}
         >
-          <KeyRound size={14} />
+          <TbKey size={14} />
           Headers
         </button>
         <button
@@ -51,22 +52,37 @@ function Tabs({activeTab,setActiveTab}) {
           className={`tab ${activeTab === 'query-params' ? 'active' : ''}`}
           onClick={() => { setActiveTab('query-params') }}
         >
-          <ListFilter size={14} />
+          <TbFilter size={14} />
           Query Params
         </button>
+        {isStressMode && !isMobile && (
+          <button
+            type="button"
+            className={`tab stress-tab-pill ${activeTab === 'stress' ? 'active' : ''}`}
+            onClick={() => setActiveTab('stress')}
+            title="Configure load testing parameters"
+          >
+            <TbFlame size={15} style={{ color: '#fca130' }} />
+            Stress Config
+          </button>
+        )}
       </div>
-      { !isMobile && (
-        <div 
-          className="tab-container" 
-          aria-disabled={!isProxyRunning}
-          title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local server proxy" : "Proxy disabled: routing directly through browser") : "Local proxy is offline"}
-        >
-          <span className="tab" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
-            PROXY
-          </span>
-          <AnimatedToggle isOn={isProxyEnable} setIsOn={setIsProxyEnable}/>
-        </div>
-      )}
+
+      <div className="tab-container tab-container-right" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        { !isMobile && (
+          <div 
+            className="tab-container" 
+            aria-disabled={!isProxyRunning}
+            title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local server proxy" : "Proxy disabled: routing directly through browser") : "Local proxy is offline"}
+            style={{ border: 'none', padding: 0 }}
+          >
+            <span className="tab" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+              PROXY
+            </span>
+            <AnimatedToggle isOn={isProxyEnable} setIsOn={setIsProxyEnable}/>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,11 +1,12 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef, useState, useEffect } from "react";
 import { Group, Separator } from "react-resizable-panels";
 import { motion } from 'framer-motion';
 
 import "../style/Endpoints.css";
 import RequestBuilder from "./RequestBuilder";
 import ResponseViewer from "./ResponseViewer";
-import { GripHorizontal, GripVertical, X, Plus, Copy, ArrowRightToLine, ArrowLeftToLine, Pencil, Link2, Terminal, ArrowRightLeft, Layers } from "lucide-react";
+import { GripHorizontal, GripVertical, Copy, ArrowRightToLine, ArrowLeftToLine, Pencil, Link2, Terminal, ArrowRightLeft, Layers } from "lucide-react";
+import { TbSend, TbFlame, TbPlus, TbX } from "react-icons/tb";
 import { MobileContext } from "../context/MobileContext";
 import { TabContext } from "../context/TabContext";
 import { RequestContext } from "../context/RequestContext";
@@ -19,12 +20,25 @@ function Endpoints() {
   const [editingTabId, setEditingTabId] = useState(null);
   const [tempAlias, setTempAlias] = useState("");
   const { isMobile } = useContext(MobileContext);
-  const { request, setRequest, url, setURL, response, setResponse, method, setMethod } = useContext(RequestContext);
+  const { 
+    request, setRequest, 
+    url, setURL, 
+    response, setResponse, 
+    method, setMethod,
+    isStressMode, setIsStressMode 
+  } = useContext(RequestContext);
   const { openContextMenu, copyToClipboard } = useContext(ContextMenuContext);
   const tabs = Array.from(tabMap.keys());
 
   // Ref to hold the long-press timeout ID for mobile devices
   const longPressTimerRef = useRef(null);
+
+  // Automatically exit stress mode if on mobile screen
+  useEffect(() => {
+    if (isMobile && isStressMode) {
+      setIsStressMode(false);
+    }
+  }, [isMobile, isStressMode, setIsStressMode]);
 
   // Function to add a new tab
   const handleAddTab = () => {
@@ -465,6 +479,30 @@ function Endpoints() {
           handleTabBarContext(e);
         }}
       >
+        {!isMobile && (
+          <div className="endpoint-mode-toggle">
+            <button 
+              type="button"
+              className={`mode-btn ${!isStressMode ? 'active' : ''}`}
+              onClick={() => setIsStressMode(false)}
+              title="Single Request Mode"
+            >
+              <TbSend size={14} />
+              <span>Single</span>
+            </button>
+            <button 
+              type="button"
+              className={`mode-btn stress-btn ${isStressMode ? 'active' : ''}`}
+              onClick={() => setIsStressMode(true)}
+              title="High-Throughput Stress Testing Mode"
+            >
+              <TbFlame size={15} style={{ color: '#fca130' }} />
+              <span>Stress Mode</span>
+              {isStressMode && <span className="mode-live-dot" />}
+            </button>
+          </div>
+        )}
+
         {tabs.map((tabId) => {
           const isActive = activeTab === tabId;
           const tabData = tabMap.get(tabId) || { method: "GET", url: "", alias: "" };
@@ -543,22 +581,32 @@ function Endpoints() {
                 onClick={(e) => handleCloseTab(e, tabId)}
                 title="Close Tab"
               >
-                <X size={13} />
+                <TbX size={13} />
               </button>
             </motion.div>
           );
         })}
         <button className="add-tab-btn" onClick={handleAddTab} title="New Tab">
-          <Plus size={16} />
+          <TbPlus size={16} />
         </button>
       </motion.div>
-      <Group orientation={isMobile ? "vertical" : "horizontal"} className="workbench-container">
-        <RequestBuilder scrollToResponse={scrollToResponse} />
-        <Separator className="separator">
-          {isMobile ? <GripHorizontal size={18} /> : <GripVertical size={18} />}
-        </Separator>
-        <ResponseViewer ref={responseRef} />
-      </Group>
+      {isMobile ? (
+        <div className="workbench-container workbench-mobile">
+          <RequestBuilder scrollToResponse={scrollToResponse} />
+          <div className="separator">
+            <GripHorizontal size={18} />
+          </div>
+          <ResponseViewer ref={responseRef} isMobile={isMobile} />
+        </div>
+      ) : (
+        <Group orientation="horizontal" className="workbench-container">
+          <RequestBuilder scrollToResponse={scrollToResponse} />
+          <Separator className="separator">
+            <GripVertical size={18} />
+          </Separator>
+          <ResponseViewer ref={responseRef} isMobile={isMobile} />
+        </Group>
+      )}
     </>
   );
 }

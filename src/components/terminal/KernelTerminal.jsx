@@ -49,8 +49,22 @@ export default function KernelTerminal() {
   const tabCtx = useContext(TabContext);
   const { APIList = [] } = useContext(LibraryContext) || {};
   const { user } = useContext(UserContext)
-  const { tabs = [] } = tabCtx || {};
+  const { tabMap, activeTab } = tabCtx || {};
   const { url, method } = requestCtx || {};
+
+  const tabs = useMemo(() => {
+    if (!tabMap) return [];
+    return Array.from(tabMap.entries()).map(([id, data]) => {
+      const isCurrent = id === activeTab;
+      return {
+        id,
+        ...data,
+        url: isCurrent ? (url || data.url) : data.url,
+        method: isCurrent ? (method || data.method) : data.method,
+        alias: data.alias || ''
+      };
+    });
+  }, [tabMap, activeTab, url, method]);
   
   const [commandText, setCommandText] = useState('');
   const [historyIndex, setHistoryIndex] = useState(-1);

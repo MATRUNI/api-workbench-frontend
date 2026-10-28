@@ -8,6 +8,7 @@ const CORE_COMMANDS = [
   { label: 'patch', type: 'keyword', detail: 'cmd', desc: 'Shorthand for sending a PATCH request', syntax: 'patch <url> with -b <json>' },
   { label: 'curl', type: 'function', detail: 'fn', desc: 'Parse and execute raw cURL snippet into Workbench', syntax: 'curl -X POST <url> -H ... -d ...' },
   { label: 'tab', type: 'class', detail: 'tab', desc: 'Workbench tab manager: list, <n>, next, prev, new, close, dup', syntax: 'tab <list | <n> | next | prev | new | close>' },
+  { label: 'pipe', type: 'function', detail: 'pipe', desc: 'Chain request pipeline across workbench tabs', syntax: 'pipe <tab> | <tab> [| <tab> ...]' },
   { label: 'library', type: 'interface', detail: 'lib', desc: 'Browse and load curated public APIs from Library into Workbench', syntax: 'library <list | search | get>' },
   { label: 'nav', type: 'interface', detail: 'nav', desc: 'Navigate to any workspace view instantly', syntax: 'nav <workbench | console | library | docs | chat | profile | home | auth>' },
   { label: 'history', type: 'variable', detail: 'db', desc: 'Query IndexedDB request history or storage size', syntax: 'history [size | clear | limit <n>]' },
@@ -112,10 +113,83 @@ function createOption({ label, type = 'keyword', detail = 'cmd', badge, desc, sy
   };
 }
 
+export function getPipeTabCompletions(tabs = [], { isQuoted = false, used = [], prefix = '' } = {}) {
+  const normalizedTabs = tabs instanceof Map
+    ? Array.from(tabs.values())
+    : (Array.isArray(tabs) ? tabs : []);
+
+  const usedTokens = new Set();
+  if (Array.isArray(used) || used instanceof Set) {
+    used.forEach(u => usedTokens.add(String(u).trim().toLowerCase()));
+  }
+
+  if (prefix) {
+    const pipeIndex = prefix.lastIndexOf('|');
+    if (pipeIndex !== -1) {
+      const finishedPart = prefix.slice(0, pipeIndex).replace(/^pipe\s+/i, '');
+      finishedPart.split('|').forEach(seg => {
+        const clean = seg.trim().replace(/^["']|["']$/g, '').trim().toLowerCase();
+        if (clean) usedTokens.add(clean);
+      });
+    }
+  }
+
+  const options = [];
+
+  normalizedTabs.forEach((tabItem, idx) => {
+    const tab = (Array.isArray(tabItem) ? tabItem[1] : tabItem) || {};
+    const tabNum = String(idx + 1);
+    const method = tab.method || 'GET';
+    const url = tab.url || '(Untitled)';
+    const alias = (tab.alias && typeof tab.alias === 'string') ? tab.alias.trim() : '';
+
+    const isAlreadyUsed = usedTokens.has(tabNum) || 
+      (alias && usedTokens.has(alias.toLowerCase()));
+
+    if (isAlreadyUsed) return;
+
+    if (!isQuoted) {
+      options.push(createOption({
+        label: tabNum,
+        type: 'text',
+        detail: alias ? `${alias} (${method})` : method,
+        badge: `TAB #${tabNum}`,
+        desc: `[${method}] ${url}${alias ? ` — Alias: "${alias}"` : ''}`,
+        syntax: `pipe ... ${tabNum}`,
+        example: `pipe ${tabNum} | ...`
+      }));
+    }
+
+    if (alias) {
+      const needsQuotes = /\s/.test(alias);
+      const quotedAlias = `"${alias}"`;
+      const applyValue = (needsQuotes || isQuoted) ? quotedAlias : alias;
+      const labelValue = isQuoted ? quotedAlias : alias;
+
+      options.push(createOption({
+        label: labelValue,
+        apply: applyValue,
+        type: 'variable',
+        detail: `Tab #${tabNum} (${method})`,
+        badge: 'ALIAS',
+        desc: `[${method}] ${url}`,
+        syntax: `pipe ... ${applyValue}`,
+        example: `pipe ${applyValue} | ...`
+      }));
+    }
+  });
+
+  return options;
+}
+
 export function createTerminalCompletionSource(config = {}) {
-  const { tabs = [], apiList = [], recentUrls = [] } = Array.isArray(config) 
+  const { tabs: rawTabs = [], tabMap, apiList = [], recentUrls = [] } = Array.isArray(config) 
     ? { recentUrls: config } 
     : config;
+
+  const tabs = (rawTabs && (Array.isArray(rawTabs) ? rawTabs.length > 0 : (rawTabs.size > 0)))
+    ? rawTabs
+    : (tabMap || []);
 
   const effectiveApiList = (apiList && apiList.length > 0) ? apiList : FALLBACK_APIS;
 
@@ -160,14 +234,7 @@ export function createTerminalCompletionSource(config = {}) {
         syntax: `tab ${a.label}`
       }));
 
-      const dynamicTabs = tabs.map((tab, idx) => createOption({
-        label: String(idx + 1),
-        type: 'text',
-        detail: 'tab',
-        badge: `TAB #${idx + 1}`,
-        desc: `[${tab.method || 'GET'}] ${tab.url || '(Untitled)'}${tab.alias ? ` (${tab.alias})` : ''}`,
-        syntax: `tab ${idx + 1}`
-      }));
+      const dynamicTabs = getPipeTabCompletions(tabs);
 
       return {
         from: word.from,
@@ -175,6 +242,13 @@ export function createTerminalCompletionSource(config = {}) {
       };
     }
 
+    if (/^pipe\s+(?:[^|]+\|\s*)*["']?$/i.test(prefix)) {
+      const isQuoted = word.text.startsWith('"') || word.text.startsWith("'") || /["']$/.test(prefix);
+      return {
+        from: word.from,
+        options: getPipeTabCompletions(tabs, { isQuoted, prefix })
+      };
+    }
 
     if (/^library\s+$/i.test(prefix)) {
       const actions = LIBRARY_SUBCOMMANDS.map(a => createOption({

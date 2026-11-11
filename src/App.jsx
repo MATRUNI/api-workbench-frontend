@@ -19,6 +19,8 @@ import CommMatrixShell from './components/socket/CommMatrixShell'
 import GlobalNotificationToast from './components/GlobalNotificationToast'
 import FloatingSharedIndicator from './components/FloatingSharedIndicator'
 import SharedInboxModal from './components/SharedInboxModal'
+import ProxyDownloadModal from './components/ProxyDownloadModal'
+import { ProxyContext } from './context/ProxyContext'
 import { Outlet } from 'react-router-dom';
 import { ShareContext } from './context/ShareContext'
 import Onboarding from './components/Onboarding'
@@ -148,6 +150,7 @@ import KernelTerminal from './components/terminal/KernelTerminal'
 
 function AppLayout() {
   const [isInboxOpen, setIsInboxOpen] = useState(false);
+  const { isProxyModalOpen, setIsProxyModalOpen } = useContext(ProxyContext);
 
   return (
     <>
@@ -164,6 +167,11 @@ function AppLayout() {
       <SharedInboxModal
         isOpen={isInboxOpen}
         onClose={() => setIsInboxOpen(false)}
+      />
+
+      <ProxyDownloadModal
+        isOpen={isProxyModalOpen}
+        onClose={() => setIsProxyModalOpen(false)}
       />
     </>
   );

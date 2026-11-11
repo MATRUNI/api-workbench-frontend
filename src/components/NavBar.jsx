@@ -7,7 +7,6 @@ import { UserContext } from '../context/UserContext';
 import { Search, X, Zap, Database, Book, Terminal, History, LogIn, User,MessageSquareCodeIcon, Server } from 'lucide-react';
 import { SocketContext } from '../context/SocketContext';
 import { ProxyContext } from '../context/ProxyContext';
-import ProxyDownloadModal from './ProxyDownloadModal';
 import { docsRegistry } from '../docs/index.js';
 import { appear } from '../animations/Motion';
 import { useTerminal } from '../context/TerminalContext';
@@ -19,8 +18,7 @@ function NavBar() {
     const [searchQuery, setSearchQuery] = useState('');
     const activeBtn = (path) => location.pathname === path;
     const { user } = useContext(UserContext);
-    const { isProxyRunning } = useContext(ProxyContext);
-    const [isProxyModalOpen, setIsProxyModalOpen] = useState(false);
+    const { isProxyRunning, proxyPort, isProxyModalOpen, setIsProxyModalOpen } = useContext(ProxyContext);
     const { isTerminalOpen, toggleTerminal } = useTerminal();
 
     const isChatActive = location.pathname === '/chat';
@@ -92,8 +90,8 @@ function NavBar() {
                 </div>
                 <div 
                     className={`proxy-indicator ${isProxyRunning ? 'active' : 'offline'}`}
-                    onClick={() => { if (!isProxyRunning) setIsProxyModalOpen(true); }}
-                    title={isProxyRunning ? "Local Proxy is running" : "Click to download Local Proxy"}
+                    onClick={() => setIsProxyModalOpen(true)}
+                    title={isProxyRunning ? `Sankram Proxy is active on :${proxyPort || 17777} (⚡ Powered by Sankram)` : "Sankram Proxy is offline (⚡ Powered by Sankram - Click to setup)"}
                 >
                     <Server size={14} className="proxy-icon" />
                     <span className="proxy-text">{isProxyRunning ? 'Active' : 'Offline'}</span>
@@ -167,8 +165,6 @@ function NavBar() {
             </div>
         )}
         </AnimatePresence>
-
-        <ProxyDownloadModal isOpen={isProxyModalOpen} onClose={() => setIsProxyModalOpen(false)} />
         </>
     );
 }

@@ -1,53 +1,456 @@
+/* Modal Layout & Backdrop */
 .proxy-modal-surface {
+    background: var(--card-bg, #141414);
+    border: 1px solid var(--border-color, #27272a);
+    border-radius: 12px;
     width: 100%;
-    max-width: 500px;
-    max-height: 85vh;
+    max-width: 520px;
+    max-height: 86vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.proxy-header-row {
+    position: relative;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color, #27272a);
+}
+
+.proxy-title-text {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main, #ffffff);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sankram-tag-pill {
+    background: color-mix(in srgb, var(--brand-color, #a855f7) 16%, transparent);
+    color: var(--brand-color, #a855f7);
+    border: 1px solid color-mix(in srgb, var(--brand-color, #a855f7) 35%, transparent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: monospace;
+}
+
+.sankram-powered-sub {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+    margin-top: 2px;
+}
+
+.sankram-powered-icon {
+    color: var(--brand-color, #a855f7);
 }
 
 .proxy-modal-body {
-    padding-top: 16px;
+    padding-top: 14px;
+}
+
+/* Live Status Banner */
+.sankram-status-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--terminal-input, #010409);
+    transition: all 0.2s ease;
+}
+
+.sankram-status-banner.online {
+    border-color: color-mix(in srgb, var(--brand-green, #49cc90) 40%, transparent);
+    background: color-mix(in srgb, var(--brand-green, #49cc90) 8%, var(--terminal-input));
+    color: var(--brand-green, #49cc90);
+}
+
+.sankram-status-banner.offline {
+    border-color: rgba(239, 68, 68, 0.28);
+    background: rgba(239, 68, 68, 0.06);
+    color: #ef4444;
+}
+
+.sankram-status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.online {
+    background: var(--brand-green, #49cc90);
+    box-shadow: 0 0 8px var(--brand-green, #49cc90);
+}
+
+.status-dot.offline {
+    background: #ef4444;
+}
+
+.sankram-probe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--card-bg, #141414);
+    border: 1px solid var(--border-color, #27272a);
+    color: var(--text-main, #ffffff);
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 0.74rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sankram-probe-btn:hover:not(:disabled) {
+    border-color: var(--brand-color, #a855f7);
+    color: var(--brand-color, #a855f7);
 }
 
 .proxy-description-text {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
-}
-
-.proxy-empty-override {
-    padding: 24px 16px;
-}
-
-.proxy-error-text {
-    color: #ef4444;
-}
-
-.proxy-error-text .config-empty-icon {
-    color: #ef4444;
-}
-
-.proxy-instructions-box {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 12px;
-    font-family: monospace;
+    color: var(--text-muted, #8b949e);
     font-size: 0.85rem;
-    color: var(--text-main);
-    margin: 12px 0;
+    line-height: 1.5;
+    margin: 0 0 14px 0;
 }
 
-.proxy-instructions-box code {
-    display: block;
-    margin-bottom: 4px;
+/* OS Switcher */
+.sankram-os-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    background: var(--terminal-input, #010409);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #27272a);
+    margin-bottom: 12px;
 }
 
-.proxy-instructions-box code:last-child {
-    margin-bottom: 0;
+.sankram-os-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #8b949e);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.sankram-os-btn:hover {
+    color: var(--text-main, #ffffff);
+}
+
+.sankram-os-btn.active {
+    background: var(--card-bg, #141414);
+    color: var(--brand-color, #a855f7);
+    font-weight: 600;
+    border: 1px solid var(--border-color, #27272a);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* View Mode Tabs */
+.sankram-mode-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color, #27272a);
+    margin-bottom: 14px;
+    gap: 4px;
+}
+
+.sankram-mode-tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted, #8b949e);
+    padding: 7px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sankram-mode-tab:hover {
+    color: var(--text-main, #ffffff);
+}
+
+.sankram-mode-tab.active {
+    color: var(--brand-color, #a855f7);
+    border-bottom-color: var(--brand-color, #a855f7);
+    font-weight: 600;
+}
+
+/* Download Card */
+.sankram-download-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--terminal-input, #010409);
+    border: 1px solid var(--border-color, #27272a);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+
+.sankram-asset-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sankram-asset-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-main, #ffffff);
+}
+
+.sankram-asset-name code {
+    font-family: monospace;
+    font-size: 0.82rem;
+}
+
+.sankram-size-badge {
+    background: color-mix(in srgb, var(--text-main, #ffffff) 10%, transparent);
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-muted, #8b949e);
+}
+
+.sankram-checksum-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+    font-family: monospace;
+}
+
+.checksum-icon {
+    color: var(--brand-green, #49cc90);
+}
+
+.copy-sm-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #8b949e);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.copy-sm-btn:hover {
+    color: var(--text-main, #ffffff);
+    background: color-mix(in srgb, var(--text-main) 12%, transparent);
+}
+
+.text-success {
+    color: var(--brand-green, #49cc90);
 }
 
 .proxy-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--brand-color, #a855f7);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
     text-decoration: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
+.proxy-dl-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Instructions & Code Blocks */
+.sankram-instruction-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sankram-section-label {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-muted, #8b949e);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sankram-code-block {
+    position: relative;
+    background: var(--terminal-input, #010409);
+    border: 1px solid var(--border-color, #27272a);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--text-main, #ffffff);
+}
+
+.sankram-code-block code {
+    display: block;
+    margin-bottom: 3px;
+    line-height: 1.5;
+}
+
+.sankram-code-block code.code-comment {
+    color: var(--text-muted, #8b949e);
+    opacity: 0.75;
+}
+
+.sankram-code-block code:last-child {
+    margin-bottom: 0;
+}
+
+.copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--card-bg, #141414);
+    border: 1px solid var(--border-color, #27272a);
+    color: var(--text-muted, #8b949e);
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.copy-code-btn:hover {
+    color: var(--text-main, #ffffff);
+    border-color: var(--brand-color, #a855f7);
+}
+
+/* Commands Matrix */
+.sankram-commands-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.command-item {
+    background: var(--terminal-input, #010409);
+    border: 1px solid var(--border-color, #27272a);
+    border-radius: 6px;
+    padding: 9px 12px;
+}
+
+.command-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main, #ffffff);
+    margin-bottom: 3px;
+}
+
+.command-snippet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg, #141414);
+    border: 1px solid var(--border-color, #27272a);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--brand-color, #a855f7);
+    margin-bottom: 3px;
+}
+
+.command-item small {
+    color: var(--text-muted, #8b949e);
+    font-size: 0.73rem;
+}
+
+/* Source Card */
+.sankram-source-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.source-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.45;
+    padding: 8px 12px;
+    background: color-mix(in srgb, var(--brand-color, #a855f7) 10%, transparent);
+    border-left: 3px solid var(--brand-color, #a855f7);
+    border-radius: 4px;
+}
+
+/* Modal Footer */
+.sankram-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color, #27272a);
+}
+
+.sankram-repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted, #8b949e);
+    text-decoration: none;
+    font-size: 0.76rem;
+    transition: color 0.15s ease;
+}
+
+.sankram-repo-link:hover {
+    color: var(--brand-color, #a855f7);
+    text-decoration: underline;
+}
+
+.sankram-powered-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: var(--text-muted, #8b949e);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}

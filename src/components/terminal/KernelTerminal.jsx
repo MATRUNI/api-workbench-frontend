@@ -25,6 +25,7 @@ import { useTerminal } from '../../context/TerminalContext.js';
 import { RequestContext } from '../../context/RequestContext';
 import { TabContext } from '../../context/TabContext';
 import { LibraryContext } from '../../context/LibraryContext';
+import { ProxyContext } from '../../context/ProxyContext';
 import { executeTerminalCommand } from './commandEngine';
 import { createTerminalCompletionSource } from './terminalCompletions';
 import { FALLBACK_APIS } from './commands/utils';
@@ -46,6 +47,7 @@ export default function KernelTerminal() {
   } = useTerminal();
 
   const requestCtx = useContext(RequestContext);
+  const proxyCtx = useContext(ProxyContext);
   const tabCtx = useContext(TabContext);
   const { APIList = [] } = useContext(LibraryContext) || {};
   const { user } = useContext(UserContext)
@@ -420,6 +422,7 @@ export default function KernelTerminal() {
     try {
       const result = await executeTerminalCommand(cmd, {
         ...requestCtx,
+        ...proxyCtx,
         tabCtx,
         apiList: effectiveApis,
         navigate,

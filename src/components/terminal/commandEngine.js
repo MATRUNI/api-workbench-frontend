@@ -7,7 +7,9 @@ import {
   handleNavigationCommand,
   handleTabCommand,
   handleLibraryCommand,
-  handleHttpDispatch
+  handleHttpDispatch,
+  handlePipeCommand,
+  handleProxyCommand
 } from './commands';
 
 export { parseWithClauses };
@@ -46,6 +48,14 @@ export async function executeTerminalCommand(rawCmd, context) {
 
   if ( action==="tab" ) {
     return handleTabCommand(subArgs, context);
+  }
+
+  if (action === 'pipe') {
+    return await handlePipeCommand(rawCmd?.trim(), context);
+  }
+
+  if (action === 'proxy' || action === 'sankram') {
+    return await handleProxyCommand(subArgs, context);
   }
 
   if (action==="library") {

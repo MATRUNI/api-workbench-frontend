@@ -14,6 +14,8 @@ const CORE_COMMANDS = [
   { label: 'history', type: 'variable', detail: 'db', desc: 'Query IndexedDB request history or storage size', syntax: 'history [size | clear | limit <n>]' },
   { label: 'db', type: 'variable', detail: 'db', desc: 'Audit all IndexedDB database tables & storage footprint', syntax: 'db [tables | stats]' },
   { label: 'timing', type: 'variable', detail: 'perf', desc: 'Inspect latency waterfall telemetry for last request', syntax: 'timing' },
+  { label: 'sankram', type: 'class', detail: 'sankram', desc: 'Sankram C reverse proxy CLI manual, options & daemon status', syntax: 'sankram [help | status | setup]' },
+  { label: 'proxy', type: 'class', detail: 'proxy', desc: 'Alias for sankram command manual & daemon status', syntax: 'proxy [help | status | setup]' },
   { label: 'clear', type: 'keyword', detail: 'cmd', desc: 'Purge terminal screen buffer', syntax: 'clear' },
   { label: 'help', type: 'info', detail: 'info', desc: 'Display CLI syntax reference matrix', syntax: 'help' }
 ];

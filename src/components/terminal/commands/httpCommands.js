@@ -128,7 +128,7 @@ export async function handleHttpDispatch(cmd, context) {
       `Insight:   ${timing.insight || ''}`
     ].filter(Boolean).join('\n') : '';
 
-    const routeTag = res.proxyUsed ? 'Proxy (Vlang)' : 'Browser Direct';
+    const routeTag = res.proxyUsed ? 'Proxy (Powered by Sankram)' : 'Browser Direct';
 
     return {
       type: res.status >= 200 && res.status < 300 ? 'success' : 'error',

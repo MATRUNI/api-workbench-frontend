@@ -19,6 +19,7 @@ export function getHelpMatrix() {
       '    tab dup [n]                                  Duplicate active or specified tab',
       '    tab rename <name>                            Set custom alias for active tab',
       '    tab method <METHOD>                          Change active tab HTTP method',
+      '    pipe <tab> | <tab> [| <tab> ...]             Chain tab execution pipeline (by # or alias)',
       '',
       '  WORKSPACE ROUTE NAVIGATION:',
       '    nav <route>                                  Navigate to workspace view',
@@ -33,7 +34,12 @@ export function getHelpMatrix() {
       '    history [size | clear | limit <n>]            Query real IndexedDB history',
       '    db [tables | stats]                           Audit all IndexedDB tables',
       '    timing | waterfall                            Inspect network latency breakdown',
-      '    clear                                         Purge terminal output buffer'
+      '    clear                                         Purge terminal output buffer',
+      '',
+      '  SANKRAM C REVERSE PROXY (संक्रम):',
+      '    sankram help                                 Display official Sankram CLI command manual',
+      '    sankram status                               Check if local Sankram daemon is listening',
+      '    sankram setup                                Open installation & binary download dialog'
     ].join('\n')
   };
 }

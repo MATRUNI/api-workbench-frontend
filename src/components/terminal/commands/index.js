@@ -5,3 +5,5 @@ export * from './navigationCommands';
 export * from './tabCommands';
 export * from './libraryCommands';
 export * from './httpCommands';
+export * from './pipeCommands';
+export * from './proxyCommands';

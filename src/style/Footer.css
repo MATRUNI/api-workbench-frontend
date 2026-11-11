@@ -265,6 +265,35 @@
   transform: scale(0.97);
 }
 
+.prism-sankram-icon {
+  color: var(--brand-color, #a855f7);
+  transition: transform 0.25s ease;
+}
+
+.prism-sankram-btn:hover .prism-sankram-icon {
+  transform: scale(1.18);
+  color: #ffffff !important;
+}
+
+.prism-sankram-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 2px;
+  transition: all 0.25s ease;
+}
+
+.prism-sankram-dot.online {
+  background: var(--brand-green, #49cc90);
+  box-shadow: 0 0 6px var(--brand-green, #49cc90);
+}
+
+.prism-sankram-dot.offline {
+  background: #ef4444;
+  opacity: 0.7;
+}
+
 /* Responsive Design */
 @media (max-width: 1094px) {
   .prism-footer-shell {
@@ -306,12 +335,14 @@
     justify-content: center;
   }
 
-  .prism-matruni-btn {
+  .prism-matruni-btn,
+  .prism-sankram-btn {
     width: 100%;
     justify-content: center;
   }
 
-  .prism-matruni-btn .prism-content-span {
+  .prism-matruni-btn .prism-content-span,
+  .prism-sankram-btn .prism-content-span {
     width: 100%;
     justify-content: center;
   }

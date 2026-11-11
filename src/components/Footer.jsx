@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ExternalLink, Globe, Languages, House } from 'lucide-react';
+import { ExternalLink, Globe, Languages, House, Zap } from 'lucide-react';
 import { 
   TbBrandChrome, 
   TbBrandFirefox, 
@@ -19,6 +19,7 @@ import {
 } from 'react-icons/tb';
 import '../style/Footer.css';
 import { SocketContext } from '../context/SocketContext';
+import { ProxyContext } from '../context/ProxyContext';
 import { fadeFooter, fadeFromLeft, fadeFromRight } from '../animations/Motion';
 import { motion } from 'framer-motion';
 
@@ -64,6 +65,7 @@ export default function SystemFooter() {
   const navigate = useNavigate();
 
   const { isConnected, latency } = useContext(SocketContext);
+  const { isProxyRunning, setIsProxyModalOpen } = useContext(ProxyContext);
 
   // State to hold dynamic environment details
   const [envInfo, setEnvInfo] = useState({
@@ -217,6 +219,20 @@ export default function SystemFooter() {
           <div className="prism-divider" aria-hidden="true" />
           <span>© {new Date().getFullYear()}</span>
         </div>
+
+        <button
+          type="button" 
+          onClick={() => setIsProxyModalOpen(true)}
+          className="prism-matruni-btn prism-sankram-btn"
+          title={isProxyRunning ? "Sankram C Proxy: Active — Click to inspect" : "Sankram C Proxy: Offline — Click to setup"}
+        >
+          <span className="prism-btn-bg" aria-hidden="true" />
+          <span className="prism-content-span">
+            <Zap size={15} className="prism-sankram-icon" />
+            <span>Powered by <strong>Sankram</strong></span>
+            <span className={`prism-sankram-dot ${isProxyRunning ? 'online' : 'offline'}`} />
+          </span>
+        </button>
 
         <a 
           href="https://github.com/MATRUNI" 

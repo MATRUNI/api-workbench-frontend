@@ -16,7 +16,7 @@ Traditional API clients trap your configurations in local environments or requir
 
 > [!TIP]
 > **CORS Bypass via Local Agent**
-> Browser-based clients inherently face Cross-Origin Resource Sharing (CORS) blocks. To bypass this, click the Server icon in the navigation bar to download the **Vlang Local Proxy Agent**. When active, API.OS automatically routes traffic through the agent to ensure 100% success rates on external endpoints.
+> Browser-based clients inherently face Cross-Origin Resource Sharing (CORS) blocks. To bypass this, click the Server icon in the navigation bar to download the **Sankram C Reverse Proxy**. When active, API.OS automatically routes traffic through the agent to ensure 100% success rates on external endpoints.
 
 ---
 

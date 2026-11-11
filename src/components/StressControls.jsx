@@ -543,7 +543,7 @@ export default function StressControls({ scrollToResponse }) {
       <div className="stress-options-single">
         <label 
           className={`stress-toggle-label ${!isProxyRunning ? 'disabled' : ''}`}
-          title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local Vlang proxy on 17777" : "Proxy disabled: routing directly from browser") : "Local proxy is offline. Start your Vlang proxy on 127.0.0.1:17777 to enable."}
+          title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local Sankram C proxy on 17777" : "Proxy disabled: routing directly from browser") : "Local proxy is offline. Start Sankram on 127.0.0.1:17777 to enable."}
         >
           <input
             type="checkbox"
@@ -558,7 +558,7 @@ export default function StressControls({ scrollToResponse }) {
           <span className="stress-checkbox-custom" />
           <div className="stress-toggle-text">
             <div className="stress-toggle-title-row">
-              <span>Vlang Local Proxy</span>
+              <span>Sankram C Proxy</span>
               {isProxyRunning ? (
                 <span className="proxy-status-pill online">ONLINE</span>
               ) : (
@@ -567,8 +567,8 @@ export default function StressControls({ scrollToResponse }) {
             </div>
             <small>
               {isProxyRunning 
-                ? '● Active on 17777 (Bypasses CORS & Browser Limits)' 
-                : 'Offline (Proxy must be running to enable)'}
+                ? '● Active on 17777 (⚡ Powered by Sankram Engine)' 
+                : 'Offline (⚡ Powered by Sankram — launch daemon to enable)'}
             </small>
           </div>
         </label>

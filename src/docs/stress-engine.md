@@ -122,7 +122,7 @@ When $p50$ is low (e.g., 40ms) but $p99$ is high (e.g., 1,800ms), look for:
          │                   │              │               │
          ▼                   ▼              ▼               ▼
    ┌──────────────────────────────────────────────────────────────┐
-   │      Routing: Direct Browser Fetch OR Vlang Local Proxy      │
+   │      Routing: Direct Browser Fetch OR Sankram C Proxy        │
    └──────────────────────────────┬───────────────────────────────┘
                                   │ High-Speed Telemetry (<35ms throttle)
                                   ▼
@@ -180,7 +180,7 @@ Before pressing **Start Stress Test**, configure your parameters in the **Stress
 4. **Advanced Options (Collapsible):**
    * **Request Timeout:** Defaults to `15,000ms` (15s). Configurable up to `60,000ms`.
    * **Delay Between Requests:** Defaults to `0ms (Blast)`. Add pacing if testing production APIs to prevent IP blacklisting.
-   * **Proxy Toggle:** Enable to route via the local compiled Vlang agent (`:17777`) to bypass CORS and browser connection caps.
+   * **Proxy Toggle:** Enable to route via the local compiled Sankram C proxy (`:17777`) to bypass CORS and browser connection caps.
 
 ### Phase 2: During the Benchmark Run
 Once started, the view auto-scrolls to the live Telemetry Dashboard:
@@ -239,11 +239,11 @@ To verify client-side memory safety, the engine was benchmarked under massive vo
 
 ---
 
-## 7. Direct Browser Mode vs. Vlang Local Proxy
+## 7. Direct Browser Mode vs. Sankram C Proxy
 
 When testing real-world APIs, browser security restrictions impose strict limitations:
 
-| Feature / Bottleneck | Direct Browser Engine | Vlang Local Proxy Agent (`:17777`) |
+| Feature / Bottleneck | Direct Browser Engine | Sankram C Proxy Agent (`:17777`) |
 | :--- | :--- | :--- |
 | **CORS Policy** | Blocked on 95% of real-world public APIs | **Universal 100% Bypass** |
 | **Preflight (OPTIONS) Tax** | Remote WAN round-trip for each origin | **Local loopback (< 0.2ms)**; zero WAN preflight tax |
@@ -255,7 +255,7 @@ When testing real-world APIs, browser security restrictions impose strict limita
 
 > [!IMPORTANT]
 > **Understanding the Preflight (OPTIONS) Tax**
-> When you benchmark an authenticated API directly from the browser with 5,000 requests, the browser emits an automatic `OPTIONS` preflight for each request ([MDN Preflight Details](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request)), generating **10,000 total requests** over the internet and halving your true throughput. With the Vlang proxy enabled, the preflight is answered immediately on `127.0.0.1` in 0.2ms, and only true requests reach your remote server.
+> When you benchmark an authenticated API directly from the browser with 5,000 requests, the browser emits an automatic `OPTIONS` preflight for each request ([MDN Preflight Details](https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request)), generating **10,000 total requests** over the internet and halving your true throughput. With the Sankram proxy enabled, the preflight is answered immediately on `127.0.0.1` in 0.2ms, and only true requests reach your remote server.
 
 ---
 
@@ -281,9 +281,9 @@ When testing real-world APIs, browser security restrictions impose strict limita
 ### Problem 3: Requests Fail with `NETWORK_ERROR`
 * **Symptoms:** All requests instantly fail; 0ms latency recorded.
 * **Diagnosis:** The remote server does not emit CORS headers (`Access-Control-Allow-Origin: *`), or the server is down.
-* **Action:** Enable the **Vlang Local Proxy** toggle (`isProxyEnable: true`). Ensure the local proxy agent is running on port 17777.
+* **Action:** Enable the **Sankram C Proxy** toggle (`isProxyEnable: true`). Ensure the local proxy agent is running on port 17777.
 
 ### Problem 4: Concurrency above 6 doesn't increase throughput in Direct Mode
 * **Symptoms:** Setting concurrency to 50x produces the exact same RPS as 6x.
 * **Diagnosis:** You have hit the browser's hardcoded HTTP/1.1 socket ceiling (~6 TCP connections per domain).
-* **Action:** Switch to the Vlang Local Proxy to unlock native OS socket pooling.
+* **Action:** Switch to the Sankram C Proxy to unlock native OS socket pooling.

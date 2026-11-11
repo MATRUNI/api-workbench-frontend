@@ -1,7 +1,7 @@
 /**
  * Network Latency Waterfall & Performance Profiler
  * Extracts microsecond/millisecond connection phases from:
- * 1. Native Vlang Proxy headers (Server-Timing / X-API-OS-Timing)
+ * 1. Native Sankram Proxy headers (Server-Timing / X-API-OS-Timing)
  * 2. Browser PerformanceResourceTiming API (Timing-Allow-Origin)
  * 3. High-resolution connection & stream network model
  */
@@ -13,7 +13,7 @@ export function parseTimingHeaders(headers = {}) {
     normalized[k.toLowerCase()] = v;
   }
 
-  // 1. Check custom JSON timing header from Vlang Proxy: X-API-OS-Timing
+  // 1. Check custom JSON timing header from Sankram Proxy: X-API-OS-Timing
   const jsonTiming = normalized['x-api-os-timing'] || normalized['x-timing'];
   if (jsonTiming) {
     try {
@@ -33,7 +33,7 @@ export function parseTimingHeaders(headers = {}) {
           ttfb,
           download,
           total,
-          source: 'Vlang Proxy (OS Sockets)'
+          source: 'Sankram Proxy (OS Sockets)'
         };
       }
     } catch {}
@@ -66,7 +66,7 @@ export function parseTimingHeaders(headers = {}) {
         ttfb,
         download,
         total,
-        source: 'Vlang Proxy (Server-Timing)'
+        source: 'Sankram Proxy (Server-Timing)'
       };
     }
   }
@@ -147,7 +147,7 @@ export function calculateLatencyWaterfall({
 }) {
   const totalDuration = Math.max(1, Math.round(endTime - startTime));
 
-  // 1. Try Vlang Proxy timing headers first
+  // 1. Try Sankram Proxy timing headers first
   let timing = parseTimingHeaders(headers);
 
   // 2. Try Browser ResourceTiming API (if Timing-Allow-Origin was permitted)
@@ -213,7 +213,7 @@ export function calculateLatencyWaterfall({
       download,
       total: totalDuration,
       protocol: isHttps ? 'HTTPS (TLS 1.3)' : (isProxy ? 'HTTP/1.1 (Proxy)' : 'HTTP/1.1'),
-      source: isProxy ? 'Vlang Proxy (OS Sockets)' : 'Browser Direct'
+      source: isProxy ? 'Sankram Proxy (OS Sockets)' : 'Browser Direct'
     };
   }
 

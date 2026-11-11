@@ -73,7 +73,7 @@ function Tabs({activeTab,setActiveTab}) {
           <div 
             className="tab-container" 
             aria-disabled={!isProxyRunning}
-            title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local server proxy" : "Proxy disabled: routing directly through browser") : "Local proxy is offline"}
+            title={isProxyRunning ? (isProxyEnable ? "Proxy enabled: routing through local proxy (⚡ Powered by Sankram :17777)" : "Proxy disabled: routing directly through browser") : "Sankram proxy is offline (⚡ Powered by Sankram)"}
             style={{ border: 'none', padding: 0 }}
           >
             <span className="tab" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>

@@ -7,7 +7,7 @@ import { calculateLatencyWaterfall } from "../utils/networkTiming";
 
 /**
  * Executes an HTTP request with intelligent auto-routing:
- * - Uses the local Vlang proxy when available (bypassing CORS, capturing OS socket metrics).
+ * - Uses the local Sankram C proxy when available (bypassing CORS, capturing OS socket metrics).
  * - Automatically falls back to browser direct fetch when the proxy is offline or unreachable.
  */
 export async function callAPI(url, method, request, isProxyEnable) {
@@ -63,7 +63,7 @@ export async function callAPI(url, method, request, isProxyEnable) {
                 window.__isProxyRunning = true;
             } catch (proxyError) {
                 // Proxy unreachable (connection refused, daemon stopped) -> Fall back to browser direct fetch
-                console.warn(`[Proxy Fallback] Vlang proxy at 127.0.0.1:${proxyPort} unavailable (${proxyError.message}). Routing via browser fetch.`);
+                console.warn(`[Proxy Fallback] Sankram C proxy at 127.0.0.1:${proxyPort} unavailable (${proxyError.message}). Routing via browser fetch.`);
                 window.__isProxyRunning = false;
                 
                 res = isMasked

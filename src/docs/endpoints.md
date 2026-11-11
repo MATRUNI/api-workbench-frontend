@@ -26,7 +26,7 @@ The Request Builder allows for infinite customization of your HTTP parameters be
 
 Browser-based web clients enforce strict Cross-Origin Resource Sharing (CORS) policies. To execute requests against any third-party API without failure, API.OS integrates a native TCP tunneling agent.
 
-* **Agent Detection:** The application silently polls `127.0.0.1:17777` every 5 seconds. If the **Vlang Local Proxy Agent** is running, the Server icon in the NavBar will glow green.
+* **Agent Detection:** The application silently polls `127.0.0.1:17777` every 5 seconds. If the **Sankram C Reverse Proxy** is running, the Server icon in the NavBar will glow green.
 * **Traffic Routing:** When active, all requests are automatically URL-encoded and routed through the proxy, stripping CORS headers and allowing for seamless binary data transfers.
 
 ---

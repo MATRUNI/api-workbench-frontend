@@ -2,7 +2,14 @@ import { useRef, useEffect } from "react";
 import { basicSetup, EditorView } from "codemirror";
 import { placeholder, keymap, tooltips } from "@codemirror/view";
 import { search } from "@codemirror/search"
-import { autocompletion, acceptCompletion, setSelectedCompletion } from "@codemirror/autocomplete";
+import {
+    autocompletion,
+    acceptCompletion,
+    closeCompletion,
+    startCompletion,
+    moveCompletionSelection,
+    setSelectedCompletion
+} from "@codemirror/autocomplete";
 import { linter } from "@codemirror/lint"
 import { EditorState, Compartment, Prec } from "@codemirror/state";
 import { syntaxHighlighting, syntaxTree } from "@codemirror/language";
@@ -152,14 +159,35 @@ export default function CodeMirrorEditor({
                             }
                         },
                         {
-                            key: "Enter",
+                            key: "Tab",
                             run: (view) => {
-                                // 1. If autocomplete popup is active, accept the selected completion
                                 if (acceptCompletion(view)) {
                                     return true;
                                 }
-                                // 2. If Enter handler is present, execute command and clear editor
+                                return false;
+                            }
+                        },
+                        {
+                            key: "Ctrl-Space",
+                            run: (view) => {
+                                return startCompletion(view);
+                            }
+                        },
+                        {
+                            key: "Escape",
+                            run: (view) => {
+                                if (closeCompletion(view)) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        },
+                        {
+                            key: "Enter",
+                            run: (view) => {
+                                // In terminal mode, Enter executes what is currently typed (without autocompleting)
                                 if (onEnterRef.current) {
+                                    closeCompletion(view);
                                     const text = view.state.doc.toString();
                                     if (text.trim()) {
                                         onEnterRef.current(text);
@@ -175,6 +203,9 @@ export default function CodeMirrorEditor({
                         {
                             key: "ArrowUp",
                             run: (view) => {
+                                if (moveCompletionSelection(false)(view)) {
+                                    return true;
+                                }
                                 if (onArrowUpRef.current) {
                                     return onArrowUpRef.current(view);
                                 }
@@ -184,6 +215,9 @@ export default function CodeMirrorEditor({
                         {
                             key: "ArrowDown",
                             run: (view) => {
+                                if (moveCompletionSelection(true)(view)) {
+                                    return true;
+                                }
                                 if (onArrowDownRef.current) {
                                     return onArrowDownRef.current(view);
                                 }
@@ -194,6 +228,7 @@ export default function CodeMirrorEditor({
                 ),
                 autocompletion({
                     override: customCompletionSourceRef.current ? [customCompletionSourceRef.current] : undefined,
+                    defaultKeymap: false,
                     selectOnOpen: true
                 }),
                 placeholder(placeholderText),
